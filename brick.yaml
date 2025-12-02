@@ -1,7 +1,6 @@
 name: flutter_clean_arch
 description: A Flutter Clean Architecture starter template with optional localization, CI, Firebase, login flows, and flavors.
 version: 0.1.0
-# repository: https://github.com/yourusername/flutter_clean_arch_template
 
 vars:
   project_name:
@@ -13,35 +12,35 @@ vars:
   package_name:
     type: string
     description: Android/iOS package identifier
-    prompt: What is the package name? (example: com.example.my_app)
+    prompt: What is the package name? (example => com.example.my_app)
     default: com.example.my_app
 
   organization:
     type: string
     description: Organization / company name (used in code structure and packaging)
-    prompt: What is the organization identifier? (example: com.example)
+    prompt: What is the organization identifier? (example => com.example)
     default: com.example
 
-  description:
+  project_description:
     type: string
     description: Description written into pubspec.yaml
-    prompt: Write a short project description:
+    prompt: Write a short project description =>
     default: A Flutter Clean Architecture project.
 
   include_localization:
-    type: bool
+    type: boolean
     description: Include localization setup (intl or easy_localization)
     prompt: Include localization? (y/N)
     default: true
 
   include_ci:
-    type: bool
+    type: boolean
     description: Include CI/CD pipeline configuration (GitHub Actions / Codemagic)
     prompt: Include CI configuration? (y/N)
     default: true
 
   include_firebase:
-    type: bool
+    type: boolean
     description: Include Firebase initialization (core + auth if login enabled)
     prompt: Include Firebase? (y/N)
     default: false
@@ -49,7 +48,7 @@ vars:
   login_feature_type:
     type: enum
     description: Choose login flow type
-    prompt: Choose login feature:
+    prompt: Choose login feature =>
     values:
       - none
       - email_password
@@ -58,13 +57,13 @@ vars:
     default: none
 
   include_create_account_feature:
-    type: bool
+    type: boolean
     description: Include "Create Account" feature?
     prompt: Include Create Account feature? (y/N)
     default: false
 
   include_flavors:
-    type: bool
+    type: boolean
     description: Initialize app flavors (dev, staging, prod)?
     prompt: Initialize app flavors? (y/N)
     default: true
