@@ -1,8 +1,6 @@
 name: flutter_clean_arch
 description: A Flutter Clean Architecture starter template with optional localization, CI, Firebase, login flows, and flavors.
 version: 0.1.0
-authors:
-  - Your Name fat7ighareeb@gmail.com
 # repository: https://github.com/yourusername/flutter_clean_arch_template
 
 vars:
@@ -48,17 +46,15 @@ vars:
     prompt: Include Firebase? (y/N)
     default: false
 
-  # Login flow selection:
   login_feature_type:
     type: enum
     description: Choose login flow type
     prompt: Choose login feature:
-    # User will type the number:
     values:
-      - none            # 0
-      - email_password  # 1
-      - phone_password  # 2
-      - phone_otp       # 3
+      - none
+      - email_password
+      - phone_password
+      - phone_otp
     default: none
 
   include_create_account_feature:
