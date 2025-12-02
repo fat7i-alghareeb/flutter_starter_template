@@ -1,4 +1,4 @@
-name: flutter_clean_arch
+name: flutter_starter_template
 description: A Flutter Clean Architecture starter template with optional localization, CI, Firebase, login flows, and flavors.
 version: 0.1.0
 
