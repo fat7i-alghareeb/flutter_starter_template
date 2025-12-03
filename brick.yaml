@@ -15,6 +15,18 @@ vars:
     prompt: What is the package name? (example => com.example.my_app)
     default: com.example.my_app
 
+  stage_package_name:
+    type: string
+    description: Android stage package identifier
+    prompt: What is the STAGE package name? (example => com.example.my_app.stage)
+    default: com.example.my_app.stage
+
+  production_package_name:
+    type: string
+    description: Android production package identifier
+    prompt: What is the PRODUCTION package name? (example => com.example.my_app)
+    default: com.example.my_app
+
   organization:
     type: string
     description: Organization / company name (used in code structure and packaging)
@@ -26,12 +38,6 @@ vars:
     description: Description written into pubspec.yaml
     prompt: Write a short project description =>
     default: A Flutter Clean Architecture project.
-
-  include_localization:
-    type: boolean
-    description: Include localization setup (intl or easy_localization)
-    prompt: Include localization? (y/N)
-    default: true
 
   include_ci:
     type: boolean
@@ -64,6 +70,6 @@ vars:
 
   include_flavors:
     type: boolean
-    description: Initialize app flavors (dev, staging, prod)?
+    description: Initialize app flavors (staging, prod) ?
     prompt: Initialize app flavors? (y/N)
     default: true
