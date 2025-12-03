@@ -11,12 +11,36 @@ Future<void> run(HookContext context) async {
     return;
   }
 
-  logger.info('Running `dart run flutter_flavorizr`...');
+  final progress = logger.progress('Running flutter_flavorizr...');
 
   try {
-    final result = await Process.run('dart', [
+    final pubGetResult = await Process.run('flutter', [
+      'pub',
+      'get',
+    ], runInShell: true);
+
+    final pubGetStdout = pubGetResult.stdout?.toString();
+    final pubGetStderr = pubGetResult.stderr?.toString();
+
+    if (pubGetStdout != null && pubGetStdout.isNotEmpty) {
+      logger.info(pubGetStdout);
+    }
+    if (pubGetStderr != null && pubGetStderr.isNotEmpty) {
+      logger.err(pubGetStderr);
+    }
+
+    if (pubGetResult.exitCode != 0) {
+      logger.err(
+        '`flutter pub get` exited with code ${pubGetResult.exitCode}.',
+      );
+      return;
+    }
+
+    final result = await Process.run('flutter', [
+      'pub',
       'run',
       'flutter_flavorizr',
+      '-f',
     ], runInShell: true);
 
     final stdoutText = result.stdout?.toString();
@@ -36,5 +60,7 @@ Future<void> run(HookContext context) async {
     }
   } catch (e) {
     logger.err('Failed to run flutter_flavorizr: $e');
+  } finally {
+    progress.complete();
   }
 }
