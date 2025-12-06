@@ -1,20 +1,5 @@
-class AppStrings {
-  //  static final Localization _localization = Localization.instance;
-  //   Future<void> loadTranslations() async {
-  //     await EasyLocalizationController.initEasyLocation();
-  //     final controller = EasyLocalizationController(
-  //       saveLocale: true,
-  //       fallbackLocale: const Locale('ar'),
-  //       supportedLocales: LocalizationHelper.supportedLocales,
-  //       assetLoader: const RootBundleAssetLoader(),
-  //       useOnlyLangCode: false,
-  //       useFallbackTranslations: true,
-  //       path: 'assets/l10n',
-  //       onLoadError: (FlutterError e) {},
-  //     );
-  //     await controller.loadTranslations();
-  //     Localization.load(controller.locale,
-  //         translations: controller.translations,
-  //         fallbackTranslations: controller.fallbackTranslations);
-  //   }
-}
+library app_strings;
+
+import 'package:easy_localization/easy_localization.dart';
+
+part '../gen/app_strings.g.dart';
