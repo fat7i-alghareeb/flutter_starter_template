@@ -1,6 +1,6 @@
 // 🐦 Flutter imports:
-import 'package:f/common/widgets/loading_progress.dart' show LoadingProgress;
-import 'package:f/core/utils/bloc_status.dart'
+import 'package:testNameToDelete/common/widgets/loading_progress.dart' show LoadingProgress;
+import 'package:testNameToDelete/core/utils/bloc_status.dart'
     show BlocStatus, BlocStatusPatterns;
 import 'package:flutter/material.dart';
 

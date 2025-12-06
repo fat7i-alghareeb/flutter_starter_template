@@ -10,3 +10,20 @@ class AppLocalizationConfig {
   /// AppStrings generator will pick them up.
   static const List<String> supportedLanguageCodes = <String>['en', 'ar'];
 }
+
+/// High-level language enum used across the app.
+///
+/// Keep this in sync with [AppLocalizationConfig.supportedLanguageCodes].
+enum AppLanguage { ar, en }
+
+extension AppLanguageX on AppLanguage {
+  /// Returns the language code as used in JSON files and headers.
+  String get code {
+    switch (this) {
+      case AppLanguage.ar:
+        return 'ar';
+      case AppLanguage.en:
+        return 'en';
+    }
+  }
+}
