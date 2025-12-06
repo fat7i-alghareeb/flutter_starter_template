@@ -8,6 +8,11 @@ vars:
     description: The Dart package name for the generated app
     prompt: What is the project name?
     default: my_app
+  project_name:
+    type: string
+    description: The project title for the generated app
+    prompt: What is the title?
+    default: my_app
 
   package_name:
     type: string
@@ -15,41 +20,11 @@ vars:
     prompt: What is the package name? (example => com.example.my_app)
     default: com.example.my_app
 
-  stage_package_name:
-    type: string
-    description: Android stage package identifier
-    prompt: What is the STAGE package name? (example => com.example.my_app.stage)
-    default: com.example.my_app.stage
-
-  production_package_name:
-    type: string
-    description: Android production package identifier
-    prompt: What is the PRODUCTION package name? (example => com.example.my_app)
-    default: com.example.my_app
-
-  organization:
-    type: string
-    description: Organization / company name (used in code structure and packaging)
-    prompt: What is the organization identifier? (example => com.example)
-    default: com.example
-
   project_description:
     type: string
     description: Description written into pubspec.yaml
     prompt: Write a short project description =>
     default: A Flutter Clean Architecture project.
-
-  include_ci:
-    type: boolean
-    description: Include CI/CD pipeline configuration (GitHub Actions / Codemagic)
-    prompt: Include CI configuration? (y/N)
-    default: true
-
-  include_firebase:
-    type: boolean
-    description: Include Firebase initialization (core + auth if login enabled)
-    prompt: Include Firebase? (y/N)
-    default: false
 
   login_feature_type:
     type: enum
@@ -67,9 +42,3 @@ vars:
     description: Include "Create Account" feature?
     prompt: Include Create Account feature? (y/N)
     default: false
-
-  include_flavors:
-    type: boolean
-    description: Initialize app flavors (staging, prod) ?
-    prompt: Initialize app flavors? (y/N)
-    default: true

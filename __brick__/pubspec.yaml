@@ -1,47 +1,49 @@
-name: {{project_name}}
+# name: {{project_name}}
+name: "f"
 description: {{project_description}}
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.10.1
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.6
+  vector_graphics: ^1.1.19
+  cupertino_icons: ^1.0.8
+  cached_network_image: ^3.4.1
+  dio: ^5.9.0
+  dio_refresh_bot: ^2.2.1
+  easy_localization: ^3.0.8
+  freezed_annotation: ^3.1.0
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
-{{#include_flavors}}
+
+  build_runner: ^2.10.4
+  flutter_lints: ^6.0.0
   flutter_flavorizr: ^2.4.1
-{{/include_flavors}}
+  freezed: ^3.2.3
+
+  vector_graphics_compiler: ^1.1.19
+  flutter_gen_runner: ^5.12.0
 
 flutter:
   uses-material-design: true
 
-{{#include_flavors}}
-flavorizr:
-  flavors:
-    stage:
-      app:
-        name: "App Stage"
-        package_name: "{{stage_package_name}}"
-      android:
-        applicationId: "{{stage_package_name}}"
-    production:
-      app:
-        name: "App Production"
-        package_name: "{{production_package_name}}"
-      android:
-        applicationId: "{{production_package_name}}"
-  instructions:
-    - android:androidManifest
-    - android:flavorizrGradle
-    - android:buildGradle
-    - flutter:flavors
-    - ide:config
-{{/include_flavors}}
+  assets:
+    - assets/l10n/
+    - assets/images/
+    - path: assets/svgIcons/
+      transformers:
+        - package: vector_graphics_compiler
+    - assets/icons/
+
+
+
+flutter_gen:
+  output: lib/utils/gen/

@@ -1,9 +1,0 @@
-name: flutter_starter_template_hooks
-description: Hooks for the flutter_starter_template brick.
-version: 0.1.0
-
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
-dependencies:
-  mason: any
