@@ -1,10 +1,10 @@
 {
   "roots": [
-    "f"
+    "testNameToDelete"
   ],
   "packages": [
     {
-      "name": "f",
+      "name": "testNameToDelete",
       "version": "1.0.0+1",
       "dependencies": [
         "cached_network_image",
@@ -13,8 +13,10 @@
         "dio_refresh_bot",
         "easy_localization",
         "flutter",
+        "flutter_localizations",
         "flutter_screenutil",
         "flutter_secure_storage",
+        "flutter_timezone",
         "freezed_annotation",
         "get_it",
         "injectable",
@@ -172,6 +174,16 @@
       ]
     },
     {
+      "name": "flutter_timezone",
+      "version": "5.0.1",
+      "dependencies": [
+        "equatable",
+        "flutter",
+        "flutter_web_plugins",
+        "meta"
+      ]
+    },
+    {
       "name": "injectable",
       "version": "2.7.1",
       "dependencies": [
@@ -295,6 +307,15 @@
         "flutter",
         "http",
         "vector_graphics_codec"
+      ]
+    },
+    {
+      "name": "flutter_localizations",
+      "version": "0.0.0",
+      "dependencies": [
+        "flutter",
+        "intl",
+        "path"
       ]
     },
     {
@@ -758,12 +779,18 @@
       ]
     },
     {
-      "name": "flutter_localizations",
+      "name": "flutter_web_plugins",
       "version": "0.0.0",
       "dependencies": [
-        "flutter",
-        "intl",
-        "path"
+        "flutter"
+      ]
+    },
+    {
+      "name": "equatable",
+      "version": "2.0.7",
+      "dependencies": [
+        "collection",
+        "meta"
       ]
     },
     {
@@ -890,14 +917,6 @@
       "name": "rxdart",
       "version": "0.28.0",
       "dependencies": []
-    },
-    {
-      "name": "equatable",
-      "version": "2.0.7",
-      "dependencies": [
-        "collection",
-        "meta"
-      ]
     },
     {
       "name": "bot_storage",
@@ -1166,13 +1185,6 @@
       "version": "0.6.7",
       "dependencies": [
         "meta"
-      ]
-    },
-    {
-      "name": "flutter_web_plugins",
-      "version": "0.0.0",
-      "dependencies": [
-        "flutter"
       ]
     },
     {

@@ -8,7 +8,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'app.dart' show appAuthMode;
 import 'core/injection/injectable.dart';
 import 'core/services/session/auth_manager.dart';
-import 'core/localization/localization_config.dart';
+import 'core/config/localization_config.dart';
+import 'core/services/localization/locale_service.dart';
 import 'flavors.dart' show F, Flavor;
 
 /// Common bootstrap entry point used by all flavors.
@@ -31,6 +32,9 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   final authManager = getIt<AuthManager>();
   await authManager.initialize();
 
+  final localeService = getIt<LocaleService>();
+  final initialLocale = await localeService.resolveInitialLocale();
+
   await runZonedGuarded<Future<void>>(
     () async {
       F.appFlavor = Flavor.values.firstWhere(
@@ -43,6 +47,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
             .toList(),
         path: AppLocalizationConfig.translationsPath,
         fallbackLocale: Locale(AppLocalizationConfig.fallbackLanguageCode),
+        startLocale: initialLocale,
+        saveLocale: false,
         useOnlyLangCode: true,
 
         child: app,

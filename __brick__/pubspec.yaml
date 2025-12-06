@@ -1,5 +1,5 @@
 # name: {{project_name}}
-name: "f"
+name: "testNameToDelete"
 description: {{project_description}}
 publish_to: "none"
 version: 1.0.0+1
@@ -27,6 +27,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   get_it: ^9.2.0
   injectable: ^2.7.1
+  flutter_timezone: ^5.0.1
 
 dev_dependencies:
   flutter_test:
