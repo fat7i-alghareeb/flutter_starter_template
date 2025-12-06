@@ -16,9 +16,14 @@ dependencies:
   cached_network_image: ^3.4.1
   dio: ^5.9.0
   dio_refresh_bot: ^2.2.1
+  shared_preferences: ^2.5.3
+  flutter_secure_storage: ^9.2.4
+  jwt_decoder: ^2.0.1
   easy_localization: ^3.0.8
   freezed_annotation: ^3.1.0
   flutter_screenutil: ^5.9.3
+  get_it: ^9.2.0
+  injectable: ^2.7.1
 
 dev_dependencies:
   flutter_test:
@@ -28,9 +33,9 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_flavorizr: ^2.4.1
   freezed: ^3.2.3
-
   vector_graphics_compiler: ^1.1.19
   flutter_gen_runner: ^5.12.0
+  injectable_generator: ^2.9.0
 
 flutter:
   uses-material-design: true
@@ -44,6 +49,28 @@ flutter:
     - assets/icons/
 
 
+
+# # dart run flutter_flavorizr
+# flavorizr:
+#   flavors:
+#     stage:
+#       app:
+#         name: "App Stage"
+#         package_name: "{{stage_package_name}}"
+#       android:
+#         applicationId: "{{stage_package_name}}"
+#     production:
+#       app:
+#         name: "App Production"
+#         package_name: "{{production_package_name}}"
+#       android:
+#         applicationId: "{{production_package_name}}"
+#   instructions:
+#     - android:androidManifest
+#     - android:flavorizrGradle
+#     - android:buildGradle
+#     - flutter:flavors
+#     - ide:config
 
 flutter_gen:
   output: lib/utils/gen/
