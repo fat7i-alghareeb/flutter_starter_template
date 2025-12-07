@@ -1,3 +1,21 @@
 {
+  "networkNoInternet": "No internet connection. Please check your network.",
+  "networkTimeout": "The request timed out. Please try again.",
+  "networkConnectionError": "Unable to connect to the server. Please try again.",
+  "networkCertificateError": "A network security error occurred.",
+  "requestCancelled": "Request was cancelled.",
 
+  "authUnauthorized": "You are not authorized. Please sign in again.",
+  "authForbidden": "You do not have permission to perform this action.",
+
+  "clientBadRequest": "The request was invalid.",
+  "clientNotFound": "The requested resource was not found.",
+  "clientConflict": "A conflict occurred. Please try again.",
+  "clientUnprocessableEntity": "The data you sent could not be processed.",
+
+  "serverError": "Server error. Please try again later.",
+  "serverServiceUnavailable": "Service is temporarily unavailable. Please try again later.",
+
+  "decodeError": "Failed to process server response.",
+  "unknownError": "An unexpected error occurred. Please try again."
 }

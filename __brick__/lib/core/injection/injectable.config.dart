@@ -9,15 +9,25 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:testNameToDelete/core/injection/register_module.dart' as _i585;
-import 'package:testNameToDelete/core/services/session/auth_state_notifier.dart'
-    as _i409;
-import 'package:testNameToDelete/core/services/session/jwt_token_storage.dart'
-    as _i285;
-import 'package:testNameToDelete/core/services/storage/storage_service.dart'
-    as _i339;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:testNameToDelete/core/injection/register_module.dart' as _i13;
+import 'package:testNameToDelete/core/network/interceptors/custom_dio_interceptor.dart'
+    as _i616;
+import 'package:testNameToDelete/core/network/interceptors/error_interceptor.dart'
+    as _i97;
+import 'package:testNameToDelete/core/network/interceptors/localization_interceptor.dart'
+    as _i727;
+import 'package:testNameToDelete/core/network/interceptors/memory_aware_interceptor.dart'
+    as _i1017;
+import 'package:testNameToDelete/core/services/localization/locale_service.dart'
+    as _i510;
+import 'package:testNameToDelete/core/services/session/auth_state_notifier.dart'
+    as _i539;
+import 'package:testNameToDelete/core/services/session/jwt_token_storage.dart'
+    as _i746;
+import 'package:testNameToDelete/core/services/storage/storage_service.dart'
+    as _i658;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -27,16 +37,38 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    await gh.factoryAsync<_i339.StorageService>(
+    await gh.factoryAsync<_i658.StorageService>(
       () => registerModule.storageService,
       preResolve: true,
     );
-    gh.lazySingleton<_i409.AuthStateNotifier>(() => _i409.AuthStateNotifier());
-    gh.lazySingleton<_i285.JwtTokenStorage>(
-      () => _i285.JwtTokenStorage(gh<_i339.StorageService>()),
+    gh.lazySingleton<_i97.ErrorInterceptor>(() => _i97.ErrorInterceptor());
+    gh.lazySingleton<_i539.AuthStateNotifier>(() => _i539.AuthStateNotifier());
+    gh.lazySingleton<_i1017.MemoryAwareInterceptor>(
+      () => _i1017.MemoryAwareInterceptor(maxResponseSizeBytes: gh<int>()),
+    );
+    gh.lazySingleton<_i510.LocaleService>(
+      () => _i510.LocaleService(gh<_i658.StorageService>()),
+    );
+    gh.lazySingleton<_i746.JwtTokenStorage>(
+      () => _i746.JwtTokenStorage(gh<_i658.StorageService>()),
+    );
+    gh.lazySingleton<_i727.LocalizationInterceptor>(
+      () => _i727.LocalizationInterceptor(gh<_i510.LocaleService>()),
+    );
+    gh.lazySingleton<_i616.CustomDioInterceptor>(
+      () => _i616.CustomDioInterceptor(
+        logRequestHeaders: gh<bool>(),
+        logRequestBody: gh<bool>(),
+        logResponseHeaders: gh<bool>(),
+        logResponseBody: gh<bool>(),
+        logErrors: gh<bool>(),
+        maxBodyChars: gh<int>(),
+        redactedHeaders: gh<List<String>>(),
+        boxStyle: gh<_i616.BoxStyle>(),
+      ),
     );
     return this;
   }
 }
 
-class _$RegisterModule extends _i585.RegisterModule {}
+class _$RegisterModule extends _i13.RegisterModule {}

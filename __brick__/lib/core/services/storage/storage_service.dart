@@ -6,10 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// [persistent] is intended for non-sensitive user preferences while
 /// [secure] is backed by [FlutterSecureStorage] and should be used for
 /// secrets such as tokens.
-enum StorageArea {
-  persistent,
-  secure,
-}
+enum StorageArea { persistent, secure }
 
 /// Minimal key–value interface implemented by concrete storage backends.
 abstract class KeyValueStore {
@@ -76,7 +73,7 @@ class _SecureStorageStore implements KeyValueStore {
   Future<void> remove(String key) => _storage.delete(key: key);
 }
 
-/// High-level storage façade that unifies shared preferences and secure
+/// High-level storage facade that unifies shared preferences and secure
 /// storage under a single, testable API.
 class StorageService {
   StorageService._(this._persistent, this._secure);
@@ -123,32 +120,27 @@ class StorageService {
   Future<String?> readString(
     String key, {
     StorageArea area = StorageArea.persistent,
-  }) =>
-      _select(area).readString(key);
+  }) => _select(area).readString(key);
 
   Future<void> writeString(
     String key,
     String value, {
     StorageArea area = StorageArea.persistent,
-  }) =>
-      _select(area).writeString(key, value);
+  }) => _select(area).writeString(key, value);
 
   Future<bool?> readBool(
     String key, {
     StorageArea area = StorageArea.persistent,
-  }) =>
-      _select(area).readBool(key);
+  }) => _select(area).readBool(key);
 
   Future<void> writeBool(
     String key,
     bool value, {
     StorageArea area = StorageArea.persistent,
-  }) =>
-      _select(area).writeBool(key, value);
+  }) => _select(area).writeBool(key, value);
 
   Future<void> remove(
     String key, {
     StorageArea area = StorageArea.persistent,
-  }) =>
-      _select(area).remove(key);
+  }) => _select(area).remove(key);
 }
