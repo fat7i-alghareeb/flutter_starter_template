@@ -32,6 +32,10 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   final authManager = getIt<AuthManager>();
   await authManager.initialize();
 
+  // Prepare the global Dio client according to the selected auth mode so
+  // that repositories can start using it immediately.
+  registerDioClient(appAuthMode);
+
   final localeService = getIt<LocaleService>();
   final initialLocale = await localeService.resolveInitialLocale();
 

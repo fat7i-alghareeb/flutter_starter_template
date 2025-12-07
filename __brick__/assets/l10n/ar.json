@@ -1,3 +1,21 @@
 {
-   
+  "networkNoInternet": "لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.",
+  "networkTimeout": "انتهت مهلة الطلب. حاول مرة أخرى.",
+  "networkConnectionError": "تعذر الاتصال بالخادم. حاول مرة أخرى.",
+  "networkCertificateError": "حدث خطأ في أمان الشبكة.",
+  "requestCancelled": "تم إلغاء الطلب.",
+
+  "authUnauthorized": "غير مصرح. يرجى تسجيل الدخول مرة أخرى.",
+  "authForbidden": "ليست لديك صلاحية لتنفيذ هذا الإجراء.",
+
+  "clientBadRequest": "الطلب غير صالح.",
+  "clientNotFound": "لم يتم العثور على المورد المطلوب.",
+  "clientConflict": "حدث تعارض. حاول مرة أخرى.",
+  "clientUnprocessableEntity": "لا يمكن معالجة البيانات المرسلة.",
+
+  "serverError": "خطأ في الخادم. حاول مرة أخرى لاحقًا.",
+  "serverServiceUnavailable": "الخدمة غير متاحة مؤقتًا. حاول مرة أخرى لاحقًا.",
+
+  "decodeError": "فشل في معالجة استجابة الخادم.",
+  "unknownError": "حدث خطأ غير متوقع. حاول مرة أخرى."
 }
