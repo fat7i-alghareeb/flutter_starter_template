@@ -350,6 +350,12 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "go_router",
+      "rootUri": "file:///C:/Users/Fat7i/AppData/Local/Pub/Cache/hosted/pub.dev/go_router-17.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
       "name": "graphs",
       "rootUri": "file:///C:/Users/Fat7i/AppData/Local/Pub/Cache/hosted/pub.dev/graphs-2.3.2",
       "packageUri": "lib/",

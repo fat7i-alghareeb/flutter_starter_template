@@ -19,6 +19,7 @@
         "flutter_timezone",
         "freezed_annotation",
         "get_it",
+        "go_router",
         "injectable",
         "jwt_decoder",
         "shared_preferences",
@@ -188,6 +189,17 @@
       "version": "2.7.1",
       "dependencies": [
         "get_it",
+        "meta"
+      ]
+    },
+    {
+      "name": "go_router",
+      "version": "17.0.0",
+      "dependencies": [
+        "collection",
+        "flutter",
+        "flutter_web_plugins",
+        "logging",
         "meta"
       ]
     },
