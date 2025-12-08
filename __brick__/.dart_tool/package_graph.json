@@ -20,6 +20,7 @@
         "freezed_annotation",
         "get_it",
         "go_router",
+        "google_fonts",
         "injectable",
         "jwt_decoder",
         "shared_preferences",
@@ -1348,6 +1349,16 @@
       "name": "synchronized",
       "version": "3.4.0",
       "dependencies": []
+    },
+    {
+      "name": "google_fonts",
+      "version": "6.3.3",
+      "dependencies": [
+        "crypto",
+        "flutter",
+        "http",
+        "path_provider"
+      ]
     }
   ],
   "configVersion": 1
