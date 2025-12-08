@@ -1,50 +1,104 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show appFlavor;
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'app.dart' show appAuthMode;
-import 'core/injection/injectable.dart';
-import 'core/services/session/auth_manager.dart';
 import 'core/config/localization_config.dart';
+import 'core/injection/injectable.dart';
 import 'core/services/localization/locale_service.dart';
+import 'core/services/session/auth_manager.dart';
 import 'flavors.dart' show F, Flavor;
+import 'utils/constants/design_constants.dart';
 
 /// Common bootstrap entry point used by all flavors.
 ///
-/// It initializes Flutter bindings, configures dependency injection, sets the
-/// current flavor, prepares the [AuthManager] singleton, and finally runs the
-/// provided widget tree inside a guarded zone.
+/// This function wires together all low-level initialization steps:
+///
+/// - Ensures Flutter bindings are initialized.
+/// - Initializes EasyLocalization's core infrastructure.
+/// - Configures dependency injection via Injectable / GetIt.
+/// - Prepares the [AuthManager] and global Dio client according to
+///   the selected [appAuthMode].
+/// - Resolves the initial locale using [LocaleService].
+/// - Runs the provided widget tree inside a guarded zone with
+///   EasyLocalization and the active [Flavor].
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+  //    Ensure Flutter engine + widget binding are ready before any
+  //    plugins or framework APIs are used.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize easy_localization so it can read saved/device locale.
   await EasyLocalization.ensureInitialized();
 
+  //    Configure the dependency injection container and register
+  //    low-level services and singletons.
   await configureDependencies();
 
+  await _initializeAuthAndNetwork();
+
+  //    Resolve the locale that the app should start with using
+  //    the [LocaleService] abstraction.
+  final initialLocale = await getIt<LocaleService>().resolveInitialLocale();
+
+  await _runGuardedApp(builder, initialLocale);
+}
+
+/// Initializes the authentication layer and HTTP client.
+///
+/// Responsibilities:
+/// - Creates and registers a single [AuthManager] instance using the
+///   globally configured [appAuthMode].
+/// - Awaits [AuthManager.initialize] so user/guest and token state are
+///   loaded before the UI starts.
+/// - Creates and registers a global Dio client using [registerDioClient]
+///   so repositories can perform network calls immediately.
+Future<void> _initializeAuthAndNetwork() async {
   // Decide which AuthManager variant to use (JWT / non-JWT) based on
   // the app-level selector in app.dart.
   registerAuthManager(appAuthMode);
 
+  // Retrieve the singleton instance that was just registered and
+  // perform its asynchronous initialization.
   final authManager = getIt<AuthManager>();
   await authManager.initialize();
 
   // Prepare the global Dio client according to the selected auth mode so
   // that repositories can start using it immediately.
   registerDioClient(appAuthMode);
+}
 
-  final localeService = getIt<LocaleService>();
-  final initialLocale = await localeService.resolveInitialLocale();
-
+/// Runs the application inside a guarded zone and wraps it with
+/// [EasyLocalization].
+///
+/// Parameters:
+/// - [builder]: Factory that constructs the root widget tree.
+/// - [initialLocale]: Locale that should be used as the starting
+///   locale for the app.
+///
+/// This function also assigns the current [Flavor] based on the
+/// native `appFlavor` and logs any uncaught errors via [log].
+Future<void> _runGuardedApp(
+  FutureOr<Widget> Function() builder,
+  Locale initialLocale,
+) async {
   await runZonedGuarded<Future<void>>(
     () async {
+      // Select the active flavor (stage / production) based on the
+      // compile-time value provided by the native layer.
       F.appFlavor = Flavor.values.firstWhere(
         (element) => element.name == appFlavor,
       );
+
+      // Build the actual root widget tree provided by the caller.
       final app = await builder();
+
+      // Wrap the root app with EasyLocalization and ScreenUtil so that:
+      // - Localized strings are available everywhere.
+      // - The app starts with the resolved [initialLocale].
+      // - Responsive sizing via ScreenUtil is available globally.
       final localizedApp = EasyLocalization(
         supportedLocales: AppLocalizationConfig.supportedLanguageCodes
             .map((code) => Locale(code))
@@ -54,12 +108,39 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
         startLocale: initialLocale,
         saveLocale: false,
         useOnlyLangCode: true,
+        child: ScreenUtilInit(
+          designSize: AppDesign.designSize,
+          minTextAdapt: true,
+          splitScreenMode: true,
+          ensureScreenSize: true,
+          fontSizeResolver: (fontSize, instance) {
+            final width = instance.screenWidth;
 
-        child: app,
+            double factor;
+            if (width <= 320) {
+              factor = 0.9;
+            } else if (width <= 360) {
+              factor = 0.95;
+            } else if (width <= 400) {
+              factor = 1.0;
+            } else if (width <= 480) {
+              factor = 1.05;
+            } else {
+              factor = 1.1;
+            }
+
+            return fontSize * factor;
+          },
+          builder: (context, _) => app,
+        ),
       );
+
+      // Finally render the localized app tree.
       runApp(localizedApp);
     },
     (error, stackTrace) {
+      // Last-resort safety net for any exceptions that happen outside
+      // of Flutter's normal error handling pipeline.
       log('Uncaught application error', error: error, stackTrace: stackTrace);
     },
   );
