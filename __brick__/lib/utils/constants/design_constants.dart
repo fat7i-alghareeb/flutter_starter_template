@@ -1,4 +1,6 @@
 import 'package:flutter/animation.dart';
+import 'package:flutter/material.dart' show EdgeInsets;
+import 'package:flutter_screenutil/flutter_screenutil.dart' show REdgeInsets;
 
 /// Global design constants used across the app.
 ///
@@ -24,6 +26,13 @@ class AppSpacing {
 
   /// 32
   static const double xxl = 32;
+
+  static EdgeInsets horizontal = REdgeInsets.symmetric(horizontal: xl);
+  static EdgeInsets vertical = REdgeInsets.symmetric(vertical: lg);
+  static EdgeInsets standardPadding = REdgeInsets.symmetric(
+    horizontal: xl,
+    vertical: lg,
+  );
 }
 
 /// Common corner radii used for shapes.

@@ -42,8 +42,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   //    Resolve the locale that the app should start with using
   //    the [LocaleService] abstraction.
   final initialLocale = await getIt<LocaleService>().resolveInitialLocale();
-
-  await _runGuardedApp(builder, initialLocale);
+  
+await _runGuardedApp(builder, initialLocale);
 }
 
 /// Initializes the authentication layer and HTTP client.
