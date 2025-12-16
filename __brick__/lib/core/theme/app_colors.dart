@@ -7,6 +7,14 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
+  /// primary Color
+  static const Color primaryLight = Color(0xFF1565C0);
+  static const Color primaryDark = Color(0xFF90CAF9);
+
+  /// Secondary Color
+  static const Color secondaryLight = Color(0xFF00BFA5);
+  static const Color secondaryDark = Color(0xFF64FFDA);
+
   /// Color used for success/toast states.
   static const Color success = Color(0xFF2E7D32);
 

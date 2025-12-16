@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testNameToDelete/core/theme/app_colors.dart' show AppColors;
 
 /// Defines a set of optional seed colors for constructing a [ColorScheme].
 ///
@@ -144,18 +145,18 @@ class AppColorSeeds {
 
   /// Seed colors for the light theme.
   static const AppColorSeedSet light = AppColorSeedSet(
-    primary: Color(0xFF1565C0),
+    primary: AppColors.primaryLight,
     onPrimary: Colors.white,
-    secondary: Color(0xFF00BFA5),
+    secondary: AppColors.secondaryLight,
     background: Color(0xFFF9FAFB),
     surface: Colors.white,
   );
 
   /// Seed colors for the dark theme.
   static const AppColorSeedSet dark = AppColorSeedSet(
-    primary: Color(0xFF90CAF9),
+    primary: AppColors.primaryDark,
     onPrimary: Color(0xFF0D47A1),
-    secondary: Color(0xFF64FFDA),
+    secondary: AppColors.secondaryDark,
     background: Color(0xFF111827),
     surface: Color(0xFF111827),
     surfaceVariant: Color(0xFF333333),
@@ -170,7 +171,6 @@ class AppColorSeeds {
     surfaceTint: Color(0xFF90CAF9),
   );
 }
-
 
 /// Predefined light and dark [ColorScheme]s for the app.
 ///
