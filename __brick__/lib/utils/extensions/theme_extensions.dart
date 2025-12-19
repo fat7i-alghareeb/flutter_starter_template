@@ -47,6 +47,8 @@ extension AppThemeContextX on BuildContext {
   /// Color used for content on top of [surface].
   Color get onSurface => colorScheme.onSurface;
 
+  Color get grey => colorScheme.outline;
+
   /// Error color from the current [ColorScheme].
   Color get error => colorScheme.error;
 

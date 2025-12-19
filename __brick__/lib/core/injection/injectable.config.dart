@@ -20,6 +20,16 @@ import 'package:testNameToDelete/core/network/interceptors/localization_intercep
     as _i727;
 import 'package:testNameToDelete/core/network/interceptors/memory_aware_interceptor.dart'
     as _i1017;
+import 'package:testNameToDelete/core/notification/notification_coordinator.dart'
+    as _i944;
+import 'package:testNameToDelete/core/notification/notification_fcm_service.dart'
+    as _i140;
+import 'package:testNameToDelete/core/notification/notification_local_service.dart'
+    as _i468;
+import 'package:testNameToDelete/core/notification/notification_permission_service.dart'
+    as _i312;
+import 'package:testNameToDelete/core/notification/notification_timezone_service.dart'
+    as _i615;
 import 'package:testNameToDelete/core/router/app_routes.dart' as _i685;
 import 'package:testNameToDelete/core/router/router_config.dart' as _i1040;
 import 'package:testNameToDelete/core/services/localization/locale_service.dart'
@@ -32,6 +42,7 @@ import 'package:testNameToDelete/core/services/session/jwt_token_storage.dart'
     as _i746;
 import 'package:testNameToDelete/core/services/storage/storage_service.dart'
     as _i658;
+import 'package:testNameToDelete/core/theme/theme_controller.dart' as _i845;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -46,10 +57,31 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i97.ErrorInterceptor>(() => _i97.ErrorInterceptor());
+    gh.lazySingleton<_i312.NotificationPermissionService>(
+      () => const _i312.NotificationPermissionService(),
+    );
+    gh.lazySingleton<_i615.NotificationTimezoneService>(
+      () => _i615.NotificationTimezoneService(),
+    );
+    gh.lazySingleton<_i468.NotificationLocalService>(
+      () => _i468.NotificationLocalService(),
+    );
+    gh.lazySingleton<_i140.NotificationFcmService>(
+      () => _i140.NotificationFcmService(),
+    );
+    gh.lazySingleton<_i944.NotificationCoordinator>(
+      () => _i944.NotificationCoordinator(
+        gh<_i312.NotificationPermissionService>(),
+        gh<_i615.NotificationTimezoneService>(),
+        gh<_i468.NotificationLocalService>(),
+        gh<_i140.NotificationFcmService>(),
+      ),
+    );
     gh.lazySingleton<_i685.AppRouteRegistry>(
       () => const _i685.AppRouteRegistry(),
     );
     gh.lazySingleton<_i539.AuthStateNotifier>(() => _i539.AuthStateNotifier());
+    gh.lazySingleton<_i845.ThemeController>(() => _i845.ThemeController());
     gh.lazySingleton<_i1017.MemoryAwareInterceptor>(
       () => _i1017.MemoryAwareInterceptor(maxResponseSizeBytes: gh<int>()),
     );

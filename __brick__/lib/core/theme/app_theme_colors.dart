@@ -150,6 +150,7 @@ class AppColorSeeds {
     secondary: AppColors.secondaryLight,
     background: Color(0xFFF9FAFB),
     surface: Colors.white,
+    outline: AppColors.greyLight,
   );
 
   /// Seed colors for the dark theme.
@@ -159,16 +160,7 @@ class AppColorSeeds {
     secondary: AppColors.secondaryDark,
     background: Color(0xFF111827),
     surface: Color(0xFF111827),
-    surfaceVariant: Color(0xFF333333),
-    onSurfaceVariant: Color(0xFFFFFFFF),
-    outline: Color(0xFFFFFFFF),
-    outlineVariant: Color(0xFF666666),
-    shadow: Color(0xFFFFFFFF),
-    scrim: Color(0xFFFFFFFF),
-    inverseSurface: Color(0xFFFFFFFF),
-    onInverseSurface: Color(0xFF333333),
-    inversePrimary: Color(0xFF90CAF9),
-    surfaceTint: Color(0xFF90CAF9),
+    outline: AppColors.greyDark,
   );
 }
 
