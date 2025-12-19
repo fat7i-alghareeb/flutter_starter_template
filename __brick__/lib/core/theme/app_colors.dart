@@ -15,6 +15,9 @@ class AppColors {
   static const Color secondaryLight = Color(0xFF00BFA5);
   static const Color secondaryDark = Color(0xFF64FFDA);
 
+  static const Color greyLight = Color(0xFFD1D5DB);
+  static const Color greyDark = Color(0xFF374151);
+
   /// Color used for success/toast states.
   static const Color success = Color(0xFF2E7D32);
 

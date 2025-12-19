@@ -9,10 +9,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'app.dart' show appAuthMode;
 import 'core/config/localization_config.dart';
 import 'core/injection/injectable.dart';
+import 'core/notification/notification_config.dart';
+import 'core/notification/notification_init_options.dart';
+import 'core/notification/notification_payload.dart';
+import 'core/notification/notification_coordinator.dart';
+import 'core/router/router_config.dart';
 import 'core/services/localization/locale_service.dart';
 import 'core/services/session/auth_manager.dart';
 import 'flavors.dart' show F, Flavor;
 import 'utils/constants/design_constants.dart';
+import 'utils/helpers/colored_print.dart';
 
 /// Common bootstrap entry point used by all flavors.
 ///
@@ -31,19 +37,66 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   //    plugins or framework APIs are used.
   WidgetsFlutterBinding.ensureInitialized();
 
-  await EasyLocalization.ensureInitialized();
-
   //    Configure the dependency injection container and register
   //    low-level services and singletons.
   await configureDependencies();
+
+  await _initializeNotifications();
+
+  await EasyLocalization.ensureInitialized();
 
   await _initializeAuthAndNetwork();
 
   //    Resolve the locale that the app should start with using
   //    the [LocaleService] abstraction.
   final initialLocale = await getIt<LocaleService>().resolveInitialLocale();
-  
-await _runGuardedApp(builder, initialLocale);
+
+  await _runGuardedApp(builder, initialLocale);
+}
+
+/// Initializes notifications.
+///
+/// Note:
+/// - Firebase/FCM initialization is controlled by [NotificationInitOptions]
+///   passed to [NotificationCoordinator.initialize].
+Future<void> _initializeNotifications() async {
+  try {
+    final coordinator = getIt<NotificationCoordinator>();
+
+    await coordinator.initialize(
+      config: AppNotificationConfig.defaults(),
+      options: const NotificationInitOptions(
+        initializeFirebase: true,
+        enableFcm: true,
+        requestPermissionsAtStartup: true,
+      ),
+      onNotificationTap: (payload) async {
+        await _handleNotificationNavigation(payload);
+      },
+    );
+
+    printG('[Bootstrap] Notifications initialized');
+  } catch (e) {
+    printY('[Bootstrap] Notifications initialize failed: $e');
+  }
+}
+
+Future<void> _handleNotificationNavigation(
+  AppNotificationPayload payload,
+) async {
+  final location = payload.toGoRouterLocation;
+  if (location == null || location.isEmpty) {
+    printC('[Notifications] Tap ignored (no route/deepLink)');
+    return;
+  }
+
+  try {
+    final router = getIt<AppRouterConfig>().router;
+    router.go(location);
+    printG('[Notifications] Navigated to $location');
+  } catch (e) {
+    printY('[Notifications] Navigation failed: $e (location=$location)');
+  }
 }
 
 /// Initializes the authentication layer and HTTP client.
