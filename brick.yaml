@@ -8,7 +8,7 @@ vars:
     description: The Dart package name for the generated app
     prompt: What is the project name?
     default: my_app
-  project_name:
+  project_title:
     type: string
     description: The project title for the generated app
     prompt: What is the title?
