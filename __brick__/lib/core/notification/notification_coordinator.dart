@@ -108,7 +108,13 @@ class NotificationCoordinator {
     if (options.enableFcm) {
       try {
         if (Firebase.apps.isEmpty && options.initializeFirebase) {
-          await Firebase.initializeApp();
+          try {
+            await Firebase.initializeApp();
+          } catch (e) {
+            if (config.enableDebugLogs) {
+              printY('[Notifications] Firebase initialize failed: $e');
+            }
+          }
         }
 
         if (Firebase.apps.isEmpty) {
@@ -119,7 +125,16 @@ class NotificationCoordinator {
             );
           }
         } else {
-          await _fcmService.initialize(config: config);
+          try {
+            await _fcmService.initialize(config: config);
+          } catch (e) {
+            if (config.enableDebugLogs) {
+              printY('[Notifications] FCM configure failed: $e');
+            }
+            // If FCM cannot initialize, do not crash the app.
+            _initialized = true;
+            return;
+          }
 
           _fcmService.startListening(
             config: config,

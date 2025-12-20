@@ -9,25 +9,16 @@ enum BoxStyle { unicode, ascii, simple }
 
 @lazySingleton
 class CustomDioInterceptor extends Interceptor {
-  CustomDioInterceptor({
-    this.logRequestHeaders = true,
-    this.logRequestBody = true,
-    this.logResponseHeaders = false,
-    this.logResponseBody = true,
-    this.logErrors = true,
-    this.maxBodyChars = 2000,
-    this.redactedHeaders = const ['authorization', 'cookie'],
-    this.boxStyle = BoxStyle.ascii, // change this if you want unicode
-  });
+  CustomDioInterceptor();
 
-  final bool logRequestHeaders;
-  final bool logRequestBody;
-  final bool logResponseHeaders;
-  final bool logResponseBody;
-  final bool logErrors;
-  final int maxBodyChars;
-  final List<String> redactedHeaders;
-  final BoxStyle boxStyle;
+  final bool logRequestHeaders = true;
+  final bool logRequestBody = true;
+  final bool logResponseHeaders = false;
+  final bool logResponseBody = true;
+  final bool logErrors = true;
+  final int maxBodyChars = 2000;
+  final List<String> redactedHeaders = const ['authorization', 'cookie'];
+  final BoxStyle boxStyle = BoxStyle.ascii; // change this if you want unicode
 
   static final _jsonEncoder = JsonEncoder.withIndent('  ');
 

@@ -33,25 +33,42 @@ import 'utils/helpers/colored_print.dart';
 /// - Runs the provided widget tree inside a guarded zone with
 ///   EasyLocalization and the active [Flavor].
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
-  //    Ensure Flutter engine + widget binding are ready before any
-  //    plugins or framework APIs are used.
-  WidgetsFlutterBinding.ensureInitialized();
+  // Important: keep `ensureInitialized` and `runApp` inside the same zone.
+  await runZonedGuarded<Future<void>>(
+    () async {
+      //    Ensure Flutter engine + widget binding are ready before any
+      //    plugins or framework APIs are used.
+      WidgetsFlutterBinding.ensureInitialized();
 
-  //    Configure the dependency injection container and register
-  //    low-level services and singletons.
-  await configureDependencies();
+      // Select the active flavor (stage / production) based on the
+      // compile-time value provided by the native layer.
+      F.appFlavor = Flavor.values.firstWhere(
+        (element) => element.name == appFlavor,
+        orElse: () => Flavor.stage,
+      );
 
-  await _initializeNotifications();
+      //    Configure the dependency injection container and register
+      //    low-level services and singletons.
+      await configureDependencies();
 
-  await EasyLocalization.ensureInitialized();
+      await _initializeNotifications();
 
-  await _initializeAuthAndNetwork();
+      await EasyLocalization.ensureInitialized();
 
-  //    Resolve the locale that the app should start with using
-  //    the [LocaleService] abstraction.
-  final initialLocale = await getIt<LocaleService>().resolveInitialLocale();
+      await _initializeAuthAndNetwork();
 
-  await _runGuardedApp(builder, initialLocale);
+      //    Resolve the locale that the app should start with using
+      //    the [LocaleService] abstraction.
+      final initialLocale = await getIt<LocaleService>().resolveInitialLocale();
+
+      await _runGuardedApp(builder, initialLocale);
+    },
+    (error, stackTrace) {
+      // Last-resort safety net for any exceptions that happen outside
+      // of Flutter's normal error handling pipeline.
+      log('Uncaught application error', error: error, stackTrace: stackTrace);
+    },
+  );
 }
 
 /// Initializes notifications.
@@ -66,8 +83,8 @@ Future<void> _initializeNotifications() async {
     await coordinator.initialize(
       config: AppNotificationConfig.defaults(),
       options: const NotificationInitOptions(
-        initializeFirebase: true,
-        enableFcm: true,
+        initializeFirebase: false,
+        enableFcm: false,
         requestPermissionsAtStartup: true,
       ),
       onNotificationTap: (payload) async {
@@ -137,64 +154,49 @@ Future<void> _runGuardedApp(
   FutureOr<Widget> Function() builder,
   Locale initialLocale,
 ) async {
-  await runZonedGuarded<Future<void>>(
-    () async {
-      // Select the active flavor (stage / production) based on the
-      // compile-time value provided by the native layer.
-      F.appFlavor = Flavor.values.firstWhere(
-        (element) => element.name == appFlavor,
-      );
+  // Build the actual root widget tree provided by the caller.
+  final app = await builder();
 
-      // Build the actual root widget tree provided by the caller.
-      final app = await builder();
+  // Wrap the root app with EasyLocalization and ScreenUtil so that:
+  // - Localized strings are available everywhere.
+  // - The app starts with the resolved [initialLocale].
+  // - Responsive sizing via ScreenUtil is available globally.
+  final localizedApp = EasyLocalization(
+    supportedLocales: AppLocalizationConfig.supportedLanguageCodes
+        .map((code) => Locale(code))
+        .toList(),
+    path: AppLocalizationConfig.translationsPath,
+    fallbackLocale: Locale(AppLocalizationConfig.fallbackLanguageCode),
+    startLocale: initialLocale,
+    saveLocale: false,
+    useOnlyLangCode: true,
+    child: ScreenUtilInit(
+      designSize: AppDesign.designSize,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      ensureScreenSize: true,
+      fontSizeResolver: (fontSize, instance) {
+        final width = instance.screenWidth;
 
-      // Wrap the root app with EasyLocalization and ScreenUtil so that:
-      // - Localized strings are available everywhere.
-      // - The app starts with the resolved [initialLocale].
-      // - Responsive sizing via ScreenUtil is available globally.
-      final localizedApp = EasyLocalization(
-        supportedLocales: AppLocalizationConfig.supportedLanguageCodes
-            .map((code) => Locale(code))
-            .toList(),
-        path: AppLocalizationConfig.translationsPath,
-        fallbackLocale: Locale(AppLocalizationConfig.fallbackLanguageCode),
-        startLocale: initialLocale,
-        saveLocale: false,
-        useOnlyLangCode: true,
-        child: ScreenUtilInit(
-          designSize: AppDesign.designSize,
-          minTextAdapt: true,
-          splitScreenMode: true,
-          ensureScreenSize: true,
-          fontSizeResolver: (fontSize, instance) {
-            final width = instance.screenWidth;
+        double factor;
+        if (width <= 320) {
+          factor = 0.9;
+        } else if (width <= 360) {
+          factor = 0.95;
+        } else if (width <= 400) {
+          factor = 1.0;
+        } else if (width <= 480) {
+          factor = 1.05;
+        } else {
+          factor = 1.1;
+        }
 
-            double factor;
-            if (width <= 320) {
-              factor = 0.9;
-            } else if (width <= 360) {
-              factor = 0.95;
-            } else if (width <= 400) {
-              factor = 1.0;
-            } else if (width <= 480) {
-              factor = 1.05;
-            } else {
-              factor = 1.1;
-            }
-
-            return fontSize * factor;
-          },
-          builder: (context, _) => app,
-        ),
-      );
-
-      // Finally render the localized app tree.
-      runApp(localizedApp);
-    },
-    (error, stackTrace) {
-      // Last-resort safety net for any exceptions that happen outside
-      // of Flutter's normal error handling pipeline.
-      log('Uncaught application error', error: error, stackTrace: stackTrace);
-    },
+        return fontSize * factor;
+      },
+      builder: (context, _) => app,
+    ),
   );
+
+  // Finally render the localized app tree.
+  runApp(localizedApp);
 }

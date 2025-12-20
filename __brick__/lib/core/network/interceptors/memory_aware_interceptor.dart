@@ -8,9 +8,7 @@ import '../../../utils/helpers/colored_print.dart';
 /// [MemoryManager] to avoid keeping large responses in memory.
 @lazySingleton
 class MemoryAwareInterceptor extends Interceptor {
-  MemoryAwareInterceptor({
-    this.maxResponseSizeBytes = 10 * 1024 * 1024, // 10 MB
-  });
+  MemoryAwareInterceptor() : maxResponseSizeBytes = 10 * 1024 * 1024;
 
   final int maxResponseSizeBytes;
 

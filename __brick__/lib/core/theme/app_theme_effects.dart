@@ -45,20 +45,20 @@ class AppGradientSpec {
   const AppGradientSpec({
     required this.begin,
     required this.end,
-    required this.lightStartT,
-    required this.lightEndT,
-    required this.darkStartT,
-    required this.darkEndT,
+    required this.lightStartAlpha,
+    required this.lightEndAlpha,
+    required this.darkStartAlpha,
+    required this.darkEndAlpha,
   });
 
   final Alignment begin;
   final Alignment end;
 
-  final double lightStartT;
-  final double lightEndT;
+  final double lightStartAlpha;
+  final double lightEndAlpha;
 
-  final double darkStartT;
-  final double darkEndT;
+  final double darkStartAlpha;
+  final double darkEndAlpha;
 }
 
 class AppShadowSpec {
@@ -96,46 +96,46 @@ class AppThemeGradients {
   static const AppGradientSpec _primarySpec = AppGradientSpec(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    lightStartT: 0.20,
-    lightEndT: 0.05,
-    darkStartT: 0.12,
-    darkEndT: 0.08,
+    lightStartAlpha: 0.8,
+    lightEndAlpha: 0.7,
+    darkStartAlpha: 0.8,
+    darkEndAlpha: 06,
   );
 
   static const AppGradientSpec _successSpec = AppGradientSpec(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    lightStartT: 0.16,
-    lightEndT: 0.06,
-    darkStartT: 0.10,
-    darkEndT: 0.07,
+    lightStartAlpha: 0.8,
+    lightEndAlpha: 0.7,
+    darkStartAlpha: 0.8,
+    darkEndAlpha: 06,
   );
 
   static const AppGradientSpec _errorSpec = AppGradientSpec(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    lightStartT: 0.18,
-    lightEndT: 0.07,
-    darkStartT: 0.11,
-    darkEndT: 0.08,
+    lightStartAlpha: 0.8,
+    lightEndAlpha: 0.7,
+    darkStartAlpha: 0.8,
+    darkEndAlpha: 06,
   );
 
   static const AppGradientSpec _warningSpec = AppGradientSpec(
     begin: Alignment.topRight,
     end: Alignment.bottomLeft,
-    lightStartT: 0.14,
-    lightEndT: 0.06,
-    darkStartT: 0.10,
-    darkEndT: 0.06,
+    lightStartAlpha: 0.8,
+    lightEndAlpha: 0.7,
+    darkStartAlpha: 0.8,
+    darkEndAlpha: 06,
   );
 
   static const AppGradientSpec _greySpec = AppGradientSpec(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    lightStartT: 0.10,
-    lightEndT: 0.05,
-    darkStartT: 0.08,
-    darkEndT: 0.06,
+    lightStartAlpha: 0.8,
+    lightEndAlpha: 0.7,
+    darkStartAlpha: 0.8,
+    darkEndAlpha: 06,
   );
 
   LinearGradient get primary =>
@@ -156,24 +156,15 @@ class AppThemeGradients {
   );
 
   LinearGradient _twoTone(Color base, {required AppGradientSpec spec}) {
-    final start = brightness == Brightness.dark
-        ? _darken(base, spec.darkStartT)
-        : _lighten(base, spec.lightStartT);
-
-    final end = brightness == Brightness.dark
-        ? _lighten(base, spec.darkEndT)
-        : _darken(base, spec.lightEndT);
-
     return LinearGradient(
       begin: spec.begin,
       end: spec.end,
-      colors: <Color>[start, end],
+      colors: <Color>[
+        base.withValues(alpha: spec.lightStartAlpha),
+        base.withValues(alpha: spec.lightEndAlpha),
+      ],
     );
   }
-
-  Color _lighten(Color color, double t) => Color.lerp(color, Colors.white, t)!;
-
-  Color _darken(Color color, double t) => Color.lerp(color, Colors.black, t)!;
 }
 
 /// Theme-aware shadows derived from the current `ThemeData`.
@@ -193,21 +184,21 @@ class AppThemeShadows {
   static const AppShadowSpec _primarySpec = AppShadowSpec(
     blurRadius: 22,
     offset: Offset(0, 12),
-    lightOpacity: 0.22,
+    lightOpacity: 0.65,
     darkOpacity: 0.45,
   );
 
   static const AppShadowSpec _successSpec = AppShadowSpec(
     blurRadius: 18,
     offset: Offset(0, 10),
-    lightOpacity: 0.20,
+    lightOpacity: 0.65,
     darkOpacity: 0.42,
   );
 
   static const AppShadowSpec _errorSpec = AppShadowSpec(
     blurRadius: 20,
     offset: Offset(0, 10),
-    lightOpacity: 0.24,
+    lightOpacity: 0.65,
     darkOpacity: 0.48,
   );
 
@@ -221,8 +212,8 @@ class AppThemeShadows {
   static const AppShadowSpec _greySpec = AppShadowSpec(
     blurRadius: 14,
     offset: Offset(0, 8),
-    lightOpacity: 0.16,
-    darkOpacity: 0.36,
+    lightOpacity: 0.8,
+    darkOpacity: 0.6,
   );
 
   List<BoxShadow> get primary =>

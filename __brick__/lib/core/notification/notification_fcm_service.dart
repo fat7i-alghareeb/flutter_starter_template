@@ -20,7 +20,7 @@ import 'notification_payload.dart';
 ///   notifications to keep presentation logic in one place.
 @lazySingleton
 class NotificationFcmService {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
 
   StreamSubscription<String>? _tokenRefreshSub;
   StreamSubscription<RemoteMessage>? _foregroundSub;

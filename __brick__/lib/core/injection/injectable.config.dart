@@ -83,7 +83,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i539.AuthStateNotifier>(() => _i539.AuthStateNotifier());
     gh.lazySingleton<_i845.ThemeController>(() => _i845.ThemeController());
     gh.lazySingleton<_i1017.MemoryAwareInterceptor>(
-      () => _i1017.MemoryAwareInterceptor(maxResponseSizeBytes: gh<int>()),
+      () => _i1017.MemoryAwareInterceptor(),
     );
     gh.lazySingleton<_i510.LocaleService>(
       () => _i510.LocaleService(gh<_i658.StorageService>()),
@@ -98,16 +98,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i727.LocalizationInterceptor(gh<_i510.LocaleService>()),
     );
     gh.lazySingleton<_i616.CustomDioInterceptor>(
-      () => _i616.CustomDioInterceptor(
-        logRequestHeaders: gh<bool>(),
-        logRequestBody: gh<bool>(),
-        logResponseHeaders: gh<bool>(),
-        logResponseBody: gh<bool>(),
-        logErrors: gh<bool>(),
-        maxBodyChars: gh<int>(),
-        redactedHeaders: gh<List<String>>(),
-        boxStyle: gh<_i616.BoxStyle>(),
-      ),
+      () => _i616.CustomDioInterceptor(),
     );
     gh.lazySingleton<_i1040.AppRouterConfig>(
       () => _i1040.AppRouterConfig(

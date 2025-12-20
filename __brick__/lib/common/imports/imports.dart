@@ -33,10 +33,10 @@ export "../../core/theme/app_colors.dart";
 export "../../core/theme/app_text_styles.dart";
 
 // widgets
-export "../widgets/app_button.dart";
-export "../widgets/app_button_child.dart";
-export "../widgets/app_button_icon_source.dart";
-export "../widgets/app_button_variants.dart";
+export "../widgets/button/app_button.dart";
+export "../widgets/button/app_button_child.dart";
+export "../widgets/button/app_button_icon_source.dart";
+export "../widgets/button/app_button_variants.dart";
 
 //assets
 export '../../utils/gen/assets.gen.dart';

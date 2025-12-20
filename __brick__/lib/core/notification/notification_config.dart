@@ -155,7 +155,7 @@ class AppAndroidNotificationChannelConfig {
 class AppNotificationConfig {
   const AppNotificationConfig({
     required this.androidChannels,
-    this.defaultAndroidSmallIcon = 'ic_notification',
+    this.defaultAndroidSmallIcon = '@mipmap/ic_launcher',
     this.enableDebugLogs = true,
     this.autoSubscribeToTopics = true,
     this.initialTopics = const <String>[],
@@ -243,7 +243,7 @@ class AppNotificationConfig {
   /// - You should ensure `defaultAndroidSmallIcon` exists as a drawable.
   factory AppNotificationConfig.defaults() {
     return const AppNotificationConfig(
-      defaultAndroidSmallIcon: 'ic_notification',
+      defaultAndroidSmallIcon: '@mipmap/ic_launcher',
       androidChannels: <AppAndroidNotificationChannelConfig>[
         AppAndroidNotificationChannelConfig(
           id: 'high_importance',
