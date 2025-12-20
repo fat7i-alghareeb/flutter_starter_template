@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
-import 'package:testNameToDelete/core/router/app_page_transitions.dart';
+import '../../core/router/app_page_transitions.dart';
 
 /// * AppRouteRegistry
 ///

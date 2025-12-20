@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:testNameToDelete/core/theme/app_colors.dart';
-import 'package:testNameToDelete/utils/extensions/theme_extensions.dart';
+import '../../core/theme/app_colors.dart';
+import '../../utils/extensions/theme_extensions.dart';
 
 enum AppButtonFill { solid, gradient }
 

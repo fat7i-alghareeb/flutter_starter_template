@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:testNameToDelete/core/theme/app_colors.dart' show AppColors;
+import '../../core/theme/app_colors.dart' show AppColors;
 
 /// Defines a set of optional seed colors for constructing a [ColorScheme].
 ///
