@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -40,34 +41,46 @@ class NotificationLocalService {
   }) async {
     if (_initialized) return;
 
-    final androidInit = AndroidInitializationSettings(
-      config.defaultAndroidSmallIcon,
-    );
+    Future<void> initializeWithIcon(String icon) async {
+      final androidInit = AndroidInitializationSettings(icon);
 
-    final darwinInit = DarwinInitializationSettings(
-      requestAlertPermission: requestPermissions,
-      requestBadgePermission: requestPermissions,
-      requestSoundPermission: requestPermissions,
-      notificationCategories: config.iosNotificationCategories,
-    );
+      final darwinInit = DarwinInitializationSettings(
+        requestAlertPermission: requestPermissions,
+        requestBadgePermission: requestPermissions,
+        requestSoundPermission: requestPermissions,
+        notificationCategories: config.iosNotificationCategories,
+      );
 
-    final initSettings = InitializationSettings(
-      android: androidInit,
-      iOS: darwinInit,
-      macOS: darwinInit,
-    );
+      final initSettings = InitializationSettings(
+        android: androidInit,
+        iOS: darwinInit,
+        macOS: darwinInit,
+      );
 
-    await _local.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: (response) async {
-        final payloadString = response.payload;
-        if (payloadString == null || payloadString.isEmpty) return;
+      await _local.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: (response) async {
+          final payloadString = response.payload;
+          if (payloadString == null || payloadString.isEmpty) return;
 
-        final payload = AppNotificationPayload.fromJsonString(payloadString);
-        await onNotificationTap(payload);
-      },
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-    );
+          final payload = AppNotificationPayload.fromJsonString(payloadString);
+          await onNotificationTap(payload);
+        },
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+      );
+    }
+
+    try {
+      await initializeWithIcon(config.defaultAndroidSmallIcon);
+    } on PlatformException catch (e) {
+      // Fail-safe: if the icon resource isn't packaged yet, fallback to the
+      // default launcher icon so the app still boots.
+      if (e.code == 'invalid_icon') {
+        await initializeWithIcon('@mipmap/ic_launcher');
+      } else {
+        rethrow;
+      }
+    }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
       final android = _local

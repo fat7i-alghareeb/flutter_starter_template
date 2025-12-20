@@ -16,53 +16,57 @@ class AppRouteRegistry {
   /// * Splash screen (initial route).
   /// For now we keep an empty placeholder path until the real
   /// splash screen is implemented.
-  String get splashPath => ""; // splash screen
+  String get splashPath => "/splash"; // splash screen
 
   /// * Onboarding flow route.
-  String get onboardingPath => ""; // onboarding screen
+  String get onboardingPath => "/onBoarding"; // onboarding screen
 
   /// * Login / authentication entry point.
-  String get loginPath => ""; // login screen
+  String get loginPath => "/loginPath"; // login screen
 
   /// * Home / root of the authenticated app.
-  String get rootPath => ""; // home/root screen
+  String get rootPath => "/rootPath"; // home/root screen
 
   /// * All GoRouter routes for the app.
   List<GoRoute> get routes => [
     GoRoute(
       path: splashPath,
+      name: splashPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
         transition: AppTransition.fade,
         // TODO: Replace with real splash screen widget.
-        child: const SizedBox.shrink(),
+        child: Scaffold(body: Center(child: Text("splashPath"))),
       ),
     ),
     GoRoute(
       path: onboardingPath,
+      name: onboardingPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
         transition: AppTransition.fade,
         // TODO: Replace with real onboarding screen widget.
-        child: const SizedBox.shrink(),
+        child: Scaffold(body: Center(child: Text("onboardingPath"))),
       ),
     ),
     GoRoute(
       path: loginPath,
+      name: loginPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
         transition: AppTransition.fade,
         // TODO: Replace with real login screen widget.
-        child: const SizedBox.shrink(),
+        child: Scaffold(body: Center(child: Text("loginPath"))),
       ),
     ),
     GoRoute(
       path: rootPath,
+      name: rootPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
         transition: AppTransition.fade,
         // TODO: Replace with real root/home screen widget.
-        child: const SizedBox.shrink(),
+        child: Scaffold(body: Center(child: Text("rootPath"))),
       ),
     ),
   ];
