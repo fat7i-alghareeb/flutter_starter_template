@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_theme_effects.dart';
+
 /// Theme-related convenience extensions on [BuildContext].
 ///
 /// These helpers make accessing [ThemeData], [ColorScheme] and
@@ -16,6 +18,10 @@ extension AppThemeContextX on BuildContext {
 
   /// Whether the current theme brightness is dark.
   bool get isDarkTheme => theme.brightness == Brightness.dark;
+
+  AppThemeGradients get gradients => AppThemeEffects.gradients(theme);
+
+  AppThemeShadows get shadows => AppThemeEffects.shadows(theme);
 
   /// Primary color from the current [ColorScheme].
   Color get primary => colorScheme.primary;
@@ -62,47 +68,47 @@ extension AppThemeContextX on BuildContext {
 /// `textTheme` prefix for more concise usage.
 extension AppTextStylesContextX on BuildContext {
   /// Large display style used for prominent headings.
-  TextStyle? get displayLarge => Theme.of(this).textTheme.displayLarge;
+  TextStyle get displayLarge => Theme.of(this).textTheme.displayLarge!;
 
   /// Medium display style used for secondary prominent headings.
-  TextStyle? get displayMedium => Theme.of(this).textTheme.displayMedium;
+  TextStyle get displayMedium => Theme.of(this).textTheme.displayMedium!;
 
   /// Small display style used for tertiary prominent headings.
-  TextStyle? get displaySmall => Theme.of(this).textTheme.displaySmall;
+  TextStyle get displaySmall => Theme.of(this).textTheme.displaySmall!;
 
   /// Large headline style used for section headers.
-  TextStyle? get headlineLarge => Theme.of(this).textTheme.headlineLarge;
+  TextStyle get headlineLarge => Theme.of(this).textTheme.headlineLarge!;
 
   /// Medium headline style used for section headers.
-  TextStyle? get headlineMedium => Theme.of(this).textTheme.headlineMedium;
+  TextStyle get headlineMedium => Theme.of(this).textTheme.headlineMedium!;
 
   /// Small headline style used for section headers.
-  TextStyle? get headlineSmall => Theme.of(this).textTheme.headlineSmall;
+  TextStyle get headlineSmall => Theme.of(this).textTheme.headlineSmall!;
 
   /// Large title style used for app bars and list titles.
-  TextStyle? get titleLarge => Theme.of(this).textTheme.titleLarge;
+  TextStyle get titleLarge => Theme.of(this).textTheme.titleLarge!;
 
   /// Medium title style used for inline titles.
-  TextStyle? get titleMedium => Theme.of(this).textTheme.titleMedium;
+  TextStyle get titleMedium => Theme.of(this).textTheme.titleMedium!;
 
   /// Small title style used for dense headers.
-  TextStyle? get titleSmall => Theme.of(this).textTheme.titleSmall;
+  TextStyle get titleSmall => Theme.of(this).textTheme.titleSmall!;
 
   /// Large body style used for main content text.
-  TextStyle? get bodyLarge => Theme.of(this).textTheme.bodyLarge;
+  TextStyle get bodyLarge => Theme.of(this).textTheme.bodyLarge!;
 
   /// Medium body style used for standard content text.
-  TextStyle? get bodyMedium => Theme.of(this).textTheme.bodyMedium;
+  TextStyle get bodyMedium => Theme.of(this).textTheme.bodyMedium!;
 
   /// Small body style used for supporting text.
-  TextStyle? get bodySmall => Theme.of(this).textTheme.bodySmall;
+  TextStyle get bodySmall => Theme.of(this).textTheme.bodySmall!;
 
   /// Large label style used for buttons and chips.
-  TextStyle? get labelLarge => Theme.of(this).textTheme.labelLarge;
+  TextStyle get labelLarge => Theme.of(this).textTheme.labelLarge!;
 
   /// Medium label style used for smaller labels.
-  TextStyle? get labelMedium => Theme.of(this).textTheme.labelMedium;
+  TextStyle get labelMedium => Theme.of(this).textTheme.labelMedium!;
 
   /// Small label style used for captions and helper text.
-  TextStyle? get labelSmall => Theme.of(this).textTheme.labelSmall;
+  TextStyle get labelSmall => Theme.of(this).textTheme.labelSmall!;
 }
