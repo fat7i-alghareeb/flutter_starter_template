@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+import 'package:testNameToDelete/core/theme/app_colors.dart';
+import 'package:testNameToDelete/utils/extensions/theme_extensions.dart';
+
+enum AppButtonFill { solid, gradient }
+
+enum AppButtonShape { rounded, pill, circle }
+
+class AppButtonLayout {
+  const AppButtonLayout({
+    this.width,
+    this.height = 48,
+    this.percentageWidth,
+    this.percentageHeight,
+    this.borderRadius,
+    this.shape = AppButtonShape.rounded,
+    this.contentPadding,
+  });
+
+  final double? width;
+  final double height;
+
+  final double? percentageWidth;
+  final double? percentageHeight;
+
+  final double? borderRadius;
+  final AppButtonShape shape;
+
+  final EdgeInsetsGeometry? contentPadding;
+}
+
+abstract class AppButtonVariant {
+  const AppButtonVariant();
+
+  Color solidColor(BuildContext context);
+
+  LinearGradient gradient(BuildContext context);
+
+  Color foreground(BuildContext context);
+
+  static const AppButtonVariant primary = _PrimaryButtonVariant();
+  static const AppButtonVariant success = _SuccessButtonVariant();
+  static const AppButtonVariant error = _ErrorButtonVariant();
+  static const AppButtonVariant warning = _WarningButtonVariant();
+  static const AppButtonVariant grey = _GreyButtonVariant();
+}
+
+class AppButtonResolvedStyle {
+  const AppButtonResolvedStyle({
+    required this.fill,
+    required this.color,
+    required this.gradient,
+    required this.foreground,
+    required this.shadows,
+  });
+
+  final AppButtonFill fill;
+  final Color? color;
+  final LinearGradient? gradient;
+  final Color foreground;
+  final List<BoxShadow> shadows;
+}
+
+class AppButtonStyleResolver {
+  AppButtonStyleResolver._();
+
+  static AppButtonResolvedStyle resolve(
+    BuildContext context, {
+    required AppButtonVariant variant,
+    required AppButtonFill fill,
+    required bool isActive,
+    required bool noShadow,
+  }) {
+    final effectiveVariant = isActive ? variant : AppButtonVariant.grey;
+
+    final color = fill == AppButtonFill.solid
+        ? effectiveVariant.solidColor(context)
+        : null;
+
+    final gradient = fill == AppButtonFill.gradient
+        ? effectiveVariant.gradient(context)
+        : null;
+
+    final foreground = isActive
+        ? effectiveVariant.foreground(context)
+        : Theme.of(context).colorScheme.onSurface;
+
+    final shadows = noShadow ? const <BoxShadow>[] : context.shadows.grey;
+
+    return AppButtonResolvedStyle(
+      fill: fill,
+      color: color,
+      gradient: gradient,
+      foreground: foreground,
+      shadows: shadows,
+    );
+  }
+
+  static Color foregroundForColor(Color background) {
+    final b = ThemeData.estimateBrightnessForColor(background);
+    return b == Brightness.dark ? Colors.white : Colors.black;
+  }
+}
+
+class _PrimaryButtonVariant extends AppButtonVariant {
+  const _PrimaryButtonVariant();
+
+  @override
+  Color solidColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
+
+  @override
+  LinearGradient gradient(BuildContext context) => context.gradients.primary;
+
+  @override
+  Color foreground(BuildContext context) =>
+      Theme.of(context).colorScheme.onPrimary;
+}
+
+class _SuccessButtonVariant extends AppButtonVariant {
+  const _SuccessButtonVariant();
+
+  @override
+  Color solidColor(BuildContext context) => AppColors.success;
+
+  @override
+  LinearGradient gradient(BuildContext context) => context.gradients.success;
+
+  @override
+  Color foreground(BuildContext context) =>
+      AppButtonStyleResolver.foregroundForColor(AppColors.success);
+}
+
+class _ErrorButtonVariant extends AppButtonVariant {
+  const _ErrorButtonVariant();
+
+  @override
+  Color solidColor(BuildContext context) => AppColors.error;
+
+  @override
+  LinearGradient gradient(BuildContext context) => context.gradients.error;
+
+  @override
+  Color foreground(BuildContext context) =>
+      AppButtonStyleResolver.foregroundForColor(AppColors.error);
+}
+
+class _WarningButtonVariant extends AppButtonVariant {
+  const _WarningButtonVariant();
+
+  @override
+  Color solidColor(BuildContext context) => AppColors.warning;
+
+  @override
+  LinearGradient gradient(BuildContext context) => context.gradients.warning;
+
+  @override
+  Color foreground(BuildContext context) =>
+      AppButtonStyleResolver.foregroundForColor(AppColors.warning);
+}
+
+class _GreyButtonVariant extends AppButtonVariant {
+  const _GreyButtonVariant();
+
+  @override
+  Color solidColor(BuildContext context) => context.grey;
+
+  @override
+  LinearGradient gradient(BuildContext context) => context.gradients.grey;
+
+  @override
+  Color foreground(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
+}
