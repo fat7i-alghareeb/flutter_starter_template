@@ -2,8 +2,8 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:testNameToDelete/utils/constants/design_constants.dart';
-import 'package:testNameToDelete/utils/extensions/context_extensions.dart';
+import '../../utils/constants/design_constants.dart';
+import '../../utils/extensions/context_extensions.dart';
 import 'package:vibration/vibration.dart';
 
 import 'app_button_child.dart';
