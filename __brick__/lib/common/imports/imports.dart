@@ -35,7 +35,7 @@ export "../../core/theme/app_text_styles.dart";
 // widgets
 export "../widgets/button/app_button.dart";
 export "../widgets/button/app_button_child.dart";
-export "../widgets/button/app_button_icon_source.dart";
+export "../widgets/app_icon_source.dart";
 export "../widgets/button/app_button_variants.dart";
 
 //assets

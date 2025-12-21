@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+/// Loading indicator used by [AppButton] when `isLoading` is true.
 class AppButtonLoadingDots extends StatefulWidget {
   const AppButtonLoadingDots({
     super.key,

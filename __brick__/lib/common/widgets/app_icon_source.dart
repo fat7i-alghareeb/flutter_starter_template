@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../utils/helpers/build_svg_icon.dart';
+import '../../utils/helpers/build_svg_icon.dart';
 
-abstract class AppButtonIconSource {
-  const AppButtonIconSource();
+/// Icon abstraction used by [AppButtonChild].
+///
+/// This allows button content to accept many icon sources (Material icons,
+/// assets, SVGs, or custom widgets) while keeping [AppButtonChild] simple.
+abstract class IconSource {
+  const IconSource();
 
   Widget build(
     BuildContext context, {
@@ -11,17 +15,19 @@ abstract class AppButtonIconSource {
     required double size,
   });
 
-  factory AppButtonIconSource.icon(IconData icon, {double? size}) {
+  /// Material icon.
+  factory IconSource.icon(IconData icon, {double? size}) {
     return _IconButtonIconSource(icon, size: size);
   }
 
-  factory AppButtonIconSource.asset(
+  /// Asset image (png/jpg/etc).
+  factory IconSource.asset(
     String assetPath, {
     double? size,
     bool applyColor = false,
     BoxFit fit = BoxFit.contain,
   }) {
-    return _AssetButtonIconSource(
+    return _AssetIconSource(
       assetPath,
       size: size,
       applyColor: applyColor,
@@ -29,20 +35,22 @@ abstract class AppButtonIconSource {
     );
   }
 
-  factory AppButtonIconSource.svg(
+  /// SVG icon from assets.
+  factory IconSource.svg(
     String assetName, {
     double? size,
     BoxFit fit = BoxFit.contain,
   }) {
-    return _SvgButtonIconSource(assetName, size: size, fit: fit);
+    return _SvgIconSource(assetName, size: size, fit: fit);
   }
 
-  factory AppButtonIconSource.widget(Widget child, {double? size}) {
-    return _WidgetButtonIconSource(child, size: size);
+  /// Custom widget.
+  factory IconSource.widget(Widget child, {double? size}) {
+    return _WidgetIconSource(child, size: size);
   }
 }
 
-class _IconButtonIconSource extends AppButtonIconSource {
+class _IconButtonIconSource extends IconSource {
   const _IconButtonIconSource(this.icon, {this.size});
 
   final IconData icon;
@@ -58,8 +66,8 @@ class _IconButtonIconSource extends AppButtonIconSource {
   }
 }
 
-class _AssetButtonIconSource extends AppButtonIconSource {
-  const _AssetButtonIconSource(
+class _AssetIconSource extends IconSource {
+  const _AssetIconSource(
     this.assetPath, {
     this.size,
     this.applyColor = false,
@@ -87,8 +95,8 @@ class _AssetButtonIconSource extends AppButtonIconSource {
   }
 }
 
-class _SvgButtonIconSource extends AppButtonIconSource {
-  const _SvgButtonIconSource(
+class _SvgIconSource extends IconSource {
+  const _SvgIconSource(
     this.assetName, {
     this.size,
     this.fit = BoxFit.contain,
@@ -114,8 +122,8 @@ class _SvgButtonIconSource extends AppButtonIconSource {
   }
 }
 
-class _WidgetButtonIconSource extends AppButtonIconSource {
-  const _WidgetButtonIconSource(this.child, {this.size});
+class _WidgetIconSource extends IconSource {
+  const _WidgetIconSource(this.child, {this.size});
 
   final Widget child;
   final double? size;

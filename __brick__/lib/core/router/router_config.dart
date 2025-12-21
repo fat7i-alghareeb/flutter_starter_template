@@ -163,6 +163,13 @@ class AppRouteGuard {
     final onboardingRedirect = await _handleOnboarding(currentPath);
     if (onboardingRedirect != null) return onboardingRedirect;
 
+               
+    // allow auth redirects to push the user to login.
+    if (AppFlowConfig.onboardingEnabled && currentPath == onboardingPath) {
+      final finished = await onboardingService.isOnboardingFinished();
+      if (!finished) return null;
+    }
+
     // 3) Auth.
     final authRedirect = _handleAuth(
       currentPath: currentPath,
