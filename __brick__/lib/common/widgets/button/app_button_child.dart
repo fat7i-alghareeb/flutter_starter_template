@@ -3,8 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../utils/constants/design_constants.dart';
 
-import 'app_button_icon_source.dart';
+import '../app_icon_source.dart';
 
+/// Describes the content shown inside an [AppButton].
+///
+/// This keeps the button chrome (background, shadow, press animation) separate
+/// from the child composition (label/icon/padding).
 abstract class AppButtonChild {
   const AppButtonChild();
 
@@ -12,6 +16,7 @@ abstract class AppButtonChild {
 
   EdgeInsetsGeometry defaultPadding(BuildContext context);
 
+  /// Text-only content.
   factory AppButtonChild.label(
     String label, {
     TextAlign textAlign = TextAlign.center,
@@ -28,17 +33,19 @@ abstract class AppButtonChild {
     );
   }
 
+  /// Icon-only content.
   factory AppButtonChild.icon(
-    AppButtonIconSource icon, {
+    IconSource icon, {
     double size = 20,
     EdgeInsetsGeometry? padding,
   }) {
     return _IconOnlyButtonChild(icon, size: size, padding: padding);
   }
 
+  /// Combined label + icon content.
   factory AppButtonChild.labelIcon({
     required String label,
-    required AppButtonIconSource icon,
+    required IconSource icon,
     AppButtonIconPosition position = AppButtonIconPosition.leading,
     double iconSize = 18,
     double spacing = AppSpacing.sm,
@@ -101,7 +108,7 @@ class _LabelButtonChild extends AppButtonChild {
 class _IconOnlyButtonChild extends AppButtonChild {
   const _IconOnlyButtonChild(this.icon, {this.size = 20, this.padding});
 
-  final AppButtonIconSource icon;
+  final IconSource icon;
   final double size;
   final EdgeInsetsGeometry? padding;
 
@@ -130,7 +137,7 @@ class _LabelIconButtonChild extends AppButtonChild {
   });
 
   final String label;
-  final AppButtonIconSource icon;
+  final IconSource icon;
   final AppButtonIconPosition position;
   final double iconSize;
   final double spacing;

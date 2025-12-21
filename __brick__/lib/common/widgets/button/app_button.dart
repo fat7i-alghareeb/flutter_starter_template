@@ -10,6 +10,13 @@ import 'app_button_child.dart';
 import 'app_button_loading_dots.dart';
 import 'app_button_variants.dart';
 
+/// A pressable, animated button.
+///
+/// Features:
+/// - Styling via [AppButtonVariant] + [AppButtonFill]
+/// - Loading state (shows [AppButtonLoadingDots])
+/// - Optional layout control via [AppButtonLayout]
+/// - Optional shadow override via [AppButtonShadowVariant]
 class AppButton extends StatefulWidget {
   const AppButton._({
     super.key,
@@ -21,8 +28,11 @@ class AppButton extends StatefulWidget {
     this.isActive = true,
     this.isLoading = false,
     this.noShadow = false,
+    this.shadowVariant,
+    this.customShadows,
   });
 
+  /// Create an [AppButton] with an explicit [variant] + [fill].
   factory AppButton.variant({
     Key? key,
     required AppButtonVariant variant,
@@ -33,6 +43,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -44,9 +56,12 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
+  /// Convenience factory for a primary solid button.
   factory AppButton.primary({
     Key? key,
     required AppButtonChild child,
@@ -55,6 +70,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -66,9 +83,12 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
+  /// Convenience factory for a grey (disabled-style) solid button.
   factory AppButton.grey({
     Key? key,
     required AppButtonChild child,
@@ -77,6 +97,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton.variant(
       key: key,
@@ -88,6 +110,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -99,6 +123,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton.variant(
       key: key,
@@ -110,6 +136,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -121,6 +149,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -132,6 +162,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -143,6 +175,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -154,6 +188,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -165,6 +201,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -176,6 +214,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -187,6 +227,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -198,6 +240,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -209,6 +253,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -220,6 +266,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -231,6 +279,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -242,6 +292,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -253,6 +305,8 @@ class AppButton extends StatefulWidget {
     bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
+    AppButtonShadowVariant? shadowVariant,
+    List<BoxShadow>? customShadows,
   }) {
     return AppButton._(
       key: key,
@@ -264,6 +318,8 @@ class AppButton extends StatefulWidget {
       isActive: isActive,
       isLoading: isLoading,
       noShadow: noShadow,
+      shadowVariant: shadowVariant,
+      customShadows: customShadows,
     );
   }
 
@@ -275,6 +331,8 @@ class AppButton extends StatefulWidget {
   final bool isActive;
   final bool isLoading;
   final bool noShadow;
+  final AppButtonShadowVariant? shadowVariant;
+  final List<BoxShadow>? customShadows;
 
   @override
   State<AppButton> createState() => _AppButtonState();
@@ -287,6 +345,9 @@ class _AppButtonState extends State<AppButton>
 
   bool _pressed = false;
 
+  /// True when the button can receive interactions.
+  ///
+  /// We treat loading as a disabled state to avoid double submits.
   bool get _isEnabled =>
       widget.onTap != null && widget.isActive && !widget.isLoading;
 
@@ -368,26 +429,38 @@ class _AppButtonState extends State<AppButton>
 
   @override
   Widget build(BuildContext context) {
+    /// Resolve colors/gradients/shadows based on variant + fill + active state.
     final style = AppButtonStyleResolver.resolve(
       context,
       variant: widget.variant,
       fill: widget.fill,
       isActive: widget.isActive,
       noShadow: widget.noShadow,
+      shadowVariant: widget.shadowVariant,
+      customShadows: widget.customShadows,
     );
 
+    /// Optional fixed width. When null, the button wraps to content width.
     final width = widget.layout.percentageWidth != null
         ? context.screenWidth * widget.layout.percentageWidth!
         : widget.layout.width?.w;
 
-    var height = widget.layout.percentageHeight != null
-        ? context.screenHeight * widget.layout.percentageHeight!
-        : widget.layout.height.h;
-
     final isCircle = widget.layout.shape == AppButtonShape.circle;
 
+    /// Sizing rules:
+    /// - If [layout.percentageHeight] is set → fixed height relative to screen.
+    /// - Else if [layout.height] is set → fixed height.
+    /// - Else → shrink-wrap to child + padding (subject to parent constraints).
+    final double? height = widget.layout.percentageHeight != null
+        ? context.screenHeight * widget.layout.percentageHeight!
+        : widget.layout.height?.h;
+
+    /// Circle buttons always render square. If no explicit height is provided,
+    /// we fall back to a sensible minimum size.
+    final circleSize = height ?? 48.h;
+
     final borderRadiusValue = switch (widget.layout.shape) {
-      AppButtonShape.circle => height / 2,
+      AppButtonShape.circle => circleSize / 2,
       AppButtonShape.pill => 999,
       AppButtonShape.rounded => widget.layout.borderRadius ?? AppRadii.sm,
     };
@@ -397,10 +470,13 @@ class _AppButtonState extends State<AppButton>
     final padding =
         widget.layout.contentPadding ?? widget.child.defaultPadding(context);
 
+    /// Swap content with a lightweight loading indicator.
     final content = widget.isLoading
         ? AppButtonLoadingDots(color: style.foreground)
         : widget.child.build(context, foreground: style.foreground);
 
+    /// We use low-level gesture callbacks to drive the press animation and
+    /// haptic feedback.
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: _isEnabled
@@ -430,8 +506,8 @@ class _AppButtonState extends State<AppButton>
         child: AnimatedContainer(
           duration: AppDurations.normal,
           curve: AppCurves.theme,
-          width: isCircle ? height : width,
-          height: height,
+          width: isCircle ? circleSize : width,
+          height: isCircle ? circleSize : height,
           padding: padding,
           decoration: BoxDecoration(
             color: style.color,
@@ -439,7 +515,8 @@ class _AppButtonState extends State<AppButton>
             borderRadius: borderRadius,
             boxShadow: style.shadows,
           ),
-          child: Center(child: content),
+          // Align (instead of Center) keeps the widget shrink-wrappable.
+          child: Align(widthFactor: 1, heightFactor: 1, child: content),
         ),
       ),
     );

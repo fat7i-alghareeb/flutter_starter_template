@@ -148,8 +148,8 @@ class AppColorSeeds {
     primary: AppColors.primaryLight,
     onPrimary: Colors.white,
     secondary: AppColors.secondaryLight,
-    background: Color(0xFFF9FAFB),
-    surface: Colors.white,
+    background: AppColors.backGroundLight,
+    surface: AppColors.backGroundLight,
     outline: AppColors.greyLight,
   );
 
@@ -158,8 +158,8 @@ class AppColorSeeds {
     primary: AppColors.primaryDark,
     onPrimary: Color(0xFF0D47A1),
     secondary: AppColors.secondaryDark,
-    background: Color(0xFF111827),
-    surface: Color(0xFF111827),
+    background: AppColors.backGroundDark,
+    surface: AppColors.backGroundDark,
     outline: AppColors.greyDark,
   );
 }
