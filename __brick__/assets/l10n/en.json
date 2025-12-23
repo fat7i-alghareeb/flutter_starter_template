@@ -17,5 +17,24 @@
   "serverServiceUnavailable": "Service is temporarily unavailable. Please try again later.",
 
   "decodeError": "Failed to process server response.",
-  "unknownError": "An unexpected error occurred. Please try again."
+  "unknownError": "An unexpected error occurred. Please try again.",
+
+  "validationRequired": "This field is required.",
+  "validationRequiredTrue": "You must accept this field.",
+  "validationEmail": "Please enter a valid email address.",
+  "validationNumber": "Please enter a valid number.",
+  "validationMin": "Value is too small.",
+  "validationMax": "Value is too large.",
+  "validationMinLength": "Text is too short.",
+  "validationMaxLength": "Text is too long.",
+  "validationPattern": "Invalid format.",
+  "validationCreditCard": "Invalid card number.",
+  "validationEquals": "Value does not match.",
+  "validationMustMatch": "Values must match.",
+  "validationCompare": "Invalid value.",
+  "validationContains": "Value is invalid.",
+  "validationOneOf": "Please select a valid value.",
+  "validationAny": "Value is invalid.",
+  "validationInvalidPhone": "Please enter a valid phone number.",
+  "validationUnknown": "Invalid value."
 }

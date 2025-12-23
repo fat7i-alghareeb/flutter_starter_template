@@ -17,5 +17,24 @@
   "serverServiceUnavailable": "الخدمة غير متاحة مؤقتًا. حاول مرة أخرى لاحقًا.",
 
   "decodeError": "فشل في معالجة استجابة الخادم.",
-  "unknownError": "حدث خطأ غير متوقع. حاول مرة أخرى."
+  "unknownError": "حدث خطأ غير متوقع. حاول مرة أخرى.",
+
+  "validationRequired": "هذا الحقل مطلوب.",
+  "validationRequiredTrue": "يجب الموافقة على هذا الحقل.",
+  "validationEmail": "يرجى إدخال بريد إلكتروني صحيح.",
+  "validationNumber": "يرجى إدخال رقم صحيح.",
+  "validationMin": "القيمة صغيرة جدًا.",
+  "validationMax": "القيمة كبيرة جدًا.",
+  "validationMinLength": "النص قصير جدًا.",
+  "validationMaxLength": "النص طويل جدًا.",
+  "validationPattern": "صيغة غير صحيحة.",
+  "validationCreditCard": "رقم البطاقة غير صحيح.",
+  "validationEquals": "القيمة غير مطابقة.",
+  "validationMustMatch": "يجب أن تتطابق القيم.",
+  "validationCompare": "قيمة غير صحيحة.",
+  "validationContains": "قيمة غير صحيحة.",
+  "validationOneOf": "يرجى اختيار قيمة صحيحة.",
+  "validationAny": "قيمة غير صحيحة.",
+  "validationInvalidPhone": "يرجى إدخال رقم هاتف صحيح.",
+  "validationUnknown": "قيمة غير صحيحة."
 }
