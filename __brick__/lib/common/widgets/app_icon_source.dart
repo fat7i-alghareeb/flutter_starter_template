@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../utils/helpers/build_svg_icon.dart';
 
+typedef IconSourceBuilder =
+    Widget Function(
+      BuildContext context, {
+      required Color color,
+      required double size,
+    });
+
 /// Icon abstraction used by [AppButtonChild].
 ///
 /// This allows button content to accept many icon sources (Material icons,
@@ -47,6 +54,14 @@ abstract class IconSource {
   /// Custom widget.
   factory IconSource.widget(Widget child, {double? size}) {
     return _WidgetIconSource(child, size: size);
+  }
+
+  /// Custom builder.
+  ///
+  /// Useful when you want a widget that reacts to the provided `color`/`size`
+  /// (e.g. for prefix/suffix icons in form fields).
+  factory IconSource.builder(IconSourceBuilder builder) {
+    return _BuilderIconSource(builder);
   }
 }
 
@@ -96,11 +111,7 @@ class _AssetIconSource extends IconSource {
 }
 
 class _SvgIconSource extends IconSource {
-  const _SvgIconSource(
-    this.assetName, {
-    this.size,
-    this.fit = BoxFit.contain,
-  });
+  const _SvgIconSource(this.assetName, {this.size, this.fit = BoxFit.contain});
 
   final String assetName;
   final double? size;
@@ -140,5 +151,20 @@ class _WidgetIconSource extends IconSource {
       height: s,
       child: FittedBox(child: child),
     );
+  }
+}
+
+class _BuilderIconSource extends IconSource {
+  const _BuilderIconSource(this.builder);
+
+  final IconSourceBuilder builder;
+
+  @override
+  Widget build(
+    BuildContext context, {
+    required Color color,
+    required double size,
+  }) {
+    return builder(context, color: color, size: size);
   }
 }

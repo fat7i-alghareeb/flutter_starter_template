@@ -1,6 +1,6 @@
 // lib/common/import/imports.dart
 
-library imports;
+library;
 
 // Flutter (UI layer)
 export 'package:flutter/material.dart';
@@ -29,14 +29,18 @@ export "../../utils/helpers/app_strings.dart";
 // helpers
 export "../../utils/helpers/colored_print.dart";
 export "../../utils/helpers/build_svg_icon.dart";
+export "../../utils/helpers/input_formatters.dart";
 export "../../core/theme/app_colors.dart";
 export "../../core/theme/app_text_styles.dart";
+export "../../utils/extensions/reactive_forms_extensions.dart";
 
 // widgets
 export "../widgets/button/app_button.dart";
 export "../widgets/button/app_button_child.dart";
 export "../widgets/app_icon_source.dart";
 export "../widgets/button/app_button_variants.dart";
+export "../widgets/form/app_reactive_text_field.dart";
+export "../widgets/form/app_reactive_validation_messages.dart";
 
 //assets
 export '../../utils/gen/assets.gen.dart';

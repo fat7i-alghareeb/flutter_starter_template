@@ -99,7 +99,7 @@ class AppThemeGradients {
     lightStartAlpha: 0.8,
     lightEndAlpha: 0.7,
     darkStartAlpha: 0.8,
-    darkEndAlpha: 06,
+    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _successSpec = AppGradientSpec(
@@ -108,7 +108,7 @@ class AppThemeGradients {
     lightStartAlpha: 0.8,
     lightEndAlpha: 0.7,
     darkStartAlpha: 0.8,
-    darkEndAlpha: 06,
+    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _errorSpec = AppGradientSpec(
@@ -117,7 +117,7 @@ class AppThemeGradients {
     lightStartAlpha: 0.8,
     lightEndAlpha: 0.7,
     darkStartAlpha: 0.8,
-    darkEndAlpha: 06,
+    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _warningSpec = AppGradientSpec(
@@ -126,7 +126,7 @@ class AppThemeGradients {
     lightStartAlpha: 0.8,
     lightEndAlpha: 0.7,
     darkStartAlpha: 0.8,
-    darkEndAlpha: 06,
+    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _greySpec = AppGradientSpec(
@@ -135,7 +135,7 @@ class AppThemeGradients {
     lightStartAlpha: 0.8,
     lightEndAlpha: 0.7,
     darkStartAlpha: 0.8,
-    darkEndAlpha: 06,
+    darkEndAlpha: 0.6,
   );
 
   LinearGradient get primary =>
