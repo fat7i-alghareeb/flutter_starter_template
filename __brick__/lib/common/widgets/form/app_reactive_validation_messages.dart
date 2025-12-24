@@ -90,4 +90,21 @@ class AppReactiveValidationMessages {
 
     return null;
   }
+
+  static String? latestErrorText(
+    AbstractControl<dynamic> control, {
+    required Map<String, ValidationMessageFunction> messages,
+  }) {
+    if (control.errors.isEmpty) return null;
+
+    String? last;
+    for (final entry in control.errors.entries) {
+      final key = entry.key;
+      final resolver = messages[key] ?? messages[unknownKey];
+      if (resolver == null) continue;
+      last = resolver(entry.value);
+    }
+
+    return last;
+  }
 }

@@ -29,7 +29,6 @@ class LocaleService {
   Future<Locale> resolveInitialLocale() async {
     final savedCode = await _storage.readString(
       LocalizationStorageKeys.localeCode,
-      area: StorageArea.persistent,
     );
 
     String finalCode;
@@ -41,11 +40,7 @@ class LocaleService {
           ? deviceCode
           : AppLocalizationConfig.fallbackLanguageCode;
 
-      await _storage.writeString(
-        LocalizationStorageKeys.localeCode,
-        finalCode,
-        area: StorageArea.persistent,
-      );
+      await _storage.writeString(LocalizationStorageKeys.localeCode, finalCode);
     }
 
     return Locale(finalCode);
@@ -61,20 +56,14 @@ class LocaleService {
   ) async {
     final code = language.code;
 
-    await _storage.writeString(
-      LocalizationStorageKeys.localeCode,
-      code,
-      area: StorageArea.persistent,
-    );
-
-    await context.setLocale(Locale(code));
+    await _storage.writeString(LocalizationStorageKeys.localeCode, code);
+    if (context.mounted) await context.setLocale(Locale(code));
   }
 
   /// Returns the currently saved language code, or the fallback if none.
   Future<String> currentLanguageCode() async {
     final savedCode = await _storage.readString(
       LocalizationStorageKeys.localeCode,
-      area: StorageArea.persistent,
     );
     if (savedCode != null && _isSupported(savedCode)) {
       return savedCode;

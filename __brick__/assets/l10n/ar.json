@@ -36,5 +36,6 @@
   "validationOneOf": "يرجى اختيار قيمة صحيحة.",
   "validationAny": "قيمة غير صحيحة.",
   "validationInvalidPhone": "يرجى إدخال رقم هاتف صحيح.",
-  "validationUnknown": "قيمة غير صحيحة."
+  "validationUnknown": "قيمة غير صحيحة.",
+  "search": "بحث"
 }

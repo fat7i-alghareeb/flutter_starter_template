@@ -3,11 +3,11 @@ part of 'app_reactive_text_field.dart';
 mixin _AppReactiveTextFieldDebounceMixin on State<AppReactiveTextField> {
   Timer? _debounce;
 
-  void scheduleDebounced(String value) {
+  void scheduleDebounced(String value, bool isValid) {
     if (widget.onChangedDebounced == null) return;
     _debounce?.cancel();
     _debounce = Timer(widget.onChangedDebounceDuration, () {
-      widget.onChangedDebounced?.call(value);
+      widget.onChangedDebounced?.call(value, isValid);
     });
   }
 

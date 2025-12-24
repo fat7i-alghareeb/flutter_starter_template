@@ -10,6 +10,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/app_typography.dart';
 import 'core/theme/theme_controller.dart';
 import 'utils/constants/design_constants.dart';
+import 'common/widgets/stage_tools/stage_tools_overlay.dart';
 
 /// Global auth mode selector for this app.
 ///
@@ -50,7 +51,7 @@ class App extends StatelessWidget {
 
             return AnnotatedRegion<SystemUiOverlayStyle>(
               value: overlayStyle,
-              child: child ?? const SizedBox.shrink(),
+              child: StageToolsOverlay(child: child ?? const SizedBox.shrink()),
             );
           },
         );
