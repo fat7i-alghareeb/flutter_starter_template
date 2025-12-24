@@ -36,5 +36,6 @@
   "validationOneOf": "Please select a valid value.",
   "validationAny": "Value is invalid.",
   "validationInvalidPhone": "Please enter a valid phone number.",
-  "validationUnknown": "Invalid value."
+  "validationUnknown": "Invalid value.",
+  "search": "Search"
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +15,7 @@ import '../../../utils/extensions/string_extensions.dart';
 import '../../../utils/extensions/theme_extensions.dart';
 import '../../../utils/helpers/input_formatters.dart';
 import '../../../utils/helpers/app_strings.dart';
+import '../../../utils/helpers/colored_print.dart';
 import '../app_icon_source.dart';
 import 'app_reactive_validation_messages.dart';
 
@@ -121,10 +123,10 @@ class AppReactiveTextField extends StatefulWidget {
     int? maxLines,
     int? minLines,
     TextInputAction? textInputAction,
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -171,10 +173,10 @@ class AppReactiveTextField extends StatefulWidget {
     int? maxLines,
     int? minLines,
     TextInputAction? textInputAction,
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -216,10 +218,12 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
     AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppFieldTextDirectionMode textDirectionMode =
+        AppFieldTextDirectionMode.locale,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
     bool passwordObscureText = true,
     bool passwordEnableToggle = true,
     Widget? passwordObscuredWidget,
@@ -239,6 +243,7 @@ class AppReactiveTextField extends StatefulWidget {
       style: style,
       validation: validation,
       affixes: affixes,
+      textDirectionMode: textDirectionMode,
       onChanged: onChanged,
       onChangedDebounced: onChangedDebounced,
       onChangedDebounceDuration: onChangedDebounceDuration,
@@ -267,12 +272,13 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
     AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppFieldTextDirectionMode textDirectionMode = AppFieldTextDirectionMode.ltr,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
     List<String>? phoneCountries,
-    bool phoneUseEmojiFlags = true,
+    bool phoneUseEmojiFlags = false,
     String? phoneDefaultIsoCode,
   }) {
     return AppReactiveTextField._(
@@ -289,6 +295,7 @@ class AppReactiveTextField extends StatefulWidget {
       style: style,
       validation: validation,
       affixes: affixes,
+      textDirectionMode: textDirectionMode,
       onChanged: onChanged,
       onChangedDebounced: onChangedDebounced,
       onChangedDebounceDuration: onChangedDebounceDuration,
@@ -314,10 +321,12 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
     AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppFieldTextDirectionMode textDirectionMode =
+        AppFieldTextDirectionMode.locale,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
     bool allowNegative = false,
     bool removeTrailingDotZero = false,
   }) {
@@ -335,6 +344,7 @@ class AppReactiveTextField extends StatefulWidget {
       style: style,
       validation: validation,
       affixes: affixes,
+      textDirectionMode: textDirectionMode,
       onChanged: onChanged,
       onChangedDebounced: onChangedDebounced,
       onChangedDebounceDuration: onChangedDebounceDuration,
@@ -359,10 +369,12 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
     AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppFieldTextDirectionMode textDirectionMode =
+        AppFieldTextDirectionMode.locale,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
     bool allowNegative = false,
   }) {
     return AppReactiveTextField._(
@@ -379,6 +391,7 @@ class AppReactiveTextField extends StatefulWidget {
       style: style,
       validation: validation,
       affixes: affixes,
+      textDirectionMode: textDirectionMode,
       onChanged: onChanged,
       onChangedDebounced: onChangedDebounced,
       onChangedDebounceDuration: onChangedDebounceDuration,
@@ -402,10 +415,12 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
     AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
-    ValueChanged<String>? onChanged,
-    ValueChanged<String>? onChangedDebounced,
+    AppFieldTextDirectionMode textDirectionMode =
+        AppFieldTextDirectionMode.locale,
+    AppReactiveTextFieldValueCallback? onChanged,
+    AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
-    ValueChanged<String>? onSubmitted,
+    AppReactiveTextFieldValueCallback? onSubmitted,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -421,6 +436,7 @@ class AppReactiveTextField extends StatefulWidget {
       style: style,
       validation: validation,
       affixes: affixes,
+      textDirectionMode: textDirectionMode,
       onChanged: onChanged,
       onChangedDebounced: onChangedDebounced,
       onChangedDebounceDuration: onChangedDebounceDuration,
@@ -462,14 +478,14 @@ class AppReactiveTextField extends StatefulWidget {
 
   final TextInputAction? textInputAction;
 
-  final ValueChanged<String>? onChanged;
+  final AppReactiveTextFieldValueCallback? onChanged;
 
   /// Debounced value change callback.
   ///
   /// Useful for “search as you type” without doing work on every keystroke.
-  final ValueChanged<String>? onChangedDebounced;
+  final AppReactiveTextFieldValueCallback? onChangedDebounced;
   final Duration onChangedDebounceDuration;
-  final ValueChanged<String>? onSubmitted;
+  final AppReactiveTextFieldValueCallback? onSubmitted;
 
   final bool allowNegative;
   final bool removeTrailingDotZero;

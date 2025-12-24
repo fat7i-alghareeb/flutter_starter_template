@@ -1,5 +1,8 @@
 part of 'app_reactive_text_field.dart';
 
+typedef AppReactiveTextFieldValueCallback =
+    void Function(String value, bool isValid);
+
 /// High-performance, highly customizable form field widgets built on top of
 /// `reactive_forms`.
 ///
@@ -128,12 +131,16 @@ class AppTextFieldAffixes {
 class AppTextFieldValidation {
   const AppTextFieldValidation({
     this.enabled = true,
-    this.showErrorsMode = AppReactiveShowErrorsMode.touched,
+    this.showErrorsMode = AppReactiveShowErrorsMode.dirty,
+    this.hideErrorText = false,
+    this.deferErrorsUntilFirstDebounce = true,
     this.messages,
   });
 
   final bool enabled;
   final AppReactiveShowErrorsMode showErrorsMode;
+  final bool hideErrorText;
+  final bool deferErrorsUntilFirstDebounce;
   final Map<String, ValidationMessageFunction>? messages;
 }
 

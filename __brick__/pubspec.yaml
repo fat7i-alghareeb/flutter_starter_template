@@ -61,27 +61,27 @@ flutter:
         - package: vector_graphics_compiler
     - assets/icons/
 
-# # dart run flutter_flavorizr
-# flavorizr:
-#   flavors:
-#     stage:
-#       app:
-#         name: "{{project_name}} Stage"
-#         package_name: "{{stage_package_name}}"
-#       android:
-#         applicationId: "{{stage_package_name}}"
-#     production:
-#       app:
-#         name: "{{project_name}}"
-#         package_name: "{{production_package_name}}"
-#       android:
-#         applicationId: "{{production_package_name}}"
-#   instructions:
-#     - android:androidManifest
-#     - android:flavorizrGradle
-#     - android:buildGradle
-#     - flutter:flavors
-#     - ide:config
+# dart run flutter_flavorizr
+flavorizr:
+  flavors:
+    stage:
+      app:
+        name: "{{project_name}} Stage"
+        package_name: "{{package_name}}.stage"
+      android:
+        applicationId: "{{package_name}}.stage"
+    production:
+      app:
+        name: "{{project_name}}"
+        package_name: "{{package_name}}"
+      android:
+        applicationId: "{{package_name}}"
+  instructions:
+    - android:androidManifest
+    - android:flavorizrGradle
+    - android:buildGradle
+    - flutter:flavors
+    - ide:config
 
 flutter_gen:
   output: lib/utils/gen/

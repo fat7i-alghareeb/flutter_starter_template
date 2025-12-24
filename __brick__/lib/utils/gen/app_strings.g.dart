@@ -102,4 +102,7 @@ class AppStrings {
 
   /// Invalid value. - قيمة غير صحيحة.
   static String get validationUnknown => 'validationUnknown'.tr();
+
+  /// Search - البحث
+  static String get search => 'search'.tr();
 }
