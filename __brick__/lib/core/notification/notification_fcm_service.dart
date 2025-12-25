@@ -39,15 +39,11 @@ class NotificationFcmService {
 
     // This call is safe even when the permission was requested earlier via
     // permission_handler. On iOS it will not prompt again once granted.
-    await _messaging.requestPermission(alert: true, badge: true, sound: true);
+    await _messaging.requestPermission();
 
     // Prevent iOS from showing system notifications in foreground.
     // Foreground notifications are shown via flutter_local_notifications.
-    await _messaging.setForegroundNotificationPresentationOptions(
-      alert: false,
-      badge: false,
-      sound: false,
-    );
+    await _messaging.setForegroundNotificationPresentationOptions();
 
     if (config.enableDebugLogs) {
       printG('[Notifications] FCM configured');

@@ -85,7 +85,6 @@ Future<void> _initializeNotifications() async {
       options: const NotificationInitOptions(
         initializeFirebase: false,
         enableFcm: false,
-        requestPermissionsAtStartup: true,
       ),
       onNotificationTap: (payload) async {
         await _handleNotificationNavigation(payload);
@@ -166,7 +165,7 @@ Future<void> _runGuardedApp(
         .map((code) => Locale(code))
         .toList(),
     path: AppLocalizationConfig.translationsPath,
-    fallbackLocale: Locale(AppLocalizationConfig.fallbackLanguageCode),
+    fallbackLocale: const Locale(AppLocalizationConfig.fallbackLanguageCode),
     startLocale: initialLocale,
     saveLocale: false,
     useOnlyLangCode: true,

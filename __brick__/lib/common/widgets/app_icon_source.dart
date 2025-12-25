@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../utils/helpers/build_svg_icon.dart';
+import 'app_image_viewer.dart';
 
 typedef IconSourceBuilder =
     Widget Function(
@@ -49,6 +50,38 @@ abstract class IconSource {
     BoxFit fit = BoxFit.contain,
   }) {
     return _SvgIconSource(assetName, size: size, fit: fit);
+  }
+
+  /// Image from assets (png/jpg/etc) rendered via [AppImageViewer].
+  factory IconSource.imageAsset(
+    String assetPath, {
+    double? size,
+    BoxFit fit = BoxFit.contain,
+    AppImageViewerLoading loading = AppImageViewerLoading.none,
+  }) {
+    return _AppImageViewerAssetIconSource(
+      assetPath,
+      size: size,
+      fit: fit,
+      loading: loading,
+    );
+  }
+
+  /// Image from network rendered via [AppImageViewer].
+  factory IconSource.imageNetwork(
+    String url, {
+    double? size,
+    BoxFit fit = BoxFit.contain,
+    Map<String, String>? headers,
+    AppImageViewerLoading loading = AppImageViewerLoading.shimmer,
+  }) {
+    return _AppImageViewerNetworkIconSource(
+      url,
+      size: size,
+      fit: fit,
+      headers: headers,
+      loading: loading,
+    );
   }
 
   /// Custom widget.
@@ -166,5 +199,70 @@ class _BuilderIconSource extends IconSource {
     required double size,
   }) {
     return builder(context, color: color, size: size);
+  }
+}
+
+class _AppImageViewerAssetIconSource extends IconSource {
+  const _AppImageViewerAssetIconSource(
+    this.assetPath, {
+    this.size,
+    this.fit = BoxFit.contain,
+    this.loading = AppImageViewerLoading.none,
+  });
+
+  final String assetPath;
+  final double? size;
+  final BoxFit fit;
+  final AppImageViewerLoading loading;
+
+  @override
+  Widget build(
+    BuildContext context, {
+    required Color color,
+    required double size,
+  }) {
+    final s = this.size ?? size;
+    return AppImageViewer.asset(
+      assetPath,
+      width: s,
+      height: s,
+      borderRadius: 0,
+      fit: fit,
+      loading: loading,
+    );
+  }
+}
+
+class _AppImageViewerNetworkIconSource extends IconSource {
+  const _AppImageViewerNetworkIconSource(
+    this.url, {
+    this.size,
+    this.fit = BoxFit.contain,
+    this.headers,
+    this.loading = AppImageViewerLoading.shimmer,
+  });
+
+  final String url;
+  final double? size;
+  final BoxFit fit;
+  final Map<String, String>? headers;
+  final AppImageViewerLoading loading;
+
+  @override
+  Widget build(
+    BuildContext context, {
+    required Color color,
+    required double size,
+  }) {
+    final s = this.size ?? size;
+    return AppImageViewer.network(
+      url,
+      headers: headers,
+      width: s,
+      height: s,
+      borderRadius: 0,
+      fit: fit,
+      loading: loading,
+    );
   }
 }

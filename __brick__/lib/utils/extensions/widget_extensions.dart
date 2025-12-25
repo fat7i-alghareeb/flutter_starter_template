@@ -57,3 +57,11 @@ extension WidgetBoxX on Widget {
   Widget sized({double? w, double? h}) =>
       SizedBox(width: w?.w, height: h?.h, child: this);
 }
+
+extension NumSpacingX on num {
+  Widget get verticalSpacing => SizedBox(height: h);
+  Widget get horizontalSpacing => SizedBox(width: w);
+
+  // Backward-compatible alias for the common misspelling.
+  Widget get horizantleSpasing => horizontalSpacing;
+}

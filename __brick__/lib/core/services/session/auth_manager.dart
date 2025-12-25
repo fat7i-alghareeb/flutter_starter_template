@@ -107,9 +107,8 @@ class AuthManager {
   Future<void> logout() async {
     printY('${AuthLogTags.authManager} logout');
 
-    await storage.remove(AuthStorageKeys.user, area: StorageArea.persistent);
-    await storage.remove(AuthStorageKeys.guestFlag,
-        area: StorageArea.persistent);
+    await storage.remove(AuthStorageKeys.user);
+    await storage.remove(AuthStorageKeys.guestFlag);
 
     state.setUser(null);
     state.setGuest(false);
@@ -148,29 +147,18 @@ class AuthManager {
     state.setUser(user);
 
     final jsonString = json.encode(user.toJson());
-    await storage.writeString(
-      AuthStorageKeys.user,
-      jsonString,
-      area: StorageArea.persistent,
-    );
+    await storage.writeString(AuthStorageKeys.user, jsonString);
   }
 
   /// Persists the guest flag and updates the in-memory representation.
   Future<void> _setGuest(bool value) async {
     state.setGuest(value);
-    await storage.writeBool(
-      AuthStorageKeys.guestFlag,
-      value,
-      area: StorageArea.persistent,
-    );
+    await storage.writeBool(AuthStorageKeys.guestFlag, value);
   }
 
   /// Loads user and guest flag from storage to compute the initial state.
   Future<void> _loadUserFromStorage() async {
-    final jsonString = await storage.readString(
-      AuthStorageKeys.user,
-      area: StorageArea.persistent,
-    );
+    final jsonString = await storage.readString(AuthStorageKeys.user);
     if (jsonString != null && jsonString.isNotEmpty) {
       try {
         final decoded = json.decode(jsonString) as Map<String, dynamic>;
@@ -179,10 +167,7 @@ class AuthManager {
       } catch (_) {}
     }
 
-    final guestFlag = await storage.readBool(
-      AuthStorageKeys.guestFlag,
-      area: StorageArea.persistent,
-    );
+    final guestFlag = await storage.readBool(AuthStorageKeys.guestFlag);
     state.setGuest(guestFlag ?? false);
   }
 

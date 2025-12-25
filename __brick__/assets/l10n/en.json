@@ -37,5 +37,8 @@
   "validationAny": "Value is invalid.",
   "validationInvalidPhone": "Please enter a valid phone number.",
   "validationUnknown": "Invalid value.",
-  "search": "Search"
+  "search": "Search",
+  "emptyStateNoData": "No data available.",
+  "somethingWentWrong": "Something went wrong.",
+  "retry": "Retry"
 }

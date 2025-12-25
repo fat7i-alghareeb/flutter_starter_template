@@ -1,17 +1,34 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/injection/injectable.dart';
+import '../../../core/router/router_config.dart';
 import '../../../core/services/localization/locale_service.dart';
 import '../../../core/config/localization_config.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../../../utils/extensions/theme_extensions.dart';
 import '../../../flavors.dart';
 import '../button/app_button.dart';
 import '../button/app_button_child.dart';
-import '../button/app_button_variants.dart';
 import '../app_icon_source.dart';
 
+/// StageToolsOverlay
+/// ----------------
+///
+/// Floating developer tools overlay intended for the `stage` flavor only.
+///
+/// It renders draggable buttons that can open helpful bottom sheets (locale,
+/// theme, etc.) while testing.
+///
+/// Usage:
+/// ```dart
+/// StageToolsOverlay(
+///   child: MaterialApp.router(...),
+/// )
+/// ```
 typedef StageToolOnPressed = void Function(BuildContext context);
 
 enum StageToolAnchor { topLeft, topRight, bottomLeft, bottomRight }
@@ -58,6 +75,58 @@ class StageToolDefinition {
 class StageToolsRegistry {
   const StageToolsRegistry._();
 
+  static _StageToolsSheet? _activeSheet;
+  static Completer<void>? _activeSheetClosed;
+
+  static NavigatorState? _resolveRootNavigator(BuildContext context) {
+    // Prefer the current widget tree navigator (rootNavigator), but fall back
+    // to router delegate navigator when the overlay is built outside a
+    // MaterialApp context.
+    final nav = Navigator.maybeOf(context, rootNavigator: true);
+    if (nav != null) return nav;
+
+    try {
+      final router = getIt<AppRouterConfig>().router;
+      return router.routerDelegate.navigatorKey.currentState;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> _openExclusiveSheet(
+    BuildContext context, {
+    required _StageToolsSheet sheet,
+    required Future<void> Function(BuildContext sheetContext) open,
+  }) async {
+    // Ensures only one stage-tools bottom sheet is visible at a time.
+    final navigator = _resolveRootNavigator(context);
+    if (navigator == null) return;
+
+    final sheetContext = navigator.context;
+
+    if (_activeSheet == sheet) return;
+
+    if (_activeSheet != null) {
+      final previousClosed = _activeSheetClosed;
+      await navigator.maybePop();
+      if (previousClosed != null) await previousClosed.future;
+    }
+
+    if (!sheetContext.mounted) return;
+
+    _activeSheet = sheet;
+    final closed = Completer<void>();
+    _activeSheetClosed = closed;
+
+    try {
+      await open(sheetContext);
+    } finally {
+      if (_activeSheet == sheet) _activeSheet = null;
+      if (_activeSheetClosed == closed) _activeSheetClosed = null;
+      if (!closed.isCompleted) closed.complete();
+    }
+  }
+
   static List<StageToolDefinition> tools() {
     return <StageToolDefinition>[
       StageToolDefinition(
@@ -83,27 +152,38 @@ class StageToolsRegistry {
 
   static Future<void> _showLocaleSheet(BuildContext context) async {
     final localeService = getIt<LocaleService>();
-    final currentCode = context.locale.languageCode.toLowerCase();
 
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: AppLanguage.values.map((lang) {
-              final code = lang.code;
-              return ListTile(
-                title: Text(code.toUpperCase()),
-                trailing: currentCode == code ? const Icon(Icons.check) : null,
-                onTap: () async {
-                  await localeService.changeLanguage(lang, context);
-                  if (context.mounted) Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          ),
+    await _openExclusiveSheet(
+      context,
+      sheet: _StageToolsSheet.locale,
+      open: (sheetContext) async {
+        final currentCode = sheetContext.locale.languageCode.toLowerCase();
+
+        await showModalBottomSheet<void>(
+          context: sheetContext,
+          useRootNavigator: true,
+          showDragHandle: true,
+          builder: (context) {
+            return SafeArea(
+              child: ListView(
+                shrinkWrap: true,
+                children: AppLanguage.values.map((lang) {
+                  final code = lang.code;
+                  return ListTile(
+                    title: Text(code.toUpperCase()),
+                    trailing: currentCode == code
+                        ? const Icon(Icons.check)
+                        : null,
+                    onTap: () async {
+                      final navigator = Navigator.of(context);
+                      await localeService.changeLanguage(lang, context);
+                      if (navigator.mounted) navigator.pop();
+                    },
+                  );
+                }).toList(),
+              ),
+            );
+          },
         );
       },
     );
@@ -118,36 +198,45 @@ class StageToolsRegistry {
       ThemeMode.dark,
     ];
 
-    await showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        final current = themeController.themeMode;
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: options.map((mode) {
-              final label = switch (mode) {
-                ThemeMode.system => 'system',
-                ThemeMode.light => 'light',
-                ThemeMode.dark => 'dark',
-              };
+    await _openExclusiveSheet(
+      context,
+      sheet: _StageToolsSheet.theme,
+      open: (sheetContext) async {
+        await showModalBottomSheet<void>(
+          context: sheetContext,
+          useRootNavigator: true,
+          showDragHandle: true,
+          builder: (context) {
+            final current = themeController.themeMode;
+            return SafeArea(
+              child: ListView(
+                shrinkWrap: true,
+                children: options.map((mode) {
+                  final label = switch (mode) {
+                    ThemeMode.system => 'system',
+                    ThemeMode.light => 'light',
+                    ThemeMode.dark => 'dark',
+                  };
 
-              return ListTile(
-                title: Text(label.toUpperCase()),
-                trailing: current == mode ? const Icon(Icons.check) : null,
-                onTap: () {
-                  themeController.setThemeMode(mode);
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          ),
+                  return ListTile(
+                    title: Text(label.toUpperCase()),
+                    trailing: current == mode ? const Icon(Icons.check) : null,
+                    onTap: () {
+                      themeController.setThemeMode(mode);
+                      Navigator.of(context).pop();
+                    },
+                  );
+                }).toList(),
+              ),
+            );
+          },
         );
       },
     );
   }
 }
+
+enum _StageToolsSheet { locale, theme }
 
 class StageToolsOverlay extends StatefulWidget {
   const StageToolsOverlay({super.key, required this.child});
@@ -165,6 +254,7 @@ class _StageToolsOverlayState extends State<StageToolsOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    // Hard gate: stage tools must never appear in production flavors.
     if (F.appFlavor != Flavor.stage) return widget.child;
 
     final tools = StageToolsRegistry.tools();
@@ -207,6 +297,8 @@ class _StageToolsOverlayState extends State<StageToolsOverlay> {
                   icon: tool.icon,
                   onTap: () => tool.onPressed(context),
                   onDragDelta: (delta) {
+                    // Clamp inside the screen bounds to avoid losing the button
+                    // off-screen when dragging.
                     setState(() {
                       final next = (_positions[tool.id] ?? clamped) + delta;
                       _positions[tool.id] = Offset(
@@ -253,18 +345,11 @@ class _DraggableStageToolButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular((size / 2).r),
           border: Border.all(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.7),
+            color: context.theme.dividerColor.withValues(alpha: 0.7),
           ),
         ),
-        child: AppButton.variant(
-          variant: AppButtonVariant.grey,
-          fill: AppButtonFill.solid,
-          shadowVariant: AppButtonShadowVariant.grey,
-          layout: AppButtonLayout(
-            height: size,
-            shape: AppButtonShape.circle,
-            contentPadding: EdgeInsets.zero,
-          ),
+        child: AppButton.primary(
+          noShadow: true,
           child: AppButtonChild.icon(icon, size: 18, padding: EdgeInsets.zero),
           onTap: onTap,
         ),

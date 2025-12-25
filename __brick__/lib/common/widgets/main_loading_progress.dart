@@ -10,12 +10,12 @@ import 'package:flutter/material.dart'
         SizedBox;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class LoadingProgress extends StatelessWidget {
+class MainLoadingProgress extends StatelessWidget {
   final double size;
   final double strokeWidth;
   final Color? color;
 
-  const LoadingProgress({
+  const MainLoadingProgress({
     super.key,
     this.size = 30,
     this.strokeWidth = 3,

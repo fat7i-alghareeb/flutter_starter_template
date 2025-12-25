@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/extensions/theme_extensions.dart';
+
 /// Central typography configuration for the app.
 ///
 /// All text styles should come from this configuration so that updating
@@ -14,7 +16,7 @@ class AppTypography {
   /// To swap fonts, change this to another [GoogleFonts] family and adjust
   /// weights in this method as needed.
   static TextTheme baseTextTheme(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final textTheme = context.textTheme;
     return GoogleFonts.poppinsTextTheme(textTheme);
   }
 

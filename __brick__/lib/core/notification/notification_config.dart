@@ -243,17 +243,13 @@ class AppNotificationConfig {
   /// - You should ensure `defaultAndroidSmallIcon` exists as a drawable.
   factory AppNotificationConfig.defaults() {
     return const AppNotificationConfig(
-      defaultAndroidSmallIcon: '@mipmap/ic_launcher',
       androidChannels: <AppAndroidNotificationChannelConfig>[
         AppAndroidNotificationChannelConfig(
           id: 'high_importance',
           name: 'High Importance Notifications',
           description: 'Used for important alerts.',
-          importance: AppNotificationImportance.high,
-          priority: AppNotificationPriority.high,
         ),
       ],
-      initialTopics: <String>[],
     );
   }
 }

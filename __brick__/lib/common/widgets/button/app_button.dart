@@ -7,14 +7,14 @@ import '../../../utils/extensions/context_extensions.dart';
 import 'package:vibration/vibration.dart';
 
 import 'app_button_child.dart';
-import 'app_button_loading_dots.dart';
+import '../loading_dots.dart';
 import 'app_button_variants.dart';
 
 /// A pressable, animated button.
 ///
 /// Features:
 /// - Styling via [AppButtonVariant] + [AppButtonFill]
-/// - Loading state (shows [AppButtonLoadingDots])
+/// - Loading state (shows [LoadingDots])
 /// - Optional layout control via [AppButtonLayout]
 /// - Optional shadow override via [AppButtonShadowVariant]
 class AppButton extends StatefulWidget {
@@ -472,7 +472,7 @@ class _AppButtonState extends State<AppButton>
 
     /// Swap content with a lightweight loading indicator.
     final content = widget.isLoading
-        ? AppButtonLoadingDots(color: style.foreground)
+        ? LoadingDots(color: style.foreground)
         : widget.child.build(context, foreground: style.foreground);
 
     /// We use low-level gesture callbacks to drive the press animation and
