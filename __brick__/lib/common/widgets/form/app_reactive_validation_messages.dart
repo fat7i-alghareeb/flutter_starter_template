@@ -42,6 +42,7 @@ class AppReactiveValidationMessages {
   const AppReactiveValidationMessages._();
 
   static const String invalidPhoneKey = 'invalidPhone';
+  static const String customMessageKey = 'customMessage';
   static const String unknownKey = 'unknown';
 
   static Map<String, ValidationMessageFunction> defaults() {
@@ -63,6 +64,10 @@ class AppReactiveValidationMessages {
       ValidationMessage.oneOf: (_) => AppStrings.validationOneOf,
       ValidationMessage.any: (_) => AppStrings.validationAny,
       invalidPhoneKey: (_) => AppStrings.validationInvalidPhone,
+      customMessageKey: (value) {
+        if (value is String && value.trim().isNotEmpty) return value;
+        return AppStrings.validationUnknown;
+      },
       unknownKey: (_) => AppStrings.validationUnknown,
     };
   }

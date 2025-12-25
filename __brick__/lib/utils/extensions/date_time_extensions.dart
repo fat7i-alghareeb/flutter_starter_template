@@ -1,6 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'int_extensions.dart';
+
+typedef AppDateTimeFormatter =
+    String Function(DateTime dateTime, {String locale});
+
+extension AppDateTimeFormatterExtensions on DateTime {
+  /// Formats this value using a shared [AppDateTimeFormatter] signature.
+  ///
+  /// This is used by both the form widgets and the `DateTime` / ISO-string
+  /// extension methods so you can swap formatting logic consistently.
+  String formatWith(AppDateTimeFormatter formatter, {String locale = 'en_US'}) {
+    return formatter(this, locale: locale);
+  }
+}
+
+class _AppDateTimeFormatters {
+  const _AppDateTimeFormatters._();
+
+  static String ymd(DateTime dateTime, {String locale = 'en_US'}) {
+    return DateFormat('yyyy-MM-dd', locale).format(dateTime);
+  }
+
+  static String time12(DateTime dateTime, {String locale = 'en_US'}) {
+    return DateFormat('hh:mm a', locale).format(dateTime);
+  }
+
+  static String time12Compact(DateTime dateTime, {String locale = 'en_US'}) {
+    return DateFormat('hh:mma', locale).format(dateTime);
+  }
+
+  static String time24(DateTime dateTime, {String locale = 'en_US'}) {
+    return DateFormat('HH:mm', locale).format(dateTime);
+  }
+
+  static String fullDateTime(DateTime dateTime, {String locale = 'en_US'}) {
+    final date = ymd(dateTime, locale: locale);
+    final time = time12Compact(dateTime, locale: locale);
+    return '($time) $date';
+  }
+
+  static String monthYearShort(DateTime dateTime, {String locale = 'en_US'}) {
+    return '${dateTime.month.monthNameShort} ${dateTime.year}';
+  }
+
+  static String year(DateTime dateTime, {String locale = 'en_US'}) {
+    return '${dateTime.year}';
+  }
+
+  static String monthDayFull(DateTime dateTime, {String locale = 'en_US'}) {
+    return '${dateTime.month.monthNameFull} ${dateTime.day}';
+  }
+
+  static String monthFull(DateTime dateTime, {String locale = 'en_US'}) {
+    return dateTime.month.monthNameFull;
+  }
+
+  static String weekdayDayShort(DateTime dateTime, {String locale = 'en_US'}) {
+    return '${dateTime.weekday.weekdayNameShort} ${dateTime.day}';
+  }
+}
+
 /// Formatting utilities for [DateTime] values.
 ///
 /// These helpers focus on converting [DateTime] instances into
@@ -18,7 +79,7 @@ extension DateTimeFormattingExtensions on DateTime {
   ///
   /// Example: `DateTime(2025, 9, 22).toYmd()` → `'2025-09-22'`.
   String toYmd({String locale = 'en_US'}) =>
-      formatDateTime('yyyy-MM-dd', locale: locale);
+      _AppDateTimeFormatters.ymd(this, locale: locale);
 
   /// Format as `EEE d, MMM yyyy` (e.g. `Mon 22, Sep 2025`).
   String toWeekdayDayMonthYear({String locale = 'en_US'}) =>
@@ -30,11 +91,53 @@ extension DateTimeFormattingExtensions on DateTime {
 
   /// 24-hour time `HH:mm`.
   String toTime24({String locale = 'en_US'}) =>
-      formatDateTime('HH:mm', locale: locale);
+      _AppDateTimeFormatters.time24(this, locale: locale);
 
   /// 12-hour time `hh:mm a`.
   String toTime12({String locale = 'en_US'}) =>
-      formatDateTime('hh:mm a', locale: locale);
+      _AppDateTimeFormatters.time12(this, locale: locale);
+
+  /// 12-hour time without a space before AM/PM: `hh:mma`.
+  ///
+  /// Example: `DateTime(2025, 9, 22, 10, 37).toTime12Compact()` → `'10:37AM'`.
+  String toTime12Compact({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.time12Compact(this, locale: locale);
+
+  /// Equivalent of the old `fullDate` helper.
+  ///
+  /// Example output: `'(10:37AM) 2025-09-22'`.
+  String toFullDateTime({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.fullDateTime(this, locale: locale);
+
+  /// Format as `MMM yyyy` using localized short month name.
+  ///
+  /// Example: `DateTime(2025, 9).toMonthYearShort()` → `'Sep 2025'`.
+  String toMonthYearShort({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.monthYearShort(this, locale: locale);
+
+  /// Format as `yyyy`.
+  ///
+  /// Example: `DateTime(2025).toYearOnly()` → `'2025'`.
+  String toYearOnly({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.year(this, locale: locale);
+
+  /// Format as `MMMM d` using localized full month name.
+  ///
+  /// Example: `DateTime(2025, 12, 21).toMonthDayFull()` → `'December 21'`.
+  String toMonthDayFull({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.monthDayFull(this, locale: locale);
+
+  /// Format as `MMMM` using localized full month name.
+  ///
+  /// Example: `DateTime(2025, 12).toMonthFull()` → `'December'`.
+  String toMonthFull({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.monthFull(this, locale: locale);
+
+  /// Format as `EEE d` using localized short weekday name.
+  ///
+  /// Example: `DateTime(2025, 9, 22).toWeekdayDayShort()` → `'Mon 22'`.
+  String toWeekdayDayShort({String locale = 'en_US'}) =>
+      _AppDateTimeFormatters.weekdayDayShort(this, locale: locale);
 
   /// Smart date/time similar to the old `timeWithSmartDate` helper.
   ///
@@ -191,14 +294,14 @@ extension DateTimeRangeExtensions on DateTimeRange {
 extension IsoDateStringFormatting on String {
   DateTime? _parseIsoToLocal() => toLocalDateTimeOrNull();
 
-  /// Formats this ISO string using a custom ICU [pattern].
+  /// Formats this ISO string using the shared [AppDateTimeFormatter] signature.
   ///
   /// Example:
-  /// `'2025-09-22T07:37:39.849Z'.isoFormat('EEE d, MMM yyyy')`.
-  String isoFormat(String pattern, {String locale = 'en_US'}) {
+  /// `'2025-09-22T07:37:39.849Z'.isoFormat((dt, {locale = 'en_US'}) => dt.toYmd(locale: locale))`.
+  String isoFormat(AppDateTimeFormatter formatter, {String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
-    return DateFormat(pattern, locale).format(dt);
+    return dt.formatWith(formatter, locale: locale);
   }
 
   /// Equivalent of the old `fullDate` helper.
@@ -209,24 +312,21 @@ extension IsoDateStringFormatting on String {
   String isoFullDate({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
-    final date = DateFormat('yyyy-MM-dd', locale).format(dt);
-    final time = DateFormat('hh:mm', locale).format(dt);
-    final status = DateFormat('a', locale).format(dt);
-    return '($time$status) $date';
+    return dt.toFullDateTime(locale: locale);
   }
 
   /// Short date like `Mon 22, Sep 2025`.
   String isoDatePretty({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
-    return DateFormat('EEE d, MMM yyyy', locale).format(dt);
+    return dt.toWeekdayDayMonthYear(locale: locale);
   }
 
   /// 24-hour time `HH:mm`.
   String isoTime24({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
-    return DateFormat('HH:mm', locale).format(dt);
+    return dt.toTime24(locale: locale);
   }
 
   /// Smart date/time similar to the old `timeWithSmartDate`.
@@ -247,6 +347,6 @@ extension IsoDateStringFormatting on String {
   String isoDayMonthYearDash({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
-    return DateFormat('d-M-yyyy', locale).format(dt);
+    return dt.toDayMonthYearDash(locale: locale);
   }
 }
