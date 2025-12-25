@@ -3,9 +3,21 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Loading indicator used by [AppButton] when `isLoading` is true.
-class AppButtonLoadingDots extends StatefulWidget {
-  const AppButtonLoadingDots({
+/// LoadingDots
+/// -----------
+///
+/// Lightweight animated loading indicator used by [AppButton] when
+/// `isLoading` is true.
+///
+/// The animation is implemented as a phase-shifted sine wave per dot, which
+/// creates a smooth "traveling" pulse without multiple controllers.
+///
+/// Usage:
+/// ```dart
+/// const LoadingDots(color: Colors.white);
+/// ```
+class LoadingDots extends StatefulWidget {
+  const LoadingDots({
     super.key,
     required this.color,
     this.dotSize = 6,
@@ -19,10 +31,10 @@ class AppButtonLoadingDots extends StatefulWidget {
   final int dots;
 
   @override
-  State<AppButtonLoadingDots> createState() => _AppButtonLoadingDotsState();
+  State<LoadingDots> createState() => _LoadingDotsState();
 }
 
-class _AppButtonLoadingDotsState extends State<AppButtonLoadingDots>
+class _LoadingDotsState extends State<LoadingDots>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -42,7 +54,9 @@ class _AppButtonLoadingDotsState extends State<AppButtonLoadingDots>
   }
 
   double _dotScale(int index) {
+    // Offset each dot by its index so the wave travels from left to right.
     final phase = (_controller.value + (index / widget.dots)) % 1.0;
+    // Map sin output from [-1, 1] to [0, 1] to get a clean amplitude.
     final wave = (math.sin(phase * 2 * math.pi) + 1) / 2;
     return 0.60 + (0.50 * wave);
   }

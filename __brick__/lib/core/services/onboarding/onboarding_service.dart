@@ -21,10 +21,7 @@ class OnboardingService extends ChangeNotifier {
   Future<bool> isOnboardingFinished() async {
     if (_finishedCache != null) return _finishedCache!;
 
-    final flag = await _storage.readBool(
-      OnboardingStorageKeys.finished,
-      area: StorageArea.persistent,
-    );
+    final flag = await _storage.readBool(OnboardingStorageKeys.finished);
 
     _finishedCache = flag ?? false;
     printC('[OnboardingService] isOnboardingFinished => $_finishedCache');
@@ -34,11 +31,7 @@ class OnboardingService extends ChangeNotifier {
   /// * Marks onboarding as finished and notifies listeners so routers
   ///   and widgets can react.
   Future<void> setOnboardingFinished() async {
-    await _storage.writeBool(
-      OnboardingStorageKeys.finished,
-      true,
-      area: StorageArea.persistent,
-    );
+    await _storage.writeBool(OnboardingStorageKeys.finished, true);
 
     _finishedCache = true;
     printG('[OnboardingService] setOnboardingFinished => true');

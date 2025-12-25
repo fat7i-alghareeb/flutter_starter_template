@@ -83,7 +83,6 @@ class AppRouterConfig {
     _router = GoRouter(
       // * Initial route is the splash screen.
       initialLocation: _routeRegistry.splashPath,
-      debugLogDiagnostics: false,
       routes: _routeRegistry.routes,
       refreshListenable: _refresh,
       redirect: (context, state) => _guard.handleRedirect(
@@ -163,7 +162,6 @@ class AppRouteGuard {
     final onboardingRedirect = await _handleOnboarding(currentPath);
     if (onboardingRedirect != null) return onboardingRedirect;
 
-               
     // allow auth redirects to push the user to login.
     if (AppFlowConfig.onboardingEnabled && currentPath == onboardingPath) {
       final finished = await onboardingService.isOnboardingFinished();

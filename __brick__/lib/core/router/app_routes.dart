@@ -34,9 +34,8 @@ class AppRouteRegistry {
       name: splashPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
-        transition: AppTransition.fade,
         // TODO: Replace with real splash screen widget.
-        child: Scaffold(body: Center(child: Text("splashPath"))),
+        child: const Scaffold(body: Center(child: Text('splashPath'))),
       ),
     ),
     GoRoute(
@@ -44,9 +43,8 @@ class AppRouteRegistry {
       name: onboardingPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
-        transition: AppTransition.fade,
         // TODO: Replace with real onboarding screen widget.
-        child: Scaffold(body: Center(child: Text("onboardingPath"))),
+        child: const Scaffold(body: Center(child: Text('onboardingPath'))),
       ),
     ),
     GoRoute(
@@ -54,9 +52,8 @@ class AppRouteRegistry {
       name: loginPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
-        transition: AppTransition.fade,
         // TODO: Replace with real login screen widget.
-        child: Scaffold(body: Center(child: Text("loginPath"))),
+        child: const Scaffold(body: Center(child: Text('loginPath'))),
       ),
     ),
     GoRoute(
@@ -64,9 +61,8 @@ class AppRouteRegistry {
       name: rootPath,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
-        transition: AppTransition.fade,
         // TODO: Replace with real root/home screen widget.
-        child: Scaffold(body: Center(child: Text("rootPath"))),
+        child: const Scaffold(body: Center(child: Text('rootPath'))),
       ),
     ),
   ];

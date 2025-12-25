@@ -97,7 +97,7 @@ class AppButtonStyleResolver {
 
     final foreground = isActive
         ? effectiveVariant.foreground(context)
-        : Theme.of(context).colorScheme.onSurface;
+        : context.colorScheme.onSurface;
 
     final shadows = noShadow
         ? const <BoxShadow>[]
@@ -139,15 +139,13 @@ class _PrimaryButtonVariant extends AppButtonVariant {
   const _PrimaryButtonVariant();
 
   @override
-  Color solidColor(BuildContext context) =>
-      Theme.of(context).colorScheme.primary;
+  Color solidColor(BuildContext context) => context.colorScheme.primary;
 
   @override
   LinearGradient gradient(BuildContext context) => context.gradients.primary;
 
   @override
-  Color foreground(BuildContext context) =>
-      Theme.of(context).colorScheme.onPrimary;
+  Color foreground(BuildContext context) => context.colorScheme.onPrimary;
 }
 
 class _SuccessButtonVariant extends AppButtonVariant {
@@ -202,8 +200,7 @@ class _GreyButtonVariant extends AppButtonVariant {
   LinearGradient gradient(BuildContext context) => context.gradients.grey;
 
   @override
-  Color foreground(BuildContext context) =>
-      Theme.of(context).colorScheme.onSurface;
+  Color foreground(BuildContext context) => context.colorScheme.onSurface;
 }
 
 class CustomButtonVariant extends AppButtonVariant {
@@ -219,6 +216,5 @@ class CustomButtonVariant extends AppButtonVariant {
       gradientColor ?? context.gradients.grey;
 
   @override
-  Color foreground(BuildContext context) =>
-      Theme.of(context).colorScheme.onSurface;
+  Color foreground(BuildContext context) => context.colorScheme.onSurface;
 }

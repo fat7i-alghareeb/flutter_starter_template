@@ -134,10 +134,7 @@ void _configureJwtFlow({
             return false;
           }
 
-          final aboutToExpire = isTokenAboutToExpire(
-            token.accessToken,
-            bufferTimeInMinutes: 5,
-          );
+          final aboutToExpire = isTokenAboutToExpire(token.accessToken);
           final unauthorized = response?.statusCode == 401;
 
           final should = aboutToExpire || unauthorized;
@@ -156,7 +153,7 @@ void _configureJwtFlow({
         final raw = token.accessToken;
         final preview = raw.length > 10 ? '${raw.substring(0, 10)}...' : raw;
         printG('[DioClient] Attaching Authorization: Bearer $preview');
-        return <String, String>{'Authorization': 'Bearer ${token.accessToken}'};
+        return <String, String>{'Authorization': 'Bearer $raw'};
       },
       // Handle revoked/invalid refresh token.
       onRevoked: (dioError) {

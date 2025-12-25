@@ -20,7 +20,7 @@ class CustomDioInterceptor extends Interceptor {
   final List<String> redactedHeaders = const ['authorization', 'cookie'];
   final BoxStyle boxStyle = BoxStyle.ascii; // change this if you want unicode
 
-  static final _jsonEncoder = JsonEncoder.withIndent('  ');
+  static final _jsonEncoder = const JsonEncoder.withIndent('  ');
 
   String _redactHeaders(Map<String, dynamic> headers) {
     final Map<String, dynamic> copy = {};
@@ -79,22 +79,22 @@ class CustomDioInterceptor extends Interceptor {
   void _box(void Function(Object?) printFn, String title, String body) {
     switch (boxStyle) {
       case BoxStyle.unicode:
-        printFn('╔' + '═' * 86);
+        printFn('╔${'═' * 86}');
         printFn('║ $title');
-        printFn('╟' + '─' * 86);
+        printFn('╟${'─' * 86}');
         for (final line in body.trim().split('\n')) {
           printFn('║ $line');
         }
-        printFn('╚' + '═' * 86);
+        printFn('╚${'═' * 86}');
         break;
       case BoxStyle.ascii:
-        printFn('+' + '=' * 86 + '+');
+        printFn('+${'=' * 86}+');
         printFn('| $title');
-        printFn('+' + '-' * 86 + '+');
+        printFn('+${'-' * 86}+');
         for (final line in body.trim().split('\n')) {
           printFn('| $line');
         }
-        printFn('+' + '=' * 86 + '+');
+        printFn('+${'=' * 86}+');
         break;
       case BoxStyle.simple:
       // ignore: unreachable_switch_default
@@ -118,7 +118,7 @@ class CustomDioInterceptor extends Interceptor {
       final kl = k.toLowerCase();
       if (redactedHeaders.contains(kl)) return;
       // If header value is multiple entries, join with ", "
-      buffer.write(' -H "${k}: ${v is List ? v.join(', ') : v}"');
+      buffer.write(' -H "$k: ${v is List ? v.join(', ') : v}"');
     });
 
     if (options.data != null && options.data is! FormData) {

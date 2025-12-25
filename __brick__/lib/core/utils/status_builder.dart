@@ -1,7 +1,8 @@
 // 🐦 Flutter imports:
-import '../../common/widgets/loading_progress.dart' show LoadingProgress;
-import '../../core/utils/bloc_status.dart'
-    show BlocStatus, BlocStatusPatterns;
+import '../../common/imports/imports.dart' show FailedStateWidget;
+import '../../common/widgets/main_loading_progress.dart'
+    show MainLoadingProgress;
+import '../../core/utils/bloc_status.dart' show BlocStatus, BlocStatusPatterns;
 import 'package:flutter/material.dart';
 
 class StatusBuilder<T> extends StatelessWidget {
@@ -33,7 +34,7 @@ class StatusBuilder<T> extends StatelessWidget {
     defaultLoading() => showLoadingProgress
         ? const Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Center(child: LoadingProgress())],
+            children: [Center(child: MainLoadingProgress())],
           )
         : const SizedBox.shrink();
 
@@ -44,10 +45,10 @@ class StatusBuilder<T> extends StatelessWidget {
       loading: () => next = loading?.call() ?? defaultLoading(),
       success: (data) => next = success(data),
       failure: (message) {
-        // return next = FailedWidget(
-        //   message: errorMessage ?? message,
-        //   onRetry: onError,
-        // );
+        return next = FailedStateWidget(
+          message: errorMessage ?? message,
+          onRetrying: onError,
+        );
       },
     );
 
