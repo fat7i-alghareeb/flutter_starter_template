@@ -622,8 +622,7 @@ class _AppReactiveDropdownFieldState<T>
               : ListView.separated(
                   shrinkWrap: true,
                   itemCount: options.length,
-                  separatorBuilder: (_, __) =>
-                      SizedBox(height: AppSpacing.xs.h),
+                  separatorBuilder: (_, _) => AppSpacing.xs.verticalSpace,
                   itemBuilder: (context, index) {
                     final option = options[index];
                     // Selection is determined by matching ids.

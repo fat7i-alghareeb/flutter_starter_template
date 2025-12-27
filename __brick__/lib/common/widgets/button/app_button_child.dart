@@ -164,11 +164,11 @@ class _LabelIconButtonChild extends AppButtonChild {
     final children = <Widget>[
       if (position == AppButtonIconPosition.leading) ...[
         iconWidget,
-        SizedBox(width: spacing.w),
+        spacing.horizontalSpace,
         Flexible(child: textWidget),
       ] else ...[
         Flexible(child: textWidget),
-        SizedBox(width: spacing.w),
+        spacing.horizontalSpace,
         iconWidget,
       ],
     ];

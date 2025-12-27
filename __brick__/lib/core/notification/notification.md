@@ -166,7 +166,7 @@ Important Android rule:
 - On Android 8+, **sound/vibration are channel-level** and mostly immutable.
 - If you change sound/vibration, you typically must **change the channel id**.
 
-#### iOS
+#### iOS ()
 
 - iOS sound restrictions apply (file format + bundling). Follow the official plugin docs.
 

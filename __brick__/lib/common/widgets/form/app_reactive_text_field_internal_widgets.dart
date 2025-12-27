@@ -30,7 +30,7 @@ class _FieldTitle extends StatelessWidget {
           ),
         ),
         if (isRequired) ...[
-          const SizedBox(width: 4),
+          AppSpacing.xs.horizontalSpace,
           Text('*', style: style.copyWith(color: AppColors.error)),
         ],
       ],

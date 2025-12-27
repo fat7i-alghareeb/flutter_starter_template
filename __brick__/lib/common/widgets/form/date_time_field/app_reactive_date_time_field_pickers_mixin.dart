@@ -174,7 +174,7 @@ mixin _AppReactiveDateTimeFieldPickersMixin on State<AppReactiveDateTimeField> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    AppSpacing.md.verticalSpace,
                     // Month selection.
                     Expanded(
                       child: GridView.builder(
