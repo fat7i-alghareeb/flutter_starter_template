@@ -8,6 +8,7 @@
       "version": "1.0.0+1",
       "dependencies": [
         "animations",
+        "bloc",
         "cached_network_image",
         "cupertino_icons",
         "dio",
@@ -17,6 +18,7 @@
         "firebase_messaging",
         "flutter",
         "flutter_animate",
+        "flutter_bloc",
         "flutter_local_notifications",
         "flutter_localizations",
         "flutter_screenutil",
@@ -431,6 +433,22 @@
         "meta",
         "mime",
         "path"
+      ]
+    },
+    {
+      "name": "flutter_bloc",
+      "version": "9.1.1",
+      "dependencies": [
+        "bloc",
+        "flutter",
+        "provider"
+      ]
+    },
+    {
+      "name": "bloc",
+      "version": "9.1.0",
+      "dependencies": [
+        "meta"
       ]
     },
     {
@@ -1263,6 +1281,15 @@
       ]
     },
     {
+      "name": "provider",
+      "version": "6.1.5+1",
+      "dependencies": [
+        "collection",
+        "flutter",
+        "nested"
+      ]
+    },
+    {
       "name": "octo_image",
       "version": "2.1.0",
       "dependencies": [
@@ -1578,6 +1605,13 @@
       "version": "0.6.7",
       "dependencies": [
         "meta"
+      ]
+    },
+    {
+      "name": "nested",
+      "version": "1.0.0",
+      "dependencies": [
+        "flutter"
       ]
     },
     {

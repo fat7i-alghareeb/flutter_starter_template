@@ -113,7 +113,7 @@ class FailedStateWidget extends StatelessWidget {
                         color: effectiveIconColor,
                         size: iconSize,
                       ),
-                      AppSpacing.lg.verticalSpacing,
+                      AppSpacing.lg.verticalSpace,
                       Text(
                         effectiveTitle,
                         textAlign: TextAlign.center,
@@ -123,7 +123,7 @@ class FailedStateWidget extends StatelessWidget {
                               color: colors.onSurface,
                             ),
                       ),
-                      AppSpacing.sm.verticalSpacing,
+                      AppSpacing.sm.verticalSpace,
                       Text(
                         effectiveMessage,
                         textAlign: TextAlign.center,
@@ -134,7 +134,7 @@ class FailedStateWidget extends StatelessWidget {
                             ),
                       ),
                       if (details?.trim().isNotEmpty == true) ...[
-                        AppSpacing.md.verticalSpacing,
+                        AppSpacing.md.verticalSpace,
                         Text(
                           details!,
                           textAlign: TextAlign.center,
@@ -146,7 +146,7 @@ class FailedStateWidget extends StatelessWidget {
                         ),
                       ],
                       if (onRetrying != null) ...[
-                        AppSpacing.xl.verticalSpacing,
+                        AppSpacing.xl.verticalSpace,
                         AppButton.primaryGradient(
                           onTap: onRetrying,
                           child: AppButtonChild.labelIcon(

@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:test_name_to_delete/common/widgets/app_affixes.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -17,7 +18,7 @@ import '../../../../utils/helpers/app_strings.dart';
 import '../app_reactive_text_field.dart';
 import '../app_reactive_validation_messages.dart';
 
-part 'app_reactive_date_time_field_types.dart';
+part 'app_reactive_date_time_field_variants.dart';
 part 'app_reactive_date_time_field_internal_widgets.dart';
 part 'app_reactive_date_time_field_pickers_mixin.dart';
 part 'app_reactive_date_time_field_value_mixin.dart';
@@ -88,12 +89,13 @@ class AppReactiveDateTimeField extends StatefulWidget {
     this.decoration = const AppTextFieldDecoration(),
     this.style = const AppTextFieldStyle(),
     this.validation = const AppTextFieldValidation(),
-    this.affixes = const AppTextFieldAffixes(),
+    this.affixes = const AppAffixes(),
     this.allowClear = true,
     this.formatter,
     this.rangeTextBuilder,
     this.onSelected,
     this.pickerOverride,
+    this.acceptSameDay = true,
     required AppReactiveDateTimeFieldType type,
   }) : _type = type;
 
@@ -110,7 +112,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -153,7 +155,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -195,7 +197,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -238,7 +240,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -281,7 +283,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -324,7 +326,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -367,7 +369,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -410,7 +412,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     AppDateTimeFormatter? formatter,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
@@ -453,8 +455,9 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
+    bool acceptSameDay = true,
     AppReactiveDateTimeFieldRangeTextBuilder? rangeTextBuilder,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
   }) {
@@ -473,6 +476,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
       validation: validation,
       affixes: affixes,
       allowClear: allowClear,
+      acceptSameDay: acceptSameDay,
       rangeTextBuilder: rangeTextBuilder,
       onSelected: onSelected,
       type: AppReactiveDateTimeFieldType.dateRange,
@@ -502,7 +506,7 @@ class AppReactiveDateTimeField extends StatefulWidget {
   final AppTextFieldDecoration decoration;
   final AppTextFieldStyle style;
   final AppTextFieldValidation validation;
-  final AppTextFieldAffixes affixes;
+  final AppAffixes affixes;
 
   /// Whether to show a clear button when the field has a value.
   ///
@@ -519,6 +523,12 @@ class AppReactiveDateTimeField extends StatefulWidget {
   /// If `null`, a default builder is used:
   /// `from <yyyy-MM-dd> to <yyyy-MM-dd>`.
   final AppReactiveDateTimeFieldRangeTextBuilder? rangeTextBuilder;
+
+  /// Whether date-range mode should allow selecting a range where start and end
+  /// fall on the same calendar day.
+  ///
+  /// Only applies when [_type] is [AppReactiveDateTimeFieldType.dateRange].
+  final bool acceptSameDay;
 
   /// Called after a successful selection.
   ///

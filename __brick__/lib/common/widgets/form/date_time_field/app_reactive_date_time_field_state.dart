@@ -357,6 +357,16 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
       return;
     }
 
+    if (!widget.acceptSameDay && picked.start.isSameDay(picked.end)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a date range of at least 2 days.'),
+        ),
+      );
+      _focusNode.unfocus();
+      return;
+    }
+
     control.markAsDirty();
     _writeRangeValue(control, picked);
 

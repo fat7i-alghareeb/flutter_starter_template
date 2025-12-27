@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:test_name_to_delete/common/widgets/app_affixes.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -111,7 +112,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     this.decoration = const AppTextFieldDecoration(),
     this.style = const AppTextFieldStyle(),
     this.validation = const AppTextFieldValidation(),
-    this.affixes = const AppTextFieldAffixes(),
+    this.affixes = const AppAffixes(),
     this.allowClear = true,
     this.enableSearch = false,
     this.presentation = AppReactiveDropdownPresentation.menu,
@@ -143,7 +144,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     bool enableSearch = false,
     AppReactiveDropdownPresentation presentation =
@@ -193,7 +194,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     bool enableSearch = false,
     TextStyle? optionsTextStyle,
@@ -240,7 +241,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     bool enableSearch = false,
     TextStyle? optionsTextStyle,
@@ -288,7 +289,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     bool enableSearch = false,
     TextStyle? optionsTextStyle,
@@ -359,7 +360,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
   final AppTextFieldValidation validation;
 
   /// Prefix/suffix icon configuration.
-  final AppTextFieldAffixes affixes;
+  final AppAffixes affixes;
 
   /// Show/hide the clear button.
   final bool allowClear;

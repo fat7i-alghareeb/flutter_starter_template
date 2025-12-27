@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:test_name_to_delete/common/widgets/app_affixes.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -16,10 +17,9 @@ import '../../../utils/extensions/theme_extensions.dart';
 import '../../../utils/helpers/input_formatters.dart';
 import '../../../utils/helpers/app_strings.dart';
 import '../../../utils/helpers/colored_print.dart';
-import '../app_icon_source.dart';
 import 'app_reactive_validation_messages.dart';
 
-part 'app_reactive_text_field_types.dart';
+part 'app_reactive_text_field_variants.dart';
 part 'app_reactive_text_field_mixins.dart';
 part 'app_reactive_text_field_state.dart';
 part 'app_reactive_text_field_phone.dart';
@@ -83,7 +83,7 @@ class AppReactiveTextField extends StatefulWidget {
     this.decoration = const AppTextFieldDecoration(),
     this.style = const AppTextFieldStyle(),
     this.validation = const AppTextFieldValidation(),
-    this.affixes = const AppTextFieldAffixes(),
+    this.affixes = const AppAffixes(),
     this.textDirectionMode = AppFieldTextDirectionMode.locale,
     this.maxLines,
     this.minLines,
@@ -117,7 +117,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode =
         AppFieldTextDirectionMode.locale,
     int? maxLines,
@@ -167,7 +167,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode =
         AppFieldTextDirectionMode.locale,
     int? maxLines,
@@ -217,7 +217,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode =
         AppFieldTextDirectionMode.locale,
     AppReactiveTextFieldValueCallback? onChanged,
@@ -271,7 +271,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode = AppFieldTextDirectionMode.ltr,
     AppReactiveTextFieldValueCallback? onChanged,
     AppReactiveTextFieldValueCallback? onChangedDebounced,
@@ -320,7 +320,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode =
         AppFieldTextDirectionMode.locale,
     AppReactiveTextFieldValueCallback? onChanged,
@@ -368,7 +368,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode =
         AppFieldTextDirectionMode.locale,
     AppReactiveTextFieldValueCallback? onChanged,
@@ -414,7 +414,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
     AppTextFieldValidation validation = const AppTextFieldValidation(),
-    AppTextFieldAffixes affixes = const AppTextFieldAffixes(),
+    AppAffixes affixes = const AppAffixes(),
     AppFieldTextDirectionMode textDirectionMode =
         AppFieldTextDirectionMode.locale,
     AppReactiveTextFieldValueCallback? onChanged,
@@ -469,7 +469,7 @@ class AppReactiveTextField extends StatefulWidget {
   final AppTextFieldDecoration decoration;
   final AppTextFieldStyle style;
   final AppTextFieldValidation validation;
-  final AppTextFieldAffixes affixes;
+  final AppAffixes affixes;
 
   final AppFieldTextDirectionMode textDirectionMode;
 

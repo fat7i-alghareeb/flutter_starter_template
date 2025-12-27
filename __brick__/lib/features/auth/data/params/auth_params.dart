@@ -1,0 +1,3 @@
+class AuthParams {
+  const AuthParams();
+}

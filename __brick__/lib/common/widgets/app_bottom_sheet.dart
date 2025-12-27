@@ -138,9 +138,9 @@ class AppBottomSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (showDragHandle) _dragHandle(context),
-              if (header != null) ...[AppSpacing.md.verticalSpacing, header!],
+              if (header != null) ...[AppSpacing.md.verticalSpace, header!],
               if (title?.trim().isNotEmpty == true) ...[
-                AppSpacing.md.verticalSpacing,
+                AppSpacing.md.verticalSpace,
                 Text(
                   title!,
                   textAlign: TextAlign.center,
@@ -153,7 +153,7 @@ class AppBottomSheet extends StatelessWidget {
                 ),
               ],
               if (title?.trim().isNotEmpty == true || header != null)
-                AppSpacing.lg.verticalSpacing,
+                AppSpacing.lg.verticalSpace,
 
               // `scrollable` allows large content (forms) without overflow.
               if (scrollable)
@@ -162,7 +162,7 @@ class AppBottomSheet extends StatelessWidget {
                 child,
 
               if (actions != null && actions!.isNotEmpty) ...[
-                AppSpacing.lg.verticalSpacing,
+                AppSpacing.lg.verticalSpace,
                 ...actions!,
               ],
             ],
