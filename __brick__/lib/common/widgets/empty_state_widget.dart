@@ -98,7 +98,7 @@ class EmptyStateWidget extends StatelessWidget {
                         color: effectiveIconColor,
                         size: iconSize,
                       ),
-                      AppSpacing.lg.verticalSpacing,
+                      AppSpacing.lg.verticalSpace,
                       Text(
                         effectiveText,
                         textAlign: TextAlign.center,
@@ -109,7 +109,7 @@ class EmptyStateWidget extends StatelessWidget {
                             ),
                       ),
                       if (onRetrying != null) ...[
-                        AppSpacing.xl.verticalSpacing,
+                        AppSpacing.xl.verticalSpace,
                         AppButton.primaryGradient(
                           onTap: onRetrying,
                           child: AppButtonChild.labelIcon(

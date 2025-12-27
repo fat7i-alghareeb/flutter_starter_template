@@ -21,7 +21,7 @@ final GetIt getIt = GetIt.instance;
 /// This function registers low-level primitives like [StorageService]
 /// manually, then delegates the rest of the wiring to the generated
 /// `GetItInjectableX.init()` extension.
-@InjectableInit()
+@InjectableInit(ignoreUnregisteredTypes: [Dio])
 Future<void> configureDependencies() async {
   await getIt.init();
 }

@@ -168,7 +168,7 @@ class AppDialog extends StatelessWidget {
                     color: colors.onSurface.withValues(alpha: 0.65),
                     size: 56,
                   ),
-                  AppSpacing.md.verticalSpacing,
+                  AppSpacing.md.verticalSpace,
                 ],
                 if (effectiveTitle?.isNotEmpty == true) ...[
                   Text(
@@ -181,9 +181,9 @@ class AppDialog extends StatelessWidget {
                 ],
                 if (effectiveMessage?.isNotEmpty == true) ...[
                   if (effectiveTitle?.isNotEmpty == true)
-                    AppSpacing.sm.verticalSpacing
+                    AppSpacing.sm.verticalSpace
                   else
-                    AppSpacing.xs.verticalSpacing,
+                    AppSpacing.xs.verticalSpace,
                   Text(
                     effectiveMessage!,
                     textAlign: TextAlign.center,
@@ -194,9 +194,9 @@ class AppDialog extends StatelessWidget {
                         ),
                   ),
                 ],
-                if (child != null) ...[AppSpacing.lg.verticalSpacing, child!],
+                if (child != null) ...[AppSpacing.lg.verticalSpace, child!],
                 if (resolvedActions.isNotEmpty) ...[
-                  AppSpacing.xl.verticalSpacing,
+                  AppSpacing.xl.verticalSpace,
                   ...resolvedActions.map(
                     (a) => Padding(
                       padding: EdgeInsets.only(top: AppSpacing.sm.h),

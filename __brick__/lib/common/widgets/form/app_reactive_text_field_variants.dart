@@ -114,20 +114,6 @@ class AppTextFieldStyle {
   final TextStyle? validationTextStyle;
 }
 
-class AppTextFieldAffixes {
-  const AppTextFieldAffixes({
-    this.prefixIcon,
-    this.suffixIcon,
-    this.onPrefixTap,
-    this.onSuffixTap,
-  });
-
-  final IconSource? prefixIcon;
-  final IconSource? suffixIcon;
-  final VoidCallback? onPrefixTap;
-  final VoidCallback? onSuffixTap;
-}
-
 class AppTextFieldValidation {
   const AppTextFieldValidation({
     this.enabled = true,
