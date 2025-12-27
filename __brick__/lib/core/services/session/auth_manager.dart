@@ -76,8 +76,29 @@ class AuthManager {
     printC('${AuthLogTags.authManager} initialize (mode: $mode)');
     await _loadUserFromStorage();
 
+    // In non-JWT mode there is no token stream to update [AuthStatus], so we
+    // must compute it once during initialization.
+    if (mode == AuthMode.withoutJwt) {
+      final shouldBeAuthenticated = state.user != null && !state.isGuest;
+      state.setAuthStatus(
+        shouldBeAuthenticated
+            ? AuthStatus.authenticated()
+            : AuthStatus.unauthenticated(message: 'No active session'),
+      );
+      return;
+    }
+
     if (mode == AuthMode.withJwt && tokenStorage != null) {
       await tokenStorage!.initialize();
+
+      // Make sure we don't stay in [Status.initial] while waiting for stream
+      // emissions.
+      if (state.authStatus.status == Status.initial) {
+        state.setAuthStatus(
+          AuthStatus.unauthenticated(message: 'No active session'),
+        );
+      }
+
       _tokenStatusSub = tokenStorage!.authenticationStatus.listen(
         _onAuthStatusChanged,
       );
@@ -98,6 +119,9 @@ class AuthManager {
     await _persistUser(user);
     await _setGuest(false);
 
+    // Update router-facing status immediately.
+    state.setAuthStatus(AuthStatus.authenticated());
+
     if (mode == AuthMode.withJwt && tokenStorage != null && token != null) {
       await tokenStorage!.write(token);
     }
@@ -112,6 +136,9 @@ class AuthManager {
 
     state.setUser(null);
     state.setGuest(false);
+    state.setAuthStatus(
+      AuthStatus.unauthenticated(message: AuthReasons.logout),
+    );
 
     if (mode == AuthMode.withJwt && tokenStorage != null) {
       await tokenStorage!.delete(AuthReasons.logout);
@@ -136,6 +163,7 @@ class AuthManager {
 
     state.setUser(null);
     await _setGuest(true);
+    state.setAuthStatus(AuthStatus.unauthenticated(message: AuthReasons.guest));
 
     if (mode == AuthMode.withJwt && tokenStorage != null) {
       await tokenStorage!.delete(AuthReasons.guest);

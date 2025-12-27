@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:injectable/injectable.dart';
-import '../../core/router/app_page_transitions.dart';
+part of 'router_config.dart';
 
 /// * AppRouteRegistry
 ///
@@ -13,57 +10,33 @@ import '../../core/router/app_page_transitions.dart';
 class AppRouteRegistry {
   const AppRouteRegistry();
 
-  /// * Splash screen (initial route).
-  /// For now we keep an empty placeholder path until the real
-  /// splash screen is implemented.
-  String get splashPath => "/splash"; // splash screen
-
-  /// * Onboarding flow route.
-  String get onboardingPath => "/onBoarding"; // onboarding screen
-
-  /// * Login / authentication entry point.
-  String get loginPath => "/loginPath"; // login screen
-
-  /// * Home / root of the authenticated app.
-  String get rootPath => "/rootPath"; // home/root screen
-
   /// * All GoRouter routes for the app.
   List<GoRoute> get routes => [
     GoRoute(
-      path: splashPath,
-      name: splashPath,
+      path: SplashScreen.pagePath,
+      name: SplashScreen.pageName,
+      pageBuilder: (context, state) =>
+          AppPageTransitions.build(state: state, child: const SplashScreen()),
+    ),
+    GoRoute(
+      path: OnboardingScreen.pagePath,
+      name: OnboardingScreen.pageName,
       pageBuilder: (context, state) => AppPageTransitions.build(
         state: state,
-        // TODO: Replace with real splash screen widget.
-        child: const Scaffold(body: Center(child: Text('splashPath'))),
+        child: const OnboardingScreen(),
       ),
     ),
     GoRoute(
-      path: onboardingPath,
-      name: onboardingPath,
-      pageBuilder: (context, state) => AppPageTransitions.build(
-        state: state,
-        // TODO: Replace with real onboarding screen widget.
-        child: const Scaffold(body: Center(child: Text('onboardingPath'))),
-      ),
+      path: LoginScreen.pagePath,
+      name: LoginScreen.pageName,
+      pageBuilder: (context, state) =>
+          AppPageTransitions.build(state: state, child: const LoginScreen()),
     ),
     GoRoute(
-      path: loginPath,
-      name: loginPath,
-      pageBuilder: (context, state) => AppPageTransitions.build(
-        state: state,
-        // TODO: Replace with real login screen widget.
-        child: const Scaffold(body: Center(child: Text('loginPath'))),
-      ),
-    ),
-    GoRoute(
-      path: rootPath,
-      name: rootPath,
-      pageBuilder: (context, state) => AppPageTransitions.build(
-        state: state,
-        // TODO: Replace with real root/home screen widget.
-        child: const Scaffold(body: Center(child: Text('rootPath'))),
-      ),
+      path: RootScreen.pagePath,
+      name: RootScreen.pageName,
+      pageBuilder: (context, state) =>
+          AppPageTransitions.build(state: state, child: const RootScreen()),
     ),
   ];
 }

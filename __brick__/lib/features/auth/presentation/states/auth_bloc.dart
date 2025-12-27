@@ -2,9 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/domain/user_entity.dart';
 import '../../../../core/utils/bloc_status.dart';
 import '../../../../core/utils/result.dart';
-import '../../domain/entities/auth_entity.dart';
 import '../../domain/facade/auth_facade.dart';
 
 part 'auth_event.dart';
@@ -15,25 +15,29 @@ part 'auth_bloc.freezed.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this._facade) : super(const AuthState()) {
     on<_Started>(_onStarted);
-    on<_GetAllRequested>(_onGetAllRequested);
+    on<_LoginRequested>(_onLoginRequested);
   }
 
   final AuthFacade _facade;
 
-  Future<void> _onStarted(_Started event, Emitter<AuthState> emit) {
-    return _onGetAllRequested(const _GetAllRequested(), emit);
+  Future<void> _onStarted(_Started event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(loginStatus: const BlocStatus.initial()));
   }
 
-  Future<void> _onGetAllRequested(
-    _GetAllRequested event,
+  Future<void> _onLoginRequested(
+    _LoginRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(getAllState: const BlocStatus.loading()));
+    if (state.loginStatus.isLoading) return;
 
-    final result = await _facade.getAllAuths();
+    emit(state.copyWith(loginStatus: const BlocStatus.loading()));
+
+    final Result<UserEntity> result = await _facade.loginDummy();
     result.when(
-      success: (data) => emit(state.copyWith(getAllState: BlocStatus.success(data))),
-      failure: (message) => emit(state.copyWith(getAllState: BlocStatus.failure(message))),
+      success: (user) =>
+          emit(state.copyWith(loginStatus: BlocStatus.success(user))),
+      failure: (message) =>
+          emit(state.copyWith(loginStatus: BlocStatus.failure(message))),
     );
   }
 }

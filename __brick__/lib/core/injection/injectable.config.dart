@@ -32,7 +32,6 @@ import 'package:test_name_to_delete/core/notification/notification_permission_se
     as _i747;
 import 'package:test_name_to_delete/core/notification/notification_timezone_service.dart'
     as _i525;
-import 'package:test_name_to_delete/core/router/app_routes.dart' as _i490;
 import 'package:test_name_to_delete/core/router/router_config.dart' as _i112;
 import 'package:test_name_to_delete/core/services/localization/locale_service.dart'
     as _i870;
@@ -97,8 +96,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i525.NotificationTimezoneService>(
       () => _i525.NotificationTimezoneService(),
     );
-    gh.lazySingleton<_i490.AppRouteRegistry>(
-      () => const _i490.AppRouteRegistry(),
+    gh.lazySingleton<_i112.AppRouteRegistry>(
+      () => const _i112.AppRouteRegistry(),
     );
     gh.lazySingleton<_i949.AuthStateNotifier>(() => _i949.AuthStateNotifier());
     gh.lazySingleton<_i247.ThemeController>(() => _i247.ThemeController());
@@ -120,15 +119,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i217.AuthRepository>(
       () => _i1058.AuthRepositoryImpl(gh<_i847.AuthRemoteDataSource>()),
     );
-    gh.lazySingleton<_i1004.LocalizationInterceptor>(
-      () => _i1004.LocalizationInterceptor(gh<_i870.LocaleService>()),
-    );
     gh.lazySingleton<_i112.AppRouterConfig>(
       () => _i112.AppRouterConfig(
         gh<_i949.AuthStateNotifier>(),
         gh<_i175.OnboardingService>(),
-        gh<_i490.AppRouteRegistry>(),
+        gh<_i112.AppRouteRegistry>(),
       ),
+    );
+    gh.lazySingleton<_i1004.LocalizationInterceptor>(
+      () => _i1004.LocalizationInterceptor(gh<_i870.LocaleService>()),
     );
     gh.lazySingleton<_i577.NotificationCoordinator>(
       () => _i577.NotificationCoordinator(

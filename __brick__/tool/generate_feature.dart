@@ -225,13 +225,8 @@ class $remoteName {
     return rethrowAsAppException(() async {
       final response = await _dio.get<dynamic>('/${name.snake}');
       final data = response.data;
-      if (data is List) {
-        return data
-            .whereType<Map<String, dynamic>>()
-            .map($modelName.fromMap)
-            .toList();
-      }
-      return const <$modelName>[];
+      final dataList = data['data'] as List<dynamic>;
+      return dataList.map((e) => $modelName.fromJson(e)).toList();
     });
   }
 }
@@ -241,12 +236,10 @@ class $remoteName {
   await write('data/models/${name.snake}_model.dart', """class $modelName {
   const $modelName({required this.id});
 
-  final int id;
+  final String id;
 
-  factory $modelName.fromMap(Map<String, dynamic> map) {
-    final raw = map['id'];
-    final id = raw is int ? raw : int.tryParse(raw?.toString() ?? '') ?? 0;
-    return $modelName(id: id);
+  factory $modelName.fromJson(Map<String, dynamic> json) {
+    return $modelName(id: json["id"]);
   }
 }
 """);
@@ -256,7 +249,7 @@ class $remoteName {
     """class $entityName {
   const $entityName({required this.id});
 
-  final int id;
+  final String id;
 }
 """,
   );
@@ -403,23 +396,18 @@ abstract class ${name.pascal}State with _\$${name.pascal}State {
   );
 
   await write(
-    'presentation/pages/${name.snake}_screen.dart',
+    'presentation/ui/screens/${name.snake}_screen.dart',
     """import 'package:flutter/material.dart';
 
 import '../../../../common/widgets/custom_scaffold/app_scaffold.dart';
 import '../widgets/${name.snake}_body.dart';
 
-class ${name.pascal}Screen extends StatefulWidget {
+class ${name.pascal}Screen extends StatelessWidget {
   const ${name.pascal}Screen({super.key});
 
   static const String pagePath = '/${name.snake}_screen';
   static const String pageName = '${name.pascal}Screen';
 
-  @override
-  State<${name.pascal}Screen> createState() => _${name.pascal}ScreenState();
-}
-
-class _${name.pascal}ScreenState extends State<${name.pascal}Screen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold.body(child: const ${name.pascal}Body());
@@ -429,7 +417,7 @@ class _${name.pascal}ScreenState extends State<${name.pascal}Screen> {
   );
 
   await write(
-    'presentation/widgets/${name.snake}_body.dart',
+    'presentation/ui/widgets/${name.snake}_body.dart',
     """import 'package:flutter/material.dart';
 
 class ${name.pascal}Body extends StatelessWidget {

@@ -1,6 +1,6 @@
+import '../../../../core/domain/user_entity.dart';
 import '../../../../core/utils/result.dart';
-import '../entities/auth_entity.dart';
 
 abstract class AuthRepository {
-  Future<Result<List<AuthEntity>>> getAllAuths();
+  Future<Result<UserEntity>> loginDummy();
 }

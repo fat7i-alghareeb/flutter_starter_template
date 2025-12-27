@@ -1,8 +1,10 @@
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/domain/user_entity.dart';
 import '../../../../core/error/global_error_handler.dart';
+import '../../../../core/injection/injectable.dart' show getIt;
+import '../../../../core/services/session/auth_manager.dart';
 import '../../../../core/utils/result.dart';
-import '../../domain/entities/auth_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../mappers/auth_model_mapper.dart';
@@ -14,10 +16,16 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remote;
 
   @override
-  Future<Result<List<AuthEntity>>> getAllAuths() {
+  Future<Result<UserEntity>> loginDummy() {
     return runAsResult(() async {
-      final models = await _remote.getAllAuths();
-      return models.map((e) => e.toEntity).toList();
+      final response = await _remote.loginDummy();
+
+      final user = response.toUserEntity();
+      final token = response.toAuthTokenModel();
+
+      final authManager = getIt<AuthManager>();
+      await authManager.login(user: user, token: token);
+      return user;
     });
   }
 }

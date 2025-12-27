@@ -4,12 +4,16 @@ import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
-
+import '../../features/auth/presentation/ui/screens/login_screen.dart';
+import '../../features/onboarding/presentation/ui/screens/onboarding_screen.dart';
+import '../../features/root/presentation/ui/screens/root_screen.dart';
 import '../../utils/constants/app_flow_constants.dart';
 import '../../utils/helpers/colored_print.dart';
 import '../services/onboarding/onboarding_service.dart';
 import '../services/session/auth_state_notifier.dart';
-import 'app_routes.dart';
+import '../../core/router/app_page_transitions.dart';
+import '../../features/splash/presentation/ui/screens/splash_screen.dart';
+part 'app_routes.dart';
 
 /// * RouterRefreshListenable
 ///
@@ -74,15 +78,15 @@ class AppRouterConfig {
     _guard = AppRouteGuard(
       authState: _authState,
       onboardingService: _onboardingService,
-      splashPath: _routeRegistry.splashPath,
-      onboardingPath: _routeRegistry.onboardingPath,
-      loginPath: _routeRegistry.loginPath,
-      rootPath: _routeRegistry.rootPath,
+      splashPath: SplashScreen.pagePath,
+      onboardingPath: OnboardingScreen.pagePath,
+      loginPath: LoginScreen.pagePath,
+      rootPath: RootScreen.pagePath,
     );
 
     _router = GoRouter(
       // * Initial route is the splash screen.
-      initialLocation: _routeRegistry.splashPath,
+      initialLocation: SplashScreen.pagePath,
       routes: _routeRegistry.routes,
       refreshListenable: _refresh,
       redirect: (context, state) => _guard.handleRedirect(

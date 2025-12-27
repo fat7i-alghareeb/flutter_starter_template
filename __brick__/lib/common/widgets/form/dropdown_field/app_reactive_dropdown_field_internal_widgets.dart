@@ -30,7 +30,7 @@ class _FieldTitle extends StatelessWidget {
         ),
         // Required indicator is shown next to the title.
         if (isRequired) ...[
-          const SizedBox(width: 4),
+          AppSpacing.xs.horizontalSpace,
           Text('*', style: style.copyWith(color: AppColors.error)),
         ],
       ],

@@ -14,13 +14,8 @@ class RootRemoteDataSource {
     return rethrowAsAppException(() async {
       final response = await _dio.get<dynamic>('/root');
       final data = response.data;
-      if (data is List) {
-        return data
-            .whereType<Map<String, dynamic>>()
-            .map(RootModel.fromMap)
-            .toList();
-      }
-      return const <RootModel>[];
+      final dataList = data['data'] as List<dynamic>;
+      return dataList.map((e) => RootModel.fromJson(e)).toList();
     });
   }
 }

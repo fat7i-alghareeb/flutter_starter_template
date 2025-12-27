@@ -55,12 +55,12 @@ extension AuthEventPatterns on AuthEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Started value)?  started,TResult Function( _GetAllRequested value)?  getAllRequested,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Started value)?  started,TResult Function( _LoginRequested value)?  loginRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started(_that);case _GetAllRequested() when getAllRequested != null:
-return getAllRequested(_that);case _:
+return started(_that);case _LoginRequested() when loginRequested != null:
+return loginRequested(_that);case _:
   return orElse();
 
 }
@@ -78,12 +78,12 @@ return getAllRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Started value)  started,required TResult Function( _GetAllRequested value)  getAllRequested,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Started value)  started,required TResult Function( _LoginRequested value)  loginRequested,}){
 final _that = this;
 switch (_that) {
 case _Started():
-return started(_that);case _GetAllRequested():
-return getAllRequested(_that);case _:
+return started(_that);case _LoginRequested():
+return loginRequested(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -100,12 +100,12 @@ return getAllRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Started value)?  started,TResult? Function( _GetAllRequested value)?  getAllRequested,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Started value)?  started,TResult? Function( _LoginRequested value)?  loginRequested,}){
 final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started(_that);case _GetAllRequested() when getAllRequested != null:
-return getAllRequested(_that);case _:
+return started(_that);case _LoginRequested() when loginRequested != null:
+return loginRequested(_that);case _:
   return null;
 
 }
@@ -122,11 +122,11 @@ return getAllRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function()?  getAllRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function()?  loginRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started();case _GetAllRequested() when getAllRequested != null:
-return getAllRequested();case _:
+return started();case _LoginRequested() when loginRequested != null:
+return loginRequested();case _:
   return orElse();
 
 }
@@ -144,11 +144,11 @@ return getAllRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function()  getAllRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function()  loginRequested,}) {final _that = this;
 switch (_that) {
 case _Started():
-return started();case _GetAllRequested():
-return getAllRequested();case _:
+return started();case _LoginRequested():
+return loginRequested();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -165,11 +165,11 @@ return getAllRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function()?  getAllRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function()?  loginRequested,}) {final _that = this;
 switch (_that) {
 case _Started() when started != null:
-return started();case _GetAllRequested() when getAllRequested != null:
-return getAllRequested();case _:
+return started();case _LoginRequested() when loginRequested != null:
+return loginRequested();case _:
   return null;
 
 }
@@ -212,8 +212,8 @@ String toString() {
 /// @nodoc
 
 
-class _GetAllRequested implements AuthEvent {
-  const _GetAllRequested();
+class _LoginRequested implements AuthEvent {
+  const _LoginRequested();
   
 
 
@@ -223,7 +223,7 @@ class _GetAllRequested implements AuthEvent {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GetAllRequested);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginRequested);
 }
 
 
@@ -232,7 +232,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthEvent.getAllRequested()';
+  return 'AuthEvent.loginRequested()';
 }
 
 
@@ -244,7 +244,7 @@ String toString() {
 /// @nodoc
 mixin _$AuthState {
 
- BlocStatus<List<AuthEntity>> get getAllState;
+ BlocStatus<UserEntity> get loginStatus;
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -255,16 +255,16 @@ $AuthStateCopyWith<AuthState> get copyWith => _$AuthStateCopyWithImpl<AuthState>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.getAllState, getAllState) || other.getAllState == getAllState));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.loginStatus, loginStatus) || other.loginStatus == loginStatus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,getAllState);
+int get hashCode => Object.hash(runtimeType,loginStatus);
 
 @override
 String toString() {
-  return 'AuthState(getAllState: $getAllState)';
+  return 'AuthState(loginStatus: $loginStatus)';
 }
 
 
@@ -275,11 +275,11 @@ abstract mixin class $AuthStateCopyWith<$Res>  {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) _then) = _$AuthStateCopyWithImpl;
 @useResult
 $Res call({
- BlocStatus<List<AuthEntity>> getAllState
+ BlocStatus<UserEntity> loginStatus
 });
 
 
-$BlocStatusCopyWith<List<AuthEntity>, $Res> get getAllState;
+$BlocStatusCopyWith<UserEntity, $Res> get loginStatus;
 
 }
 /// @nodoc
@@ -292,20 +292,20 @@ class _$AuthStateCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? getAllState = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? loginStatus = null,}) {
   return _then(_self.copyWith(
-getAllState: null == getAllState ? _self.getAllState : getAllState // ignore: cast_nullable_to_non_nullable
-as BlocStatus<List<AuthEntity>>,
+loginStatus: null == loginStatus ? _self.loginStatus : loginStatus // ignore: cast_nullable_to_non_nullable
+as BlocStatus<UserEntity>,
   ));
 }
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$BlocStatusCopyWith<List<AuthEntity>, $Res> get getAllState {
+$BlocStatusCopyWith<UserEntity, $Res> get loginStatus {
   
-  return $BlocStatusCopyWith<List<AuthEntity>, $Res>(_self.getAllState, (value) {
-    return _then(_self.copyWith(getAllState: value));
+  return $BlocStatusCopyWith<UserEntity, $Res>(_self.loginStatus, (value) {
+    return _then(_self.copyWith(loginStatus: value));
   });
 }
 }
@@ -389,10 +389,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( BlocStatus<List<AuthEntity>> getAllState)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( BlocStatus<UserEntity> loginStatus)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
-return $default(_that.getAllState);case _:
+return $default(_that.loginStatus);case _:
   return orElse();
 
 }
@@ -410,10 +410,10 @@ return $default(_that.getAllState);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( BlocStatus<List<AuthEntity>> getAllState)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( BlocStatus<UserEntity> loginStatus)  $default,) {final _that = this;
 switch (_that) {
 case _AuthState():
-return $default(_that.getAllState);case _:
+return $default(_that.loginStatus);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -430,10 +430,10 @@ return $default(_that.getAllState);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( BlocStatus<List<AuthEntity>> getAllState)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( BlocStatus<UserEntity> loginStatus)?  $default,) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
-return $default(_that.getAllState);case _:
+return $default(_that.loginStatus);case _:
   return null;
 
 }
@@ -445,10 +445,10 @@ return $default(_that.getAllState);case _:
 
 
 class _AuthState implements AuthState {
-  const _AuthState({this.getAllState = const BlocStatus<List<AuthEntity>>.initial()});
+  const _AuthState({this.loginStatus = const BlocStatus<UserEntity>.initial()});
   
 
-@override@JsonKey() final  BlocStatus<List<AuthEntity>> getAllState;
+@override@JsonKey() final  BlocStatus<UserEntity> loginStatus;
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -460,16 +460,16 @@ _$AuthStateCopyWith<_AuthState> get copyWith => __$AuthStateCopyWithImpl<_AuthSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.getAllState, getAllState) || other.getAllState == getAllState));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.loginStatus, loginStatus) || other.loginStatus == loginStatus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,getAllState);
+int get hashCode => Object.hash(runtimeType,loginStatus);
 
 @override
 String toString() {
-  return 'AuthState(getAllState: $getAllState)';
+  return 'AuthState(loginStatus: $loginStatus)';
 }
 
 
@@ -480,11 +480,11 @@ abstract mixin class _$AuthStateCopyWith<$Res> implements $AuthStateCopyWith<$Re
   factory _$AuthStateCopyWith(_AuthState value, $Res Function(_AuthState) _then) = __$AuthStateCopyWithImpl;
 @override @useResult
 $Res call({
- BlocStatus<List<AuthEntity>> getAllState
+ BlocStatus<UserEntity> loginStatus
 });
 
 
-@override $BlocStatusCopyWith<List<AuthEntity>, $Res> get getAllState;
+@override $BlocStatusCopyWith<UserEntity, $Res> get loginStatus;
 
 }
 /// @nodoc
@@ -497,10 +497,10 @@ class __$AuthStateCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? getAllState = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? loginStatus = null,}) {
   return _then(_AuthState(
-getAllState: null == getAllState ? _self.getAllState : getAllState // ignore: cast_nullable_to_non_nullable
-as BlocStatus<List<AuthEntity>>,
+loginStatus: null == loginStatus ? _self.loginStatus : loginStatus // ignore: cast_nullable_to_non_nullable
+as BlocStatus<UserEntity>,
   ));
 }
 
@@ -508,10 +508,10 @@ as BlocStatus<List<AuthEntity>>,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$BlocStatusCopyWith<List<AuthEntity>, $Res> get getAllState {
+$BlocStatusCopyWith<UserEntity, $Res> get loginStatus {
   
-  return $BlocStatusCopyWith<List<AuthEntity>, $Res>(_self.getAllState, (value) {
-    return _then(_self.copyWith(getAllState: value));
+  return $BlocStatusCopyWith<UserEntity, $Res>(_self.loginStatus, (value) {
+    return _then(_self.copyWith(loginStatus: value));
   });
 }
 }
