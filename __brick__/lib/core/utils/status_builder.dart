@@ -1,9 +1,10 @@
 // 🐦 Flutter imports:
+import 'package:flutter/material.dart';
+
 import '../../common/imports/imports.dart' show FailedStateWidget;
 import '../../common/widgets/main_loading_progress.dart'
     show MainLoadingProgress;
 import '../../core/utils/bloc_status.dart' show BlocStatus, BlocStatusPatterns;
-import 'package:flutter/material.dart';
 
 class StatusBuilder<T> extends StatelessWidget {
   const StatusBuilder({

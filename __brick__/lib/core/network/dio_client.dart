@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../utils/helpers/colored_print.dart';
+import '../../utils/helpers/jwt_token_utils.dart';
 import '../network/api_config.dart';
 import '../network/api_endpoints.dart';
 import '../network/interceptors/custom_dio_interceptor.dart';
@@ -11,8 +13,6 @@ import '../network/interceptors/memory_aware_interceptor.dart';
 import '../services/session/auth_manager.dart';
 import '../services/session/auth_token_model.dart';
 import '../services/session/jwt_token_storage.dart';
-import '../../utils/helpers/colored_print.dart';
-import '../../utils/helpers/jwt_token_utils.dart';
 
 /// Builds the global [Dio] instance used by the app.
 ///

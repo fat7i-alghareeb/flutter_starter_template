@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:test_name_to_delete/common/widgets/custom_scaffold/app_scaffold.dart'
+import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart'
     show AppScaffold;
-import 'package:test_name_to_delete/utils/constants/app_flow_constants.dart';
-import 'package:test_name_to_delete/utils/extensions/context_extensions.dart';
-import 'package:test_name_to_delete/utils/extensions/theme_extensions.dart';
+import '../../../../../utils/constants/app_flow_constants.dart';
+import '../../../../../utils/extensions/context_extensions.dart';
+import '../../../../../utils/extensions/theme_extensions.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'
     show REdgeInsets, SizeExtension;
+
 import '../../utils/constants/design_constants.dart';
 
 /// Layout helpers for widgets referenced by a [GlobalKey].

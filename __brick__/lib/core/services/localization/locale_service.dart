@@ -4,9 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../utils/constants/localization_constants.dart';
 import '../../config/localization_config.dart';
 import '../../services/storage/storage_service.dart';
-import '../../../utils/constants/localization_constants.dart';
 
 /// Central service for resolving and changing the app locale.
 ///
