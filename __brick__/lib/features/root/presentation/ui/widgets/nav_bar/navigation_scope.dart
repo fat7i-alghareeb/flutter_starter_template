@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'root_navigation_controller.dart';
+import 'navigation_controller.dart';
 
-/// An `InheritedNotifier` that exposes a [RootNavigationController] to the
+/// An `InheritedNotifier` that exposes a [NavigationController] to the
 /// widget subtree.
 ///
 /// Why a "Scope"?
@@ -16,29 +16,29 @@ import 'root_navigation_controller.dart';
 ///   automatically rebuilds dependents when `notifyListeners()` is called.
 /// - This gives us a Provider-like experience without adding a dependency on
 ///   provider packages.
-class RootNavigationScope extends InheritedNotifier<RootNavigationController> {
-  const RootNavigationScope({
+class NavigationScope extends InheritedNotifier<NavigationController> {
+  const NavigationScope({
     super.key,
-    required RootNavigationController controller,
+    required NavigationController controller,
     required super.child,
   }) : super(notifier: controller);
 
-  /// Returns the controller if a [RootNavigationScope] exists above [context],
+  /// Returns the controller if a [NavigationScope] exists above [context],
   /// otherwise returns `null`.
   ///
   /// Use this when you want to optionally react to the controller.
-  static RootNavigationController? maybeOf(BuildContext context) {
+  static NavigationController? maybeOf(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<RootNavigationScope>()
+        .dependOnInheritedWidgetOfExactType<NavigationScope>()
         ?.notifier;
   }
 
-  /// Returns the controller from the nearest [RootNavigationScope].
+  /// Returns the controller from the nearest [NavigationScope].
   ///
   /// This will assert in debug mode if the scope is missing.
   ///
   /// Use this when the controller is required for the current widget to work.
-  static RootNavigationController of(BuildContext context) {
+  static NavigationController of(BuildContext context) {
     final controller = maybeOf(context);
     assert(controller != null, 'RootNavigationScope not found in widget tree');
     return controller!;

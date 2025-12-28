@@ -7,16 +7,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../../common/widgets/app_icon_source.dart';
 import '../../../../../../utils/extensions/theme_extensions.dart';
 import '../../../../../../utils/extensions/context_extensions.dart';
-import 'root_navigation_controller.dart';
+import 'navigation_controller.dart';
 
-/// A single item in [RootBottomNavigationBar].
+/// A single item in [BottomNavigationBar].
 ///
 /// Items are intentionally implemented as builders so the caller can supply
 /// *any* widget as a tab, while still receiving a unified state
-/// ([RootBottomNavItemState]) describing whether the item is active and what
+/// ([BottomNavItemState]) describing whether the item is active and what
 /// color/size it should use.
-class RootBottomNavItem {
-  const RootBottomNavItem._({required this.builder});
+class BottomNavItem {
+  const BottomNavItem._({required this.builder});
 
   /// Creates an item from an [IconSource].
   ///
@@ -25,11 +25,11 @@ class RootBottomNavItem {
   /// - The concrete [IconSource] implementations in this template apply
   ///   `.sp` internally (see `app_icon_source.dart`), so we intentionally do
   ///   not apply `.sp` again here.
-  factory RootBottomNavItem.icon({
+  factory BottomNavItem.icon({
     required IconSource icon,
     String? semanticLabel,
   }) {
-    return RootBottomNavItem._(
+    return BottomNavItem._(
       builder: (context, state) {
         // Semantics adds accessibility metadata for screen readers.
         //
@@ -52,28 +52,28 @@ class RootBottomNavItem {
   ///
   /// This is the most flexible option and allows you to build any widget
   /// (icon, icon+label, animated widget, etc.) while still receiving
-  /// [RootBottomNavItemState] from the bar.
-  factory RootBottomNavItem.builder({
-    required Widget Function(BuildContext context, RootBottomNavItemState state)
+  /// [BottomNavItemState] from the bar.
+  factory BottomNavItem.builder({
+    required Widget Function(BuildContext context, BottomNavItemState state)
     builder,
   }) {
-    return RootBottomNavItem._(builder: builder);
+    return BottomNavItem._(builder: builder);
   }
 
   /// Builds the tab widget.
   ///
   /// This is called for each tab on every relevant change (current index,
   /// colors, etc.). Keep the builder lightweight.
-  final Widget Function(BuildContext context, RootBottomNavItemState state)
+  final Widget Function(BuildContext context, BottomNavItemState state)
   builder;
 }
 
-/// State object passed into [RootBottomNavItem.builder].
+/// State object passed into [BottomNavItem.builder].
 ///
 /// This keeps the item builder decoupled from the bar implementation while
 /// still enabling consistent active/inactive visuals.
-class RootBottomNavItemState {
-  const RootBottomNavItemState({
+class BottomNavItemState {
+  const BottomNavItemState({
     required this.index,
     required this.isActive,
     required this.color,
@@ -89,8 +89,8 @@ class RootBottomNavItemState {
 /// Custom bottom navigation bar for the Root feature.
 ///
 /// Key goals:
-/// - Fully customizable items (via [RootBottomNavItem]).
-/// - Minimal rebuild surface (only listens to [RootNavigationController]).
+/// - Fully customizable items (via [BottomNavItem]).
+/// - Minimal rebuild surface (only listens to [NavigationController]).
 /// - Responsive sizing driven by available width (via [LayoutBuilder]).
 /// - Smooth indicator movement and item animations (via `flutter_animate`).
 ///
@@ -100,8 +100,8 @@ class RootBottomNavItemState {
 /// - If `0 < height <= 1`, it is treated as a fraction of screen height.
 ///   Example: `height: 0.1` -> 10% of the screen height.
 /// - If `height > 1`, it is treated as absolute logical pixels.
-class RootBottomNavigationBar extends StatelessWidget {
-  const RootBottomNavigationBar({
+class BottomNavigationBar extends StatelessWidget {
+  const BottomNavigationBar({
     super.key,
     required this.controller,
     required this.items,
@@ -120,8 +120,8 @@ class RootBottomNavigationBar extends StatelessWidget {
     this.animationCurve = Curves.easeOutCubic,
   });
 
-  final RootNavigationController controller;
-  final List<RootBottomNavItem> items;
+  final NavigationController controller;
+  final List<BottomNavItem> items;
 
   /// Height of the bar.
   ///
@@ -236,7 +236,7 @@ class RootBottomNavigationBar extends StatelessWidget {
                         Row(
                           children: List.generate(count, (index) {
                             final isActive = index == currentIndex;
-                            final state = RootBottomNavItemState(
+                            final state = BottomNavItemState(
                               index: index,
                               isActive: isActive,
                               color: isActive
@@ -250,7 +250,7 @@ class RootBottomNavigationBar extends StatelessWidget {
                             final child = items[index].builder(context, state);
 
                             return Expanded(
-                              child: _RootBottomNavTap(
+                              child: _BottomNavTap(
                                 isActive: isActive,
                                 duration: animationDuration,
                                 curve: animationCurve,
@@ -261,7 +261,7 @@ class RootBottomNavigationBar extends StatelessWidget {
                             );
                           }),
                         ),
-                        _RootBottomNavIndicator(
+                        _BottomNavIndicator(
                           index: currentIndex,
                           count: count,
                           duration: animationDuration,
@@ -288,8 +288,8 @@ class RootBottomNavigationBar extends StatelessWidget {
 ///
 /// This is separated to keep the public widget focused and to keep rebuild
 /// logic localized.
-class _RootBottomNavTap extends StatelessWidget {
-  const _RootBottomNavTap({
+class _BottomNavTap extends StatelessWidget {
+  const _BottomNavTap({
     required this.child,
     required this.index,
     required this.isActive,
@@ -332,8 +332,8 @@ class _RootBottomNavTap extends StatelessWidget {
 /// Animated indicator that moves between tabs.
 ///
 /// Uses [AnimatedAlign] so we don't need to compute pixel-perfect offsets.
-class _RootBottomNavIndicator extends StatelessWidget {
-  const _RootBottomNavIndicator({
+class _BottomNavIndicator extends StatelessWidget {
+  const _BottomNavIndicator({
     required this.index,
     required this.count,
     required this.duration,

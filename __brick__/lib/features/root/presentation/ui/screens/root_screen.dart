@@ -3,9 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../../common/imports/imports.dart';
 import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart';
 import '../../../../../core/injection/injectable.dart';
-import '../widgets/root_navigation/root_bottom_navigation_bar.dart';
-import '../widgets/root_navigation/root_navigation_controller.dart';
-import '../widgets/root_navigation/root_navigation_scope.dart';
+import '../widgets/nav_bar/bottom_navigation.dart';
+import '../widgets/nav_bar/navigation_controller.dart';
+import '../widgets/nav_bar/navigation_scope.dart';
 import '../widgets/showcase/root_tab_buttons_showcase.dart';
 import '../widgets/showcase/root_tab_dialogs_sheets_showcase.dart';
 import '../widgets/showcase/root_tab_forms_showcase.dart';
@@ -15,7 +15,7 @@ import '../widgets/showcase/root_tab_notifications_showcase.dart';
 ///
 /// Implementation notes:
 /// - The root pages are hosted in a [PageView].
-/// - Tab switching uses `jumpToPage` via [RootNavigationController] to avoid
+/// - Tab switching uses `jumpToPage` via [NavigationController] to avoid
 ///   building intermediate pages when switching across multiple indices.
 /// - A lightweight overlay animation is used to provide a custom visual
 ///   transition while still keeping the `jumpToPage` behavior.
@@ -30,7 +30,7 @@ class RootScreen extends StatefulWidget {
 }
 
 class _RootScreenState extends State<RootScreen> {
-  late final RootNavigationController _controller;
+  late final NavigationController _controller;
 
   @override
   void initState() {
@@ -39,9 +39,9 @@ class _RootScreenState extends State<RootScreen> {
     // Prefer DI when available. In the template (`__brick__`) this controller
     // may not be registered until the consumer project runs codegen, so we
     // fall back to a local instance.
-    _controller = getIt.isRegistered<RootNavigationController>()
-        ? getIt<RootNavigationController>()
-        : RootNavigationController();
+    _controller = getIt.isRegistered<NavigationController>()
+        ? getIt<NavigationController>()
+        : NavigationController();
 
     // PageController can't jump until the PageView attaches (hasClients).
     // This post-frame callback lets the controller apply any pending initial
@@ -61,20 +61,20 @@ class _RootScreenState extends State<RootScreen> {
   @override
   Widget build(BuildContext context) {
     // Example items. These can be replaced with your real tab definitions.
-    final items = <RootBottomNavItem>[
-      RootBottomNavItem.icon(
+    final items = <BottomNavItem>[
+      BottomNavItem.icon(
         icon: IconSource.icon(Icons.smart_button_rounded),
         semanticLabel: "Buttons",
       ),
-      RootBottomNavItem.icon(
+      BottomNavItem.icon(
         icon: IconSource.icon(Icons.fact_check_rounded),
         semanticLabel: "Forms",
       ),
-      RootBottomNavItem.icon(
+      BottomNavItem.icon(
         icon: IconSource.icon(Icons.chat_bubble_outline_rounded),
         semanticLabel: "Dialogs",
       ),
-      RootBottomNavItem.icon(
+      BottomNavItem.icon(
         icon: IconSource.icon(Icons.notifications_active_rounded),
         semanticLabel: "Notifications",
       ),
@@ -89,10 +89,10 @@ class _RootScreenState extends State<RootScreen> {
 
     // Provide the controller to the subtree via a scope so any nested widget
     // can access it without passing it down manually.
-    return RootNavigationScope(
+    return NavigationScope(
       controller: _controller,
       child: AppScaffold.body(
-        bottomNavigationBar: RootBottomNavigationBar(
+        bottomNavigationBar: BottomNavigationBar(
           controller: _controller,
           items: items,
         ),

@@ -18,8 +18,8 @@ import 'package:injectable/injectable.dart';
 /// - In the template (`__brick__`) the DI config might not include it until the
 ///   consumer project runs code generation.
 @injectable
-class RootNavigationController extends ChangeNotifier {
-  RootNavigationController() : _pageController = PageController();
+class NavigationController extends ChangeNotifier {
+  NavigationController() : _pageController = PageController();
 
   final PageController _pageController;
 
@@ -107,5 +107,5 @@ class RootNavigationController extends ChangeNotifier {
 /// Supported tab transition types.
 ///
 /// This enum is read by the UI (e.g. `RootScreen`) to decide which animation
-/// to play when [RootNavigationController.setIndex] is called.
+/// to play when [NavigationController.setIndex] is called.
 enum RootTransitionType { fade, scale, slide }
