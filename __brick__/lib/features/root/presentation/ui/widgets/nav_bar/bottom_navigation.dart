@@ -9,7 +9,7 @@ import '../../../../../../utils/extensions/theme_extensions.dart';
 import '../../../../../../utils/extensions/context_extensions.dart';
 import 'navigation_controller.dart';
 
-/// A single item in [BottomNavigationBar].
+/// A single item in [BottomNavBar].
 ///
 /// Items are intentionally implemented as builders so the caller can supply
 /// *any* widget as a tab, while still receiving a unified state
@@ -64,8 +64,7 @@ class BottomNavItem {
   ///
   /// This is called for each tab on every relevant change (current index,
   /// colors, etc.). Keep the builder lightweight.
-  final Widget Function(BuildContext context, BottomNavItemState state)
-  builder;
+  final Widget Function(BuildContext context, BottomNavItemState state) builder;
 }
 
 /// State object passed into [BottomNavItem.builder].
@@ -100,8 +99,8 @@ class BottomNavItemState {
 /// - If `0 < height <= 1`, it is treated as a fraction of screen height.
 ///   Example: `height: 0.1` -> 10% of the screen height.
 /// - If `height > 1`, it is treated as absolute logical pixels.
-class BottomNavigationBar extends StatelessWidget {
-  const BottomNavigationBar({
+class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({
     super.key,
     required this.controller,
     required this.items,

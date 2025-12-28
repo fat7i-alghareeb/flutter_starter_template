@@ -92,7 +92,7 @@ class _RootScreenState extends State<RootScreen> {
     return NavigationScope(
       controller: _controller,
       child: AppScaffold.body(
-        bottomNavigationBar: BottomNavigationBar(
+        bottomNavigationBar: BottomNavBar(
           controller: _controller,
           items: items,
         ),
