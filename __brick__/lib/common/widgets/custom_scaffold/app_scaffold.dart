@@ -80,6 +80,8 @@ class AppScaffold extends StatelessWidget {
     this.scaffoldConfig = const AppScaffoldConfig(),
     this.appBarConfig,
     this.searchConfig,
+
+    this.bottomNavigationBar,
     this.topSpacing = 0,
     this.afterAppBarSpacing = AppSpacing.md,
     this.afterSearchSpacing = AppSpacing.md,
@@ -93,12 +95,14 @@ class AppScaffold extends StatelessWidget {
     required Widget child,
     AppScaffoldConfig scaffoldConfig = const AppScaffoldConfig(),
     double topSpacing = 0,
+    Widget? bottomNavigationBar,
   }) {
     return AppScaffold._(
       key: key,
       features: const <ScaffoldFeature>{},
       scaffoldConfig: scaffoldConfig,
       topSpacing: topSpacing,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }
@@ -110,6 +114,7 @@ class AppScaffold extends StatelessWidget {
     required AppScaffoldAppBarConfig appBarConfig,
     double topSpacing = 0,
     double afterAppBarSpacing = AppSpacing.md,
+    Widget? bottomNavigationBar,
   }) {
     return AppScaffold._(
       key: key,
@@ -118,6 +123,7 @@ class AppScaffold extends StatelessWidget {
       appBarConfig: appBarConfig,
       topSpacing: topSpacing,
       afterAppBarSpacing: afterAppBarSpacing,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }
@@ -129,6 +135,7 @@ class AppScaffold extends StatelessWidget {
     required AppScaffoldSearchConfig searchConfig,
     double topSpacing = 0,
     double afterSearchSpacing = AppSpacing.md,
+    Widget? bottomNavigationBar,
   }) {
     return AppScaffold._(
       key: key,
@@ -137,6 +144,7 @@ class AppScaffold extends StatelessWidget {
       searchConfig: searchConfig,
       topSpacing: topSpacing,
       afterSearchSpacing: afterSearchSpacing,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }
@@ -150,6 +158,7 @@ class AppScaffold extends StatelessWidget {
     double topSpacing = 0,
     double afterAppBarSpacing = AppSpacing.md,
     double afterSearchSpacing = AppSpacing.md,
+    Widget? bottomNavigationBar,
   }) {
     return AppScaffold._(
       key: key,
@@ -160,6 +169,7 @@ class AppScaffold extends StatelessWidget {
       topSpacing: topSpacing,
       afterAppBarSpacing: afterAppBarSpacing,
       afterSearchSpacing: afterSearchSpacing,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }
@@ -174,6 +184,7 @@ class AppScaffold extends StatelessWidget {
     double topSpacing = 0,
     double afterAppBarSpacing = AppSpacing.md,
     double afterSearchSpacing = AppSpacing.md,
+    Widget? bottomNavigationBar,
   }) {
     return AppScaffold._(
       key: key,
@@ -184,6 +195,7 @@ class AppScaffold extends StatelessWidget {
       topSpacing: topSpacing,
       afterAppBarSpacing: afterAppBarSpacing,
       afterSearchSpacing: afterSearchSpacing,
+      bottomNavigationBar: bottomNavigationBar,
       child: child,
     );
   }
@@ -194,6 +206,8 @@ class AppScaffold extends StatelessWidget {
 
   final AppScaffoldAppBarConfig? appBarConfig;
   final AppScaffoldSearchConfig? searchConfig;
+
+  final Widget? bottomNavigationBar;
 
   final double topSpacing;
   final double afterAppBarSpacing;
@@ -243,6 +257,7 @@ class AppScaffold extends StatelessWidget {
       resizeToAvoidBottomInset: scaffoldConfig.resizeToAvoidBottomInset,
       endDrawer: _drawerEnabled ? const _AppEndDrawerShell() : null,
       body: body,
+      bottomNavigationBar: bottomNavigationBar,
     );
   }
 }

@@ -50,7 +50,7 @@ abstract class IconSource {
     BoxFit fit = BoxFit.contain,
   }) {
     return _SvgIconSource(assetName, size: size, fit: fit);
-  }
+}
 
   /// Image from assets (png/jpg/etc) rendered via [AppImageViewer].
   factory IconSource.imageAsset(
