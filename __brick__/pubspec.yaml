@@ -1,5 +1,5 @@
-# name: "{{project_name}}"
-name: "test_name_to_delete"
+name: "{{project_name}}"
+# name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
@@ -45,9 +45,6 @@ dependencies:
   animations: ^2.1.1
   shimmer: ^3.0.0
 
-
-
-  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -71,27 +68,27 @@ flutter:
         - package: vector_graphics_compiler
     - assets/icons/
 
-# # dart run flutter_flavorizr
-# flavorizr:
-#   flavors:
-#     stage:
-#       app:
-#         name: "{{project_name}} Stage"
-#         package_name: "{{package_name}}.stage"
-#       android:
-#         applicationId: "{{package_name}}.stage"
-#     production:
-#       app:
-#         name: "{{project_name}}"
-#         package_name: "{{package_name}}"
-#       android:
-#         applicationId: "{{package_name}}"
-#   instructions:
-#     - android:androidManifest
-#     - android:flavorizrGradle
-#     - android:buildGradle
-#     - flutter:flavors
-#     - ide:config
+# dart run flutter_flavorizr
+flavorizr:
+  flavors:
+    stage:
+      app:
+        name: "{{project_name}} Stage"
+        package_name: "{{package_name}}.stage"
+      android:
+        applicationId: "{{package_name}}.stage"
+    production:
+      app:
+        name: "{{project_name}}"
+        package_name: "{{package_name}}"
+      android:
+        applicationId: "{{package_name}}"
+  instructions:
+    - android:androidManifest
+    - android:flavorizrGradle
+    - android:buildGradle
+    - flutter:flavors
+    - ide:config
 
 flutter_gen:
   output: lib/utils/gen/
