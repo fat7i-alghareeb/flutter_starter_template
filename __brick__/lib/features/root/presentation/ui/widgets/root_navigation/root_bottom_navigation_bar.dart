@@ -192,14 +192,14 @@ class RootBottomNavigationBar extends StatelessWidget {
             .toInt();
 
         // Resolve the height based on the rules documented above.
-        final defaultHeight = context.isTablet ? 76.0 : 68.0;
+        final defaultHeight = context.isTablet ? 76.0.h : 68.0.h;
         final effectiveHeight = height == null
             ? defaultHeight
             : (height! <= 0
                   ? defaultHeight
                   : (height! <= 1.0
                         ? context.screenHeight * height!
-                        : height!));
+                        : height!.h));
 
         final effectiveBackground = backgroundColor ?? context.surface;
 
