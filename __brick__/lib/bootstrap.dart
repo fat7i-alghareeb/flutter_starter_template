@@ -176,7 +176,7 @@ Future<void> _runGuardedApp(
       ensureScreenSize: true,
       fontSizeResolver: (fontSize, instance) {
         final width = instance.screenWidth;
-
+        //TODO make this logic const to be used in any other plce the width values i mean
         double factor;
         if (width <= 320) {
           factor = 0.9;

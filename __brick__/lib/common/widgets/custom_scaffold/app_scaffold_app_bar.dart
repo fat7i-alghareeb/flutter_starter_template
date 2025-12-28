@@ -11,6 +11,7 @@ part of 'app_scaffold.dart';
 ///   automatically.
 final class AppScaffoldAppBarConfig {
   const AppScaffoldAppBarConfig({
+    this.height,
     this.title,
     this.subtitle,
     this.titleStyle,
@@ -20,9 +21,13 @@ final class AppScaffoldAppBarConfig {
     this.showLeading = true,
     this.leading,
     this.onLeadingTap,
+    this.leadingPadding = const EdgeInsets.all(11),
     this.enableDrawer = false,
     this.drawerIcon,
+    this.drawerActionPadding = const EdgeInsets.all(11),
   });
+
+  final double? height;
 
   /// Main title (optional).
   final String? title;
@@ -57,6 +62,8 @@ final class AppScaffoldAppBarConfig {
   /// When `null`, defaults to `context.pop()`.
   final VoidCallback? onLeadingTap;
 
+  final EdgeInsetsGeometry leadingPadding;
+
   /// Enables an end drawer.
   ///
   /// This does two things:
@@ -66,6 +73,8 @@ final class AppScaffoldAppBarConfig {
 
   /// Optional icon for the drawer action.
   final IconSource? drawerIcon;
+
+  final EdgeInsetsGeometry drawerActionPadding;
 }
 
 /// Internal app bar implementation for [AppScaffold].
@@ -85,12 +94,15 @@ class _AppScaffoldAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final leading = _buildLeading(context);
 
+    final resolvedHeight = _resolveHeight(context);
+
     /// Start with user-provided actions, then optionally inject a drawer action.
     final actions = <Widget>[
       ...config.actions,
       if (drawerEnabled)
         _AppScaffoldDrawerAction(
           icon: config.drawerIcon ?? IconSource.icon(Icons.menu),
+          padding: config.drawerActionPadding,
         ),
     ];
 
@@ -102,48 +114,61 @@ class _AppScaffoldAppBar extends StatelessWidget {
       alignment: config.titleAlignment,
     );
 
-    return SizedBox(
-      height: 56.h,
-      child: switch (config.titleAlignment) {
-        /// Centered title must stay visually centered regardless of how wide the
-        /// leading/actions are. A [Stack] achieves that by letting the title be
-        /// centered independently from the horizontal chrome row.
-        AppScaffoldTitleAlignment.centered => Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Align(child: titleWidget),
-            Row(
-              children: <Widget>[
-                if (leading != null) leading,
-                const Spacer(),
-                if (actions.isNotEmpty) ...[for (final w in actions) w],
-              ],
+    final body = switch (config.titleAlignment) {
+      /// Centered title must stay visually centered regardless of how wide the
+      /// leading/actions are. A [Stack] achieves that by letting the title be
+      /// centered independently from the horizontal chrome row.
+      AppScaffoldTitleAlignment.centered => Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              if (leading != null) leading,
+              const Spacer(),
+              if (actions.isNotEmpty) ...[for (final w in actions) w],
+            ],
+          ),
+          Align(heightFactor: 1, child: titleWidget),
+        ],
+      ),
+      AppScaffoldTitleAlignment.start => Row(
+        children: <Widget>[
+          if (leading != null) leading,
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              heightFactor: 1,
+              child: titleWidget,
             ),
-          ],
-        ),
-        AppScaffoldTitleAlignment.start => Row(
-          children: <Widget>[
-            if (leading != null) leading,
-            Expanded(
-              child: Align(alignment: Alignment.centerLeft, child: titleWidget),
+          ),
+          if (actions.isNotEmpty) ...[for (final w in actions) w],
+        ],
+      ),
+      AppScaffoldTitleAlignment.end => Row(
+        children: <Widget>[
+          if (leading != null) leading,
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              heightFactor: 1,
+              child: titleWidget,
             ),
-            if (actions.isNotEmpty) ...[for (final w in actions) w],
-          ],
-        ),
-        AppScaffoldTitleAlignment.end => Row(
-          children: <Widget>[
-            if (leading != null) leading,
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: titleWidget,
-              ),
-            ),
-            if (actions.isNotEmpty) ...[for (final w in actions) w],
-          ],
-        ),
-      },
-    );
+          ),
+          if (actions.isNotEmpty) ...[for (final w in actions) w],
+        ],
+      ),
+    };
+
+    final fullWidth = SizedBox(width: double.infinity, child: body);
+    if (resolvedHeight == null) return fullWidth;
+    return SizedBox(height: resolvedHeight, child: fullWidth);
+  }
+
+  double? _resolveHeight(BuildContext context) {
+    final raw = config.height;
+    if (raw == null || raw <= 0) return null;
+    if (raw <= 1) return context.screenHeight * raw;
+    return raw;
   }
 
   Widget? _buildLeading(BuildContext context) {
@@ -161,19 +186,16 @@ class _AppScaffoldAppBar extends StatelessWidget {
 
     return _TapArea(
       onTap: onTap,
-      child: SizedBox(
-        width: 44.w,
-        height: 44.h,
-        child: Center(child: icon),
-      ),
+      child: Padding(padding: config.leadingPadding, child: icon),
     );
   }
 }
 
 class _AppScaffoldDrawerAction extends StatelessWidget {
-  const _AppScaffoldDrawerAction({required this.icon});
+  const _AppScaffoldDrawerAction({required this.icon, required this.padding});
 
   final IconSource icon;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -185,12 +207,9 @@ class _AppScaffoldDrawerAction extends StatelessWidget {
         if (state == null) return;
         state.openEndDrawer();
       },
-      child: SizedBox(
-        width: 44.w,
-        height: 44.h,
-        child: Center(
-          child: icon.build(context, color: context.onSurface, size: 22),
-        ),
+      child: Padding(
+        padding: padding,
+        child: icon.build(context, color: context.onSurface, size: 22),
       ),
     );
   }
