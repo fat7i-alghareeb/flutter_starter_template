@@ -1,12 +1,15 @@
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../../common/imports/imports.dart';
-import '../widgets/root_body.dart';
 import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart';
 import '../../../../../core/injection/injectable.dart';
 import '../widgets/root_navigation/root_bottom_navigation_bar.dart';
 import '../widgets/root_navigation/root_navigation_controller.dart';
 import '../widgets/root_navigation/root_navigation_scope.dart';
+import '../widgets/showcase/root_tab_buttons_showcase.dart';
+import '../widgets/showcase/root_tab_dialogs_sheets_showcase.dart';
+import '../widgets/showcase/root_tab_forms_showcase.dart';
+import '../widgets/showcase/root_tab_notifications_showcase.dart';
 
 /// Root screen that hosts the bottom-tab navigation.
 ///
@@ -60,28 +63,29 @@ class _RootScreenState extends State<RootScreen> {
     // Example items. These can be replaced with your real tab definitions.
     final items = <RootBottomNavItem>[
       RootBottomNavItem.icon(
-        icon: IconSource.icon(Icons.home_rounded),
-        semanticLabel: "Home",
+        icon: IconSource.icon(Icons.smart_button_rounded),
+        semanticLabel: "Buttons",
       ),
       RootBottomNavItem.icon(
-        icon: IconSource.icon(Icons.search_rounded),
-        semanticLabel: "Search",
+        icon: IconSource.icon(Icons.fact_check_rounded),
+        semanticLabel: "Forms",
       ),
       RootBottomNavItem.icon(
-        icon: IconSource.icon(Icons.notifications_rounded),
-        semanticLabel: "Notification",
+        icon: IconSource.icon(Icons.chat_bubble_outline_rounded),
+        semanticLabel: "Dialogs",
       ),
       RootBottomNavItem.icon(
-        icon: IconSource.icon(Icons.settings_rounded),
-        semanticLabel: "Settings",
+        icon: IconSource.icon(Icons.notifications_active_rounded),
+        semanticLabel: "Notifications",
       ),
     ];
 
-    final pages = List<Widget>.generate(
-      items.length,
-      (_) => const RootBody(),
-      growable: false,
-    );
+    final pages = <Widget>[
+      const RootTabButtonsShowcase(),
+      const RootTabFormsShowcase(),
+      const RootTabDialogsSheetsShowcase(),
+      const RootTabNotificationsShowcase(),
+    ];
 
     // Provide the controller to the subtree via a scope so any nested widget
     // can access it without passing it down manually.
