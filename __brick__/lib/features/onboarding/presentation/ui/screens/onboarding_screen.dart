@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:test_name_to_delete/common/widgets/button/app_button.dart';
-import 'package:test_name_to_delete/common/widgets/button/app_button_child.dart';
-import 'package:test_name_to_delete/common/widgets/custom_scaffold/app_scaffold.dart'
+import '../../../../../common/widgets/button/app_button.dart';
+import '../../../../../common/widgets/button/app_button_child.dart';
+import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart'
     show AppScaffold;
-import 'package:test_name_to_delete/core/injection/injectable.dart';
-import 'package:test_name_to_delete/core/services/onboarding/onboarding_service.dart';
-import 'package:test_name_to_delete/utils/constants/design_constants.dart';
-import 'package:test_name_to_delete/utils/extensions/widget_extensions.dart';
+import '../../../../../core/injection/injectable.dart';
+import '../../../../../core/services/onboarding/onboarding_service.dart';
+import '../../../../../utils/constants/design_constants.dart';
+import '../../../../../utils/extensions/widget_extensions.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import 'package:test_name_to_delete/common/widgets/app_affixes.dart';
+import '../../../common/widgets/app_affixes.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';

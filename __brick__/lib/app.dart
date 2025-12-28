@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'common/widgets/stage_tools/stage_tools_overlay.dart';
 import 'core/injection/injectable.dart';
 import 'core/router/router_config.dart';
 import 'core/services/session/auth_manager.dart';
@@ -10,7 +11,6 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/app_typography.dart';
 import 'core/theme/theme_controller.dart';
 import 'utils/constants/design_constants.dart';
-import 'common/widgets/stage_tools/stage_tools_overlay.dart';
 
 /// Global auth mode selector for this app.
 ///

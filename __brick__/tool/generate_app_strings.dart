@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:test_name_to_delete/core/config/localization_config.dart';
+import 'package:{{project_name}}/core/config/localization_config.dart';
 
 /// Generates lib/utils/gen/app_strings.g.dart from all
 /// JSON files declared in [AppLocalizationConfig.supportedLanguageCodes].

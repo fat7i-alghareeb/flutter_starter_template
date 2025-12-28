@@ -4,15 +4,17 @@ import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+
+import '../../core/router/app_page_transitions.dart';
 import '../../features/auth/presentation/ui/screens/login_screen.dart';
 import '../../features/onboarding/presentation/ui/screens/onboarding_screen.dart';
 import '../../features/root/presentation/ui/screens/root_screen.dart';
+import '../../features/splash/presentation/ui/screens/splash_screen.dart';
 import '../../utils/constants/app_flow_constants.dart';
 import '../../utils/helpers/colored_print.dart';
 import '../services/onboarding/onboarding_service.dart';
 import '../services/session/auth_state_notifier.dart';
-import '../../core/router/app_page_transitions.dart';
-import '../../features/splash/presentation/ui/screens/splash_screen.dart';
+
 part 'app_routes.dart';
 
 /// * RouterRefreshListenable
