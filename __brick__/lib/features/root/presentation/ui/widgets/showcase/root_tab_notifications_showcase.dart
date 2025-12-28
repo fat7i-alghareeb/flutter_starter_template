@@ -6,7 +6,6 @@ import '../../../../../../common/imports/imports.dart';
 import '../../../../../../core/injection/injectable.dart';
 import '../../../../../../core/notification/notification_coordinator.dart';
 
-
 class RootTabNotificationsShowcase extends StatefulWidget {
   const RootTabNotificationsShowcase({super.key});
 
