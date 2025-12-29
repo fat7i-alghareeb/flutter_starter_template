@@ -184,12 +184,6 @@ class BottomNavBar extends StatelessWidget {
         // Number of tabs.
         final count = items.length;
 
-        // Ensure the index is always valid (guards against runtime errors
-        // if items length changes during hot reload / dev).
-        final currentIndex = controller.currentIndex
-            .clamp(0, count - 1)
-            .toInt();
-
         // Resolve the height based on the rules documented above.
         final defaultHeight = context.isTablet ? 76.0.h : 68.0.h;
         final effectiveHeight = height == null
@@ -201,6 +195,22 @@ class BottomNavBar extends StatelessWidget {
                         : height!.h));
 
         final effectiveBackground = backgroundColor ?? context.surface;
+
+        if (count == 0) {
+          return Material(
+            color: effectiveBackground,
+            child: SafeArea(
+              top: false,
+              child: SizedBox(height: effectiveHeight),
+            ),
+          );
+        }
+
+        // Ensure the index is always valid (guards against runtime errors
+        // if items length changes during hot reload / dev).
+        final currentIndex = controller.currentIndex
+            .clamp(0, count - 1)
+            .toInt();
 
         final effectiveActiveColor = activeColor ?? context.primary;
         final effectiveInactiveColor = inactiveColor ?? context.grey;
@@ -215,13 +225,26 @@ class BottomNavBar extends StatelessWidget {
                 // Width is resolved from constraints so the layout adapts to
                 // tablets / rotations without relying on `.w`.
                 final maxWidth = constraints.maxWidth;
-                final itemWidth = maxWidth / count;
+                final direction = Directionality.of(context);
+                final resolvedPadding = (padding ?? EdgeInsets.zero).resolve(
+                  direction,
+                );
+
+                final innerWidth = math.max(
+                  0.0,
+                  maxWidth - resolvedPadding.horizontal,
+                );
+                final itemWidth = innerWidth / count;
 
                 // Indicator width is a fraction of each item slot.
                 final indicatorWidth = math.max(
                   12.0,
                   math.min(itemWidth * indicatorWidthFactor, itemWidth),
                 );
+
+                final indicatorStart =
+                    (currentIndex * itemWidth) +
+                    ((itemWidth - indicatorWidth) / 2.0);
 
                 return SizedBox(
                   height: effectiveHeight,
@@ -259,14 +282,13 @@ class BottomNavBar extends StatelessWidget {
                           }),
                         ),
                         _BottomNavIndicator(
-                          index: currentIndex,
-                          count: count,
                           duration: animationDuration,
                           curve: animationCurve,
                           color: effectiveIndicatorColor,
                           height: indicatorHeight,
                           radius: indicatorRadius,
                           width: indicatorWidth,
+                          start: indicatorStart,
                         ),
                       ],
                     ),
@@ -331,47 +353,37 @@ class _BottomNavTap extends StatelessWidget {
 /// Uses [AnimatedAlign] so we don't need to compute pixel-perfect offsets.
 class _BottomNavIndicator extends StatelessWidget {
   const _BottomNavIndicator({
-    required this.index,
-    required this.count,
     required this.duration,
     required this.curve,
     required this.color,
     required this.height,
     required this.radius,
     required this.width,
+    required this.start,
   });
 
-  final int index;
-  final int count;
   final Duration duration;
   final Curve curve;
   final Color color;
   final double height;
   final double radius;
   final double width;
+  final double start;
 
   @override
   Widget build(BuildContext context) {
-    // Convert the tab index into an alignment value in the range [-1, 1]
-    // so we can use Align/AnimatedAlign without computing pixel offsets.
-    final alignmentX = count <= 1 ? 0.0 : ((index / (count - 1)) * 2.0) - 1.0;
-
-    return Align(
-      alignment: Alignment.bottomCenter,
+    return AnimatedPositionedDirectional(
+      duration: duration,
+      curve: curve,
+      start: start,
+      bottom: 0,
       child: SizedBox(
+        width: width,
         height: height,
-        child: AnimatedAlign(
-          duration: duration,
-          curve: curve,
-          alignment: Alignment(alignmentX, 1),
-          child: Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              color: color,
-              // Radius scaling is intentionally applied here.
-              borderRadius: BorderRadius.circular(radius.r),
-            ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(radius.r),
           ),
         ),
       ),

@@ -164,6 +164,14 @@ class AppRouteGuard {
     );
     if (splashRedirect != null) return splashRedirect;
 
+    // Important: while splash is still active (delay not elapsed OR auth status
+    // still bootstrapping), we must NOT run onboarding/auth redirects.
+    // Otherwise GoRouter can immediately redirect away from the splash route
+    // before the first frame is painted, making the splash appear to never show.
+    if (!splashDelayElapsed || status == Status.initial) {
+      return null;
+    }
+
     // 2) Onboarding.
     final onboardingRedirect = await _handleOnboarding(currentPath);
     if (onboardingRedirect != null) return onboardingRedirect;

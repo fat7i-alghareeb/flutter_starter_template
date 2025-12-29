@@ -96,71 +96,54 @@ class _RootScreenState extends State<RootScreen> {
     // can access it without passing it down manually.
     return NavigationScope(
       controller: _controller,
-      child: AppScaffold.appBar(
-        appBarConfig: const AppScaffoldAppBarConfig(
-          title: 'Root',
-          showLeading: false,
-        ),
+      child: AppScaffold.body(
         bottomNavigationBar: BottomNavBar(
           controller: _controller,
           items: items,
         ),
-        child: Stack(
-          children: [
-            // Main content pages. Swiping is disabled to make tab changes
-            // fully controlled by the bottom bar.
-            PageView(
-              controller: _controller.pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              onPageChanged: _controller.handlePageChanged,
-              children: pages,
-            ),
+        child: PageView(
+          controller: _controller.pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: _controller.handlePageChanged,
+          children: List.generate(pages.length, (index) {
+            return AnimatedBuilder(
+              animation: _controller,
+              child: pages[index],
+              builder: (context, child) {
+                final isActive = index == _controller.currentIndex;
 
-            // Overlay transition.
-            //
-            // Because we use `jumpToPage`, the content changes instantly.
-            // We briefly show a theme-colored overlay to mask the jump and
-            // IgnorePointer ensures the overlay never blocks user input.
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  final overlayColor = context.surface;
+                final animation = child!.animate(
+                  key: ValueKey(_controller.transitionToken),
+                  target: isActive ? 1 : 0,
+                );
 
-                  Widget overlay = ColoredBox(color: overlayColor);
+                return switch (_controller.transitionType) {
+                  RootTransitionType.fade =>
+                    animation
+                        .fadeIn(duration: 200.ms)
+                        .scale(begin: const Offset(0.98, 0.98)),
 
-                  // Pick a visual effect based on the transition type requested
-                  // by the controller.
-                  overlay = switch (_controller.transitionType) {
-                    RootTransitionType.fade =>
-                      overlay
-                          .animate(key: ValueKey(_controller.transitionToken))
-                          .fadeIn(duration: 90.ms)
-                          .then(delay: 40.ms)
-                          .fadeOut(duration: 140.ms),
+                  RootTransitionType.scale =>
+                    animation
+                        .scale(
+                          begin: const Offset(0.96, 0.96),
+                          end: const Offset(1, 1),
+                        )
+                        .fadeIn(duration: 160.ms),
 
-                    RootTransitionType.scale =>
-                      overlay
-                          .animate(key: ValueKey(_controller.transitionToken))
-                          .scale(
-                            begin: const Offset(0.96, 0.96),
-                            end: const Offset(1, 1),
-                          )
-                          .fadeOut(duration: 160.ms),
+                  RootTransitionType.slideLeft =>
+                    animation
+                        .slideX(begin: 0.08, end: 0)
+                        .fadeIn(duration: 180.ms),
 
-                    RootTransitionType.slide =>
-                      overlay
-                          .animate(key: ValueKey(_controller.transitionToken))
-                          .slideY(begin: 0.05, end: 0)
-                          .fadeOut(duration: 180.ms),
-                  };
-
-                  // IgnorePointer ensures the overlay never blocks user input.
-                  return IgnorePointer(child: overlay);
-                },
-              ),
-            ),
-          ],
+                  RootTransitionType.slideRight =>
+                    animation
+                        .slideX(begin: -0.08, end: 0)
+                        .fadeIn(duration: 180.ms),
+                };
+              },
+            );
+          }),
         ),
       ),
     );

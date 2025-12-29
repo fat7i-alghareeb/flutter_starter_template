@@ -3,8 +3,6 @@ import 'package:reactive_forms/reactive_forms.dart';
 
 import '../../../../../../common/imports/imports.dart';
 
-
-
 class RootTabDialogsSheetsShowcase extends StatelessWidget {
   const RootTabDialogsSheetsShowcase({super.key});
 
@@ -103,16 +101,22 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
       context,
       sheet: AppBottomSheet.basic(
         title: 'Bottom sheet',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('This is AppBottomSheet.basic', style: AppTextStyles.s14w400),
-            AppSpacing.md.verticalSpace,
-            AppButton.primary(
-              onTap: () => Navigator.of(context).pop(),
-              child: AppButtonChild.label('Close'),
-            ),
-          ],
+        child: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This is AppBottomSheet.basic',
+                style: AppTextStyles.s14w400,
+              ),
+              AppSpacing.md.verticalSpace,
+              AppButton.primary(
+                onTap: () => Navigator.of(context).pop(),
+                child: AppButtonChild.label('Close'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -145,11 +149,13 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
           AppButton.grey(
             onTap: () => Navigator.of(context).pop(),
             child: AppButtonChild.label('Cancel'),
+            layout: const AppButtonLayout(width: 100),
           ),
           AppSpacing.sm.verticalSpace,
           AppButton.primaryGradient(
             onTap: () => Navigator.of(context).pop(),
             child: AppButtonChild.label('Apply'),
+            layout: const AppButtonLayout(width: 100),
           ),
         ],
         child: Text(

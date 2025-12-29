@@ -106,10 +106,9 @@ class AppBottomSheet extends StatelessWidget {
   final bool scrollable;
 
   Widget _dragHandle(BuildContext context) {
-    final handleColor = context.colorScheme.onSurface.withValues(alpha: 0.14);
+    final handleColor = context.onSurface.withValues(alpha: 0.14);
 
     return Container(
-      margin: EdgeInsets.only(top: AppSpacing.sm.h),
       width: 120.w,
       height: 4.h,
       decoration: BoxDecoration(
@@ -134,38 +133,41 @@ class AppBottomSheet extends StatelessWidget {
         padding: EdgeInsets.only(bottom: bottomInset),
         child: Padding(
           padding: padding ?? AppSpacing.standardPadding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showDragHandle) _dragHandle(context),
-              if (header != null) ...[AppSpacing.md.verticalSpace, header!],
-              if (title?.trim().isNotEmpty == true) ...[
-                AppSpacing.md.verticalSpace,
-                Text(
-                  title!,
-                  textAlign: TextAlign.center,
-                  style:
-                      titleStyle ??
-                      AppTextStyles.s16w400.copyWith(
-                        color: context.colorScheme.onSurface,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ],
-              if (title?.trim().isNotEmpty == true || header != null)
-                AppSpacing.lg.verticalSpace,
+          child: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showDragHandle) _dragHandle(context),
+                if (header != null) ...[AppSpacing.md.verticalSpace, header!],
+                if (title?.trim().isNotEmpty == true) ...[
+                  AppSpacing.md.verticalSpace,
+                  Text(
+                    title!,
+                    textAlign: TextAlign.center,
+                    style:
+                        titleStyle ??
+                        AppTextStyles.s16w400.copyWith(
+                          color: context.colorScheme.onSurface,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ],
+                if (title?.trim().isNotEmpty == true || header != null)
+                  AppSpacing.lg.verticalSpace,
 
-              // `scrollable` allows large content (forms) without overflow.
-              if (scrollable)
-                Flexible(child: SingleChildScrollView(child: child))
-              else
-                child,
+                // `scrollable` allows large content (forms) without overflow.
+                if (scrollable)
+                  Flexible(child: SingleChildScrollView(child: child))
+                else
+                  child,
 
-              if (actions != null && actions!.isNotEmpty) ...[
-                AppSpacing.lg.verticalSpace,
-                ...actions!,
+                if (actions != null && actions!.isNotEmpty) ...[
+                  AppSpacing.lg.verticalSpace,
+                  ...actions!,
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

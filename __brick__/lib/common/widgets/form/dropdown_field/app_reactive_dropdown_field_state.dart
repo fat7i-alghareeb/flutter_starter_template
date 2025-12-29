@@ -43,9 +43,6 @@ class _AppReactiveDropdownFieldState<T>
   /// - but we still show the choice the user made
   bool _keepDisplayWhileControlNull = false;
 
-  /// Search query used when [widget.enableSearch] is enabled.
-  String _searchQuery = '';
-
   @override
   void initState() {
     super.initState();
@@ -399,7 +396,6 @@ class _AppReactiveDropdownFieldState<T>
     // “keep displaying selection while control is null” behavior.
     _keepDisplayWhileControlNull = false;
     _selected = null;
-    _searchQuery = '';
 
     // If the field had a custom message from onSelectReturn, remove it.
     if (control.hasError(_errorKey)) {
@@ -429,30 +425,25 @@ class _AppReactiveDropdownFieldState<T>
     };
   }
 
-  List<AppDropdownOption<T>> _filteredOptions() {
-    // Filter is case-insensitive and based on option name.
-    final q = _searchQuery.trim().toLowerCase();
-    // If search is disabled or query is empty, return all options.
-    if (!widget.enableSearch || q.isEmpty) return _options;
-    return _options
-        .where((o) => o.name.toLowerCase().contains(q))
-        .toList(growable: false);
-  }
-
   Future<void> _openDialog(AbstractControl<dynamic> control) async {
-    // Reset search every time the picker is opened.
-    _searchQuery = '';
-
     await AppDialog.show<void>(
       context,
       dialog: AppDialog.basic(
         title: widget.title ?? AppStrings.selectOption,
+        barrierDismissible: widget.dialogBarrierDismissible,
         secondaryAction: AppDialogAction.secondary(
           label: AppStrings.cancel,
           onPressed: () => Navigator.of(context).pop(),
         ),
-        child: _buildPickerBody(control, inDialog: true),
+        child: _DropdownPicker<T>(
+          options: _options,
+          selected: _selected,
+          enableSearch: widget.enableSearch,
+          optionsTextStyle: widget.optionsTextStyle,
+          onSelect: (option) => _handleSelect(control, option),
+        ),
       ),
+      barrierDismissible: widget.dialogBarrierDismissible,
     );
 
     // Ensure the field no longer appears focused after closing.
@@ -460,14 +451,17 @@ class _AppReactiveDropdownFieldState<T>
   }
 
   Future<void> _openBottomSheet(AbstractControl<dynamic> control) async {
-    // Reset search every time the picker is opened.
-    _searchQuery = '';
-
     await AppBottomSheet.show<void>(
       context,
       sheet: AppBottomSheet.basic(
         title: widget.title ?? AppStrings.selectOption,
-        child: _buildPickerBody(control, inDialog: false),
+        child: _DropdownPicker<T>(
+          options: _options,
+          selected: _selected,
+          enableSearch: widget.enableSearch,
+          optionsTextStyle: widget.optionsTextStyle,
+          onSelect: (option) => _handleSelect(control, option),
+        ),
       ),
     );
 
@@ -478,8 +472,6 @@ class _AppReactiveDropdownFieldState<T>
   Future<void> _openMenu(AbstractControl<dynamic> control) async {
     // Only one overlay at a time.
     if (_overlay != null) return;
-    // Reset search for each open.
-    _searchQuery = '';
 
     // We locate the field and overlay render boxes to position the menu.
     final renderObject = _fieldKey.currentContext?.findRenderObject();
@@ -546,7 +538,13 @@ class _AppReactiveDropdownFieldState<T>
                       boxShadow: context.shadows.grey,
                     ),
                     padding: EdgeInsets.all(AppSpacing.sm.r),
-                    child: _buildPickerBody(control, inDialog: false),
+                    child: _DropdownPicker<T>(
+                      options: _options,
+                      selected: _selected,
+                      enableSearch: widget.enableSearch,
+                      optionsTextStyle: widget.optionsTextStyle,
+                      onSelect: (option) => _handleSelect(control, option),
+                    ),
                   ),
                 ),
               ),
@@ -565,160 +563,6 @@ class _AppReactiveDropdownFieldState<T>
     unawaited(
       Future<void>.delayed(
         media.accessibleNavigation ? const Duration() : const Duration(),
-      ),
-    );
-  }
-
-  Widget _buildPickerBody(
-    AbstractControl<dynamic> control, {
-    required bool inDialog,
-  }) {
-    // Effective list after applying search filtering.
-    final options = _filteredOptions();
-
-    // Search widget is optional and only shown when enableSearch is true.
-    final searchField = widget.enableSearch
-        ? Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
-            child: Container(
-              decoration: BoxDecoration(
-                color: context.onSurface.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(AppRadii.sm.r),
-                border: Border.all(color: context.grey.withValues(alpha: 0.35)),
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm.w,
-                vertical: 2.h,
-              ),
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.search,
-                    size: 18.sp,
-                    color: context.grey.withValues(alpha: 0.9),
-                  ),
-                  AppSpacing.sm.horizontalSpace,
-                  Expanded(
-                    child: TextField(
-                      onChanged: (v) {
-                        setState(() {
-                          _searchQuery = v;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: AppStrings.search,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                  if (_searchQuery.trim().isNotEmpty)
-                    _TapArea(
-                      onTap: () {
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: context.grey.withValues(alpha: 0.9),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          )
-        : const SizedBox.shrink();
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        if (widget.enableSearch) searchField,
-        Flexible(
-          child: options.isEmpty
-              // Empty state when search yields no results (or options list is empty).
-              ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
-                  child: Text(
-                    AppStrings.noResultsFound,
-                    style: AppTextStyles.s14w400.copyWith(
-                      color: context.grey.withValues(alpha: 0.85),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              : ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  separatorBuilder: (_, _) => AppSpacing.xs.verticalSpace,
-                  itemBuilder: (context, index) {
-                    final option = options[index];
-                    // Selection is determined by matching ids.
-                    final isSelected = _selected?.id == option.id;
-                    return _buildOptionTile(
-                      control,
-                      option: option,
-                      isSelected: isSelected,
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOptionTile(
-    AbstractControl<dynamic> control, {
-    required AppDropdownOption<T> option,
-    required bool isSelected,
-  }) {
-    // Disabled options are not selectable and appear grey.
-    final enabled = option.enable;
-
-    // Selected option gets a subtle background + primary colored border.
-    final bg = isSelected
-        ? context.primary.withValues(alpha: 0.12)
-        : Colors.transparent;
-
-    final borderColor = isSelected
-        ? context.primary
-        : context.grey.withValues(alpha: 0.25);
-
-    // Text color changes based on state.
-    final color = !enabled
-        ? context.grey.withValues(alpha: 0.7)
-        : (isSelected ? context.primary : context.onSurface);
-
-    final textStyle = (widget.optionsTextStyle ?? AppTextStyles.s14w400)
-        .copyWith(color: color);
-
-    return _TapArea(
-      onTap: enabled
-          ? () async {
-              // Only handle selection when the option is enabled.
-              await _handleSelect(control, option);
-            }
-          : null,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm.w,
-          vertical: AppSpacing.sm.h,
-        ),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(AppRadii.sm.r),
-          border: Border.all(color: borderColor),
-        ),
-        child: Text(
-          option.name,
-          style: textStyle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
       ),
     );
   }

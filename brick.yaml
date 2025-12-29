@@ -25,20 +25,3 @@ vars:
     description: Description written into pubspec.yaml
     prompt: Write a short project description =>
     default: A Flutter Clean Architecture project.
-
-  login_feature_type:
-    type: enum
-    description: Choose login flow type
-    prompt: Choose login feature =>
-    values:
-      - none
-      - email_password
-      - phone_password
-      - phone_otp
-    default: none
-
-  include_create_account_feature:
-    type: boolean
-    description: Include "Create Account" feature?
-    prompt: Include Create Account feature? (y/N)
-    default: false

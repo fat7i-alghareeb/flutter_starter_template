@@ -60,23 +60,6 @@ final class AppScaffoldSearchConfig {
   final AppReactiveTextFieldValueCallback? onSubmitted;
 }
 
-/// Small wrapper for a minimal set of Scaffold configuration.
-///
-/// Keeping this in a separate config object allows the scaffold API to scale
-/// without adding dozens of parameters to [AppScaffold].
-final class AppScaffoldConfig {
-  const AppScaffoldConfig({
-    this.backgroundColor,
-    this.resizeToAvoidBottomInset = false,
-  });
-
-  /// Background color passed to [Scaffold].
-  final Color? backgroundColor;
-
-  /// Passed to [Scaffold.resizeToAvoidBottomInset].
-  final bool resizeToAvoidBottomInset;
-}
-
 /// Internal search section used by [AppScaffold].
 ///
 /// This indirection keeps the main scaffold build method small and ensures the

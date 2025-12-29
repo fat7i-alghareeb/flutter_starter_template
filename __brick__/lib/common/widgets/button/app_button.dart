@@ -356,8 +356,8 @@ class _AppButtonState extends State<AppButton>
     super.initState();
     _pressController = AnimationController(
       vsync: this,
-      duration: AppDurations.fast,
-      reverseDuration: AppDurations.fast,
+      duration: AppDurations.veryFast,
+      reverseDuration: AppDurations.veryFast,
     );
 
     _scale = Tween<double>(begin: 1.0, end: 0.96).animate(
@@ -425,6 +425,17 @@ class _AppButtonState extends State<AppButton>
         await Vibration.vibrate(duration: 15, amplitude: 70);
       } catch (_) {}
     }());
+  }
+
+  //  simulate press when onTapDown is skipped
+  Future<void> _simulateQuickTapPress() async {
+    if (_pressed || !_isEnabled) return;
+
+    _setPressed(true);
+    await Future.delayed(AppDurations.veryFast);
+    if (mounted && !widget.isLoading) {
+      _setPressed(false);
+    }
   }
 
   @override
@@ -497,6 +508,8 @@ class _AppButtonState extends State<AppButton>
           : null,
       onTap: _isEnabled
           ? () {
+              //ensures animation even for ultra-fast taps
+              unawaited(_simulateQuickTapPress());
               _vibrateTap();
               widget.onTap?.call();
             }

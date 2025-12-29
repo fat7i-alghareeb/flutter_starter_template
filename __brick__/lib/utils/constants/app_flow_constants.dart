@@ -12,7 +12,9 @@ class SplashConfig {
 
   /// Minimal time the splash screen should remain visible before
   /// navigation logic can move away from it.
-  static const Duration initialDelay = Duration(milliseconds: 600);
+  static const Duration initialDelay = Duration(seconds: 2);
+  static Duration durationForSplashScreen =
+      initialDelay - const Duration(milliseconds: 1000);
 }
 
 /// Global switches controlling which startup flows are active.

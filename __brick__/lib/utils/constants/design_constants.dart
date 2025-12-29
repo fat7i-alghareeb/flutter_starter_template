@@ -62,6 +62,9 @@ class AppDurations {
   /// Fast UI feedback (e.g. tap effects).
   static const Duration fast = Duration(milliseconds: 150);
 
+  /// very Fast UI feedback (e.g. tap effects).
+  static const Duration veryFast = Duration(milliseconds: 90);
+
   /// Default animation duration for most UI transitions.
   static const Duration normal = Duration(milliseconds: 250);
 

@@ -5,8 +5,6 @@ import '../../../../../../common/imports/imports.dart';
 import '../../../../../../common/widgets/form/date_time_field/app_reactive_date_time_field.dart';
 import '../../../../../../common/widgets/form/dropdown_field/app_reactive_dropdown_field.dart';
 
-
-
 class RootTabFormsShowcase extends StatefulWidget {
   const RootTabFormsShowcase({super.key});
 
@@ -58,8 +56,14 @@ class _RootTabFormsShowcaseState extends State<RootTabFormsShowcase> {
   Widget build(BuildContext context) {
     final countries = <AppDropdownOption<int>>[
       const AppDropdownOption(id: 1, name: 'Egypt'),
-      const AppDropdownOption(id: 2, name: 'Saudi Arabia'),
+      const AppDropdownOption(id: 12322, name: 'Saudi Arabia'),
+      const AppDropdownOption(id: 24, name: 'UAE'),
+      const AppDropdownOption(id: 123, name: 'UK'),
       const AppDropdownOption(id: 3, name: 'UAE', enable: false),
+      const AppDropdownOption(id: 145, name: 'United states'),
+      const AppDropdownOption(id: 14523, name: 'United states2'),
+      const AppDropdownOption(id: 1454122, name: 'United states3'),
+      const AppDropdownOption(id: 14123215, name: 'United states4'),
     ];
 
     return SingleChildScrollView(
@@ -153,6 +157,7 @@ class _RootTabFormsShowcaseState extends State<RootTabFormsShowcase> {
                 formControlName: 'countryIdSheet',
                 title: 'Dropdown (bottom sheet)',
                 options: countries,
+                enableSearch: true,
                 allowClear: false,
                 onSelectReturn: (selected) {
                   if (selected.id == 2) return 'Saudi Arabia is blocked (demo)';
@@ -206,7 +211,7 @@ class _RootTabFormsShowcaseState extends State<RootTabFormsShowcase> {
 
             AppButton.primaryGradient(
               onTap: () {
-                _form.markAllAsTouched();
+                _form.validateAll();
               },
               child: AppButtonChild.label('Validate (markAllAsTouched)'),
             ),

@@ -115,4 +115,4 @@ class NavigationController extends ChangeNotifier {
 ///
 /// This enum is read by the UI (e.g. `RootScreen`) to decide which animation
 /// to play when [NavigationController.setIndex] is called.
-enum RootTransitionType { fade, scale, slide }
+enum RootTransitionType { fade, scale, slideLeft, slideRight }
