@@ -232,24 +232,27 @@ class AppScaffold extends StatelessWidget {
 
     /// The body is composed from top-to-bottom.
     /// Disabled sections are not built at all.
-    final body = Column(
-      children: <Widget>[
-        if (topSpacing > 0) topSpacing.verticalSpace,
-        if (_appBarEnabled && appBarConfig != null) ...[
-          _AppScaffoldAppBar(
-            config: appBarConfig,
-            drawerEnabled: _drawerEnabled,
-          ).standardHorizontalPadding,
-          if (afterAppBarSpacing > 0) afterAppBarSpacing.verticalSpace,
+    final body = SafeArea(
+      bottom: false,
+      child: Column(
+        children: <Widget>[
+          if (topSpacing > 0) topSpacing.verticalSpace,
+          if (_appBarEnabled && appBarConfig != null) ...[
+            _AppScaffoldAppBar(
+              config: appBarConfig,
+              drawerEnabled: _drawerEnabled,
+            ).standardHorizontalPadding,
+            if (afterAppBarSpacing > 0) afterAppBarSpacing.verticalSpace,
+          ],
+          if (_searchEnabled && searchConfig != null) ...[
+            _AppScaffoldSearchField(
+              config: searchConfig,
+            ).standardHorizontalPadding,
+            if (afterSearchSpacing > 0) afterSearchSpacing.verticalSpace,
+          ],
+          Expanded(child: child),
         ],
-        if (_searchEnabled && searchConfig != null) ...[
-          _AppScaffoldSearchField(
-            config: searchConfig,
-          ).standardHorizontalPadding,
-          if (afterSearchSpacing > 0) afterSearchSpacing.verticalSpace,
-        ],
-        Expanded(child: child),
-      ],
+      ),
     );
 
     return Scaffold(

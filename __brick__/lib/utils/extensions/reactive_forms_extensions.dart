@@ -14,7 +14,26 @@ extension FormGroupControlX on FormGroup {
 
   void validateAll() {
     markAllAsTouched();
+    for (final c in controls.values) {
+      _markControlDirtyRecursive(c);
+    }
     updateValueAndValidity();
+  }
+
+  void _markControlDirtyRecursive(AbstractControl<dynamic> control) {
+    control.markAsDirty();
+
+    if (control is FormGroup) {
+      for (final child in control.controls.values) {
+        _markControlDirtyRecursive(child);
+      }
+    }
+
+    if (control is FormArray) {
+      for (final child in control.controls) {
+        _markControlDirtyRecursive(child);
+      }
+    }
   }
 
   void resetAllTouched() {

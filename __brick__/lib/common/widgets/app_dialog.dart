@@ -159,6 +159,7 @@ class AppDialog extends StatelessWidget {
               borderRadius: radius,
             ),
             padding: padding ?? AppSpacing.standardPadding,
+            margin: AppSpacing.standardPadding,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

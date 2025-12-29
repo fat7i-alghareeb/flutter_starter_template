@@ -89,11 +89,18 @@ class NavigationController extends ChangeNotifier {
   /// Call this after the `PageView` is built (post-frame) to apply any
   /// pending initial jump.
   void onPageViewReady() {
-    final index = _pendingJumpIndex;
-    if (index == null) return;
     if (!_pageController.hasClients) return;
 
-    _pageController.jumpToPage(index);
+    final pendingIndex = _pendingJumpIndex;
+    final targetIndex = pendingIndex ?? _currentIndex;
+
+    // Keep the PageController and controller index in sync. This matters
+    // in dev flows (hot restart/hot reload) where the controller may outlive
+    // the PageView and reattach later.
+    if ((_pageController.page?.round() ?? 0) != targetIndex) {
+      _pageController.jumpToPage(targetIndex);
+    }
+
     _pendingJumpIndex = null;
   }
 
