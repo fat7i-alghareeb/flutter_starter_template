@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../common/widgets/button/app_button.dart';
 import '../../../../../common/widgets/button/app_button_child.dart';
 import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart'
-    show AppScaffold;
+    show AppScaffold, AppScaffoldAppBarConfig;
 import '../../../../../core/injection/injectable.dart';
 import '../../../../../core/services/onboarding/onboarding_service.dart';
 import '../../../../../utils/constants/design_constants.dart';
@@ -45,7 +45,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold.body(
+    return AppScaffold.appBar(
+      appBarConfig: const AppScaffoldAppBarConfig(
+        title: 'Onboarding',
+        showLeading: false,
+      ),
       child: Column(
         children: [
           Expanded(

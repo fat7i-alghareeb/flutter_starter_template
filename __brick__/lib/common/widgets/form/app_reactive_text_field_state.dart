@@ -438,9 +438,10 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
 
     final suffixWidget = _effectiveSuffix();
 
-    final isSingleLine = widget._type == _AppReactiveTextFieldType.password
-        ? true
-        : (widget.maxLines ?? 1) == 1;
+    final isObscured = widget._type == _AppReactiveTextFieldType.password
+        ? _obscure
+        : false;
+    final isSingleLine = isObscured ? true : (widget.maxLines ?? 1) == 1;
     final shouldExpand = fieldHeight != null && isSingleLine;
 
     return Directionality(
@@ -463,20 +464,14 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
               focusNode: _focusNode,
               keyboardType: keyboardType(widget._type),
               textInputAction: widget.textInputAction,
-              obscureText: widget._type == _AppReactiveTextFieldType.password
-                  ? _obscure
-                  : false,
+              obscureText: isObscured,
               style: textStyle,
-              maxLines: shouldExpand
-                  ? null
-                  : (widget._type == _AppReactiveTextFieldType.password
-                        ? 1
-                        : widget.maxLines),
-              minLines: shouldExpand
-                  ? null
-                  : (widget._type == _AppReactiveTextFieldType.password
-                        ? 1
-                        : widget.minLines),
+              maxLines: isObscured
+                  ? 1
+                  : (shouldExpand ? null : widget.maxLines),
+              minLines: isObscured
+                  ? 1
+                  : (shouldExpand ? null : widget.minLines),
               expands: shouldExpand,
               textAlignVertical: TextAlignVertical.center,
 

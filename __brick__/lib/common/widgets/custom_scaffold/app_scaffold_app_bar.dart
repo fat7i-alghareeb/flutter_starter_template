@@ -159,8 +159,18 @@ class _AppScaffoldAppBar extends StatelessWidget {
       ),
     };
 
-    final fullWidth = SizedBox(width: double.infinity, child: body);
-    if (resolvedHeight == null) return fullWidth;
+    final fullWidth = DecoratedBox(
+      decoration: BoxDecoration(color: context.surface),
+      child: SizedBox(width: double.infinity, child: body),
+    );
+
+    if (resolvedHeight == null) {
+      return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kToolbarHeight),
+        child: fullWidth,
+      );
+    }
+
     return SizedBox(height: resolvedHeight, child: fullWidth);
   }
 

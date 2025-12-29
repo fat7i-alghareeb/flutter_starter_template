@@ -580,23 +580,55 @@ class _AppReactiveDropdownFieldState<T>
     final searchField = widget.enableSearch
         ? Padding(
             padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
-            child: TextField(
-              onChanged: (v) {
-                // Update query and re-filter in real time.
-                setState(() {
-                  _searchQuery = v;
-                });
-              },
-              decoration: InputDecoration(
-                isDense: true,
-                hintText: AppStrings.search,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.sm.r),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm.w,
-                  vertical: AppSpacing.sm.h,
-                ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.onSurface.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(AppRadii.sm.r),
+                border: Border.all(color: context.grey.withValues(alpha: 0.35)),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm.w,
+                vertical: 2.h,
+              ),
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.search,
+                    size: 18.sp,
+                    color: context.grey.withValues(alpha: 0.9),
+                  ),
+                  AppSpacing.sm.horizontalSpace,
+                  Expanded(
+                    child: TextField(
+                      onChanged: (v) {
+                        setState(() {
+                          _searchQuery = v;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: AppStrings.search,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  if (_searchQuery.trim().isNotEmpty)
+                    _TapArea(
+                      onTap: () {
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
+                      child: Icon(
+                        Icons.close,
+                        size: 18.sp,
+                        color: context.grey.withValues(alpha: 0.9),
+                      ),
+                    ),
+                ],
               ),
             ),
           )

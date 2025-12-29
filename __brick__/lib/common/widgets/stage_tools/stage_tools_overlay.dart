@@ -9,7 +9,6 @@ import '../../../core/router/router_config.dart';
 import '../../../core/services/localization/locale_service.dart';
 import '../../../core/config/localization_config.dart';
 import '../../../core/theme/theme_controller.dart';
-import '../../../utils/extensions/theme_extensions.dart';
 import '../../../flavors.dart';
 import '../button/app_button.dart';
 import '../button/app_button_child.dart';
@@ -341,18 +340,14 @@ class _DraggableStageToolButton extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onPanUpdate: (details) => onDragDelta(details.delta),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular((size / 2).r),
-          border: Border.all(
-            color: context.theme.dividerColor.withValues(alpha: 0.7),
-          ),
+      child: AppButton.primary(
+        noShadow: true,
+        child: AppButtonChild.icon(
+          icon,
+          size: 18,
+          padding: REdgeInsets.all(12),
         ),
-        child: AppButton.primary(
-          noShadow: true,
-          child: AppButtonChild.icon(icon, size: 18, padding: EdgeInsets.zero),
-          onTap: onTap,
-        ),
+        onTap: onTap,
       ),
     );
   }

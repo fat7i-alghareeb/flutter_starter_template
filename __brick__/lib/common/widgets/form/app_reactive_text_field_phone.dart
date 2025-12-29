@@ -130,6 +130,22 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
       formControlName: widget.formControlName,
       builder: (context, control, child) {
         final value = control.value;
+
+        final isReset =
+            (value == null || value.trim().isEmpty) &&
+            !control.dirty &&
+            !control.touched;
+        if (isReset && phoneController.text.trim().isNotEmpty) {
+          _phoneLastNumber = null;
+          _phoneIsValid = false;
+          _phoneLastEmittedE164 = null;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            if (phoneController.text.trim().isEmpty) return;
+            phoneController.clear();
+          });
+        }
+
         _syncPhoneControllerFromControl(value, isoCode: isoCode);
 
         final e164 = (value ?? '').trim();

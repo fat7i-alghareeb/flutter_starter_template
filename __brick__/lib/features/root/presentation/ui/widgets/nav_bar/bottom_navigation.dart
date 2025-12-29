@@ -218,12 +218,10 @@ class BottomNavBar extends StatelessWidget {
                 final itemWidth = maxWidth / count;
 
                 // Indicator width is a fraction of each item slot.
-                final indicatorWidth = math
-                    .max(
-                      12.0.w,
-                      math.min(itemWidth * indicatorWidthFactor, itemWidth).w,
-                    )
-                    .toDouble();
+                final indicatorWidth = math.max(
+                  12.0,
+                  math.min(itemWidth * indicatorWidthFactor, itemWidth),
+                );
 
                 return SizedBox(
                   height: effectiveHeight,

@@ -29,7 +29,11 @@ class _LoginScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold.body(
+    return AppScaffold.appBar(
+      appBarConfig: const AppScaffoldAppBarConfig(
+        title: 'Login',
+        showLeading: false,
+      ),
       child: BlocBuilder<AuthBloc, AuthState>(
         buildWhen: (previous, current) =>
             previous.loginStatus != current.loginStatus,
