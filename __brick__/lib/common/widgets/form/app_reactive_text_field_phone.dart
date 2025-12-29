@@ -158,7 +158,7 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
           child: Align(
             alignment: Alignment.centerLeft,
             child: InternationalPhoneNumberInput(
-              key: ValueKey<String>(widget.formControlName),
+              key: ValueKey<String>('${widget.formControlName}_$e164'),
               isEnabled: widget.enabled,
               textFieldController: phoneController,
               focusNode: _focusNode,

@@ -35,6 +35,12 @@ extension AppContextExtensions on BuildContext {
     }
   }
 
+  /// 🚨 Aggressive unfocus
+  /// Clears focus history and prevents restoration
+  void unfocusHard() {
+    FocusScope.of(this).requestFocus(FocusNode());
+  }
+
   bool get hasFocus => FocusScope.of(this).hasFocus;
 
   bool get isRtl => Directionality.of(this) == TextDirection.rtl;

@@ -17,6 +17,23 @@ part 'app_scaffold_search.dart';
 part 'app_scaffold_drawer.dart';
 part 'app_scaffold_tap_area.dart';
 
+/// Small wrapper for a minimal set of Scaffold configuration.
+///
+/// Keeping this in a separate config object allows the scaffold API to scale
+/// without adding dozens of parameters to [AppScaffold].
+final class AppScaffoldConfig {
+  const AppScaffoldConfig({
+    this.backgroundColor,
+    this.resizeToAvoidBottomInset = true,
+  });
+
+  /// Background color passed to [Scaffold].
+  final Color? backgroundColor;
+
+  /// Passed to [Scaffold.resizeToAvoidBottomInset].
+  final bool resizeToAvoidBottomInset;
+}
+
 /// A compact, feature-driven scaffold that composes optional UI sections
 /// (custom app bar, search field, end drawer) without using Flutter's [AppBar].
 ///
@@ -255,12 +272,15 @@ class AppScaffold extends StatelessWidget {
       ),
     );
 
-    return Scaffold(
-      backgroundColor: scaffoldConfig.backgroundColor,
-      resizeToAvoidBottomInset: scaffoldConfig.resizeToAvoidBottomInset,
-      endDrawer: _drawerEnabled ? const _AppEndDrawerShell() : null,
-      body: body,
-      bottomNavigationBar: bottomNavigationBar,
+    return GestureDetector(
+      onTap: () => context.unfocusHard(),
+      child: Scaffold(
+        backgroundColor: scaffoldConfig.backgroundColor,
+        resizeToAvoidBottomInset: scaffoldConfig.resizeToAvoidBottomInset,
+        endDrawer: _drawerEnabled ? const _AppEndDrawerShell() : null,
+        body: body,
+        bottomNavigationBar: bottomNavigationBar,
+      ),
     );
   }
 }

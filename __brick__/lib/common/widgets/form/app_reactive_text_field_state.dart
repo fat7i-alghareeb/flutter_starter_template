@@ -293,7 +293,9 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
           // debounce pause after the user starts interacting with the field.
           final deferGate =
               !widget.validation.deferErrorsUntilFirstDebounce ||
-              _deferValidationArmed;
+              _deferValidationArmed ||
+              control.touched ||
+              control.dirty;
 
           // Error visibility is controlled here (not inside ReactiveTextField)
           // to keep UI consistent for both text and phone implementations.
@@ -442,7 +444,7 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
         ? _obscure
         : false;
     final isSingleLine = isObscured ? true : (widget.maxLines ?? 1) == 1;
-    final shouldExpand = fieldHeight != null && isSingleLine;
+    final shouldExpand = fieldHeight != null && isSingleLine && !isObscured;
 
     return Directionality(
       textDirection: direction,

@@ -15,10 +15,12 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = SplashConfig.initialDelay;
-    const fade = Duration(milliseconds: 220);
-    final hold = total - (fade * 2);
-    final holdDelay = hold.isNegative ? Duration.zero : hold;
+    // Total duration allocated for the entire splash animation sequence.
+    final total = SplashConfig.durationForSplashScreen;
+
+    // Split the total duration into 3 equal steps (fade in / hold / fade out).
+    // We use integer division (~/) because Duration requires an integer value.
+    final step = Duration(milliseconds: total.inMilliseconds ~/ 3);
 
     final boxSize = (context.screenWidth * 0.28).clamp(96.0, 140.0);
 
@@ -44,10 +46,12 @@ class SplashScreen extends StatelessWidget {
                     ),
                   )
                   .animate()
-                  .fadeIn(duration: fade)
+                  .fadeIn(duration: step)
                   .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1))
-                  .then(delay: holdDelay)
-                  .fadeOut(duration: fade),
+                  .moveY(begin: -100, end: 0)
+                  .then(delay: step)
+                  .moveY(begin: 0, end: 100)
+                  .fadeOut(duration: step),
         ),
       ),
     );
