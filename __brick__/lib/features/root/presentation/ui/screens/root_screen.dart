@@ -74,10 +74,40 @@ class _RootScreenState extends State<RootScreen> {
       BottomNavItem.icon(
         icon: IconSource.icon(Icons.fact_check_rounded),
         semanticLabel: "Forms",
+        label: "Forms",
       ),
-      BottomNavItem.icon(
-        icon: IconSource.icon(Icons.chat_bubble_outline_rounded),
-        semanticLabel: "Dialogs",
+      BottomNavItem.builder(
+        builder: (context, state) {
+          final isActive = state.isActive;
+
+          return AnimatedContainer(
+            duration: 180.ms,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? state.color.withValues(alpha: 0.14)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  color: state.color,
+                  size: state.iconSize,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Dialogs',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.s11w500.copyWith(color: state.color),
+                ),
+              ],
+            ),
+          );
+        },
       ),
       BottomNavItem.icon(
         icon: IconSource.icon(Icons.notifications_active_rounded),

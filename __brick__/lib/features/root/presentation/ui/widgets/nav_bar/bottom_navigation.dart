@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../common/widgets/app_icon_source.dart';
+import '../../../../../../core/theme/app_text_styles.dart';
 import '../../../../../../utils/extensions/theme_extensions.dart';
 import '../../../../../../utils/extensions/context_extensions.dart';
 import 'navigation_controller.dart';
@@ -28,9 +29,36 @@ class BottomNavItem {
   factory BottomNavItem.icon({
     required IconSource icon,
     String? semanticLabel,
+    String? label,
   }) {
     return BottomNavItem._(
       builder: (context, state) {
+        final effectiveLabel = (label != null && label.trim().isNotEmpty)
+            ? label.trim()
+            : null;
+
+        final iconWidget = icon.build(
+          context,
+          color: state.color,
+          size: state.iconSize,
+        );
+
+        final child = effectiveLabel == null
+            ? iconWidget
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  iconWidget,
+                  4.verticalSpace,
+                  Text(
+                    effectiveLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.s11w500.copyWith(color: state.color),
+                  ),
+                ],
+              );
+
         // Semantics adds accessibility metadata for screen readers.
         //
         // Here we provide:
@@ -40,9 +68,9 @@ class BottomNavItem {
         // This makes the custom bottom bar behave more like the stock
         // Material bottom navigation in accessibility tools.
         return Semantics(
-          label: semanticLabel,
+          label: semanticLabel ?? effectiveLabel,
           selected: state.isActive,
-          child: icon.build(context, color: state.color, size: state.iconSize),
+          child: child,
         );
       },
     );
@@ -246,8 +274,12 @@ class BottomNavBar extends StatelessWidget {
                     (currentIndex * itemWidth) +
                     ((itemWidth - indicatorWidth) / 2.0);
 
-                return SizedBox(
+                return Container(
                   height: effectiveHeight,
+                  decoration: BoxDecoration(
+                    color: context.background,
+                    boxShadow: context.shadows.grey,
+                  ),
                   child: Padding(
                     padding: padding ?? EdgeInsets.zero,
                     child: Stack(
@@ -376,7 +408,7 @@ class _BottomNavIndicator extends StatelessWidget {
       duration: duration,
       curve: curve,
       start: start,
-      bottom: 0,
+      top: 0,
       child: SizedBox(
         width: width,
         height: height,
