@@ -301,10 +301,16 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
     final now = DateTime.now();
     final initial = hasValue ? current! : now;
 
+    // Capture any context-derived values before awaiting.
+    final locale = context.locale.toString();
+
     // If a custom picker is provided, use it and skip built-in logic.
-    final DateTime? picked = widget.pickerOverride != null
-        ? await widget.pickerOverride!.call(context, initial)
-        : await _pickDefault(initial);
+    final pickerOverride = widget.pickerOverride;
+    final Future<DateTime?> pickFuture = pickerOverride != null
+        ? pickerOverride.call(context, initial)
+        : _pickDefault(initial);
+
+    final DateTime? picked = await pickFuture;
 
     if (!mounted) return;
 
@@ -325,7 +331,7 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
     final iso = picked.toIso8601String();
     final formatter =
         widget.formatter ?? (d, {locale = 'en_US'}) => d.toYmd(locale: locale);
-    final display = formatter(picked, locale: context.locale.toString());
+    final display = formatter(picked, locale: locale);
     widget.onSelected?.call(
       AppReactiveDateTimeFieldSelection(
         displayText: display,

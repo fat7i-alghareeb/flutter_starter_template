@@ -38,6 +38,8 @@ mixin _AppReactiveDateTimeFieldPickersMixin on State<AppReactiveDateTimeField> {
     final date = await _pickDate(initial);
     if (date == null) return null;
 
+    if (!mounted) return null;
+
     // Step 2: pick time.
     final time = await showTimePicker(
       context: context,
