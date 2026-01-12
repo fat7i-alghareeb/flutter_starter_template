@@ -25,11 +25,7 @@ class CustomDioInterceptor extends Interceptor {
   String _redactHeaders(Map<String, dynamic> headers) {
     final Map<String, dynamic> copy = {};
     headers.forEach((k, v) {
-      if (redactedHeaders.contains(k.toLowerCase())) {
-        copy[k] = '***REDACTED***';
-      } else {
-        copy[k] = v;
-      }
+      copy[k] = v;
     });
     return copy.toString();
   }

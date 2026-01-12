@@ -52,6 +52,7 @@ This folder should remain **feature-agnostic**. If code is specific to one produ
 
 - **`theme/`**
   - Design system foundation: colors, typography, text styles, theme composition, system UI overlay setup.
+  - Includes a dedicated theme effects layer (gradients/shadows) exposed via theme/context extensions.
 
 - **`utils/`**
   - Core-level utility types and patterns shared across infrastructure (e.g., result types, status types).

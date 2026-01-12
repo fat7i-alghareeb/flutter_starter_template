@@ -13,6 +13,7 @@ class StatusBuilder<T> extends StatelessWidget {
     this.loading,
     this.init,
     this.onError,
+    this.onRefresh,
     required this.state,
     this.errorMessage,
     this.showLoadingProgress = true,
@@ -24,6 +25,7 @@ class StatusBuilder<T> extends StatelessWidget {
   final Widget Function()? init;
   final Widget Function(T data) success;
   final Function()? onError;
+  final Future<void> Function()? onRefresh;
   final String? errorMessage;
   final bool showLoadingProgress;
   final bool showInitWidget;
@@ -48,6 +50,7 @@ class StatusBuilder<T> extends StatelessWidget {
       failure: (message) {
         return next = FailedStateWidget(
           message: errorMessage ?? message,
+          onRefresh: onRefresh,
           onRetrying: onError,
         );
       },

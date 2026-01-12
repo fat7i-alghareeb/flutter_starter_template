@@ -50,6 +50,8 @@ export "../widgets/empty_state_widget.dart";
 export "../widgets/failed_state_widget.dart";
 export "../widgets/loading_dots.dart";
 export "../widgets/main_loading_progress.dart";
+export 'package:flutter_screenutil/flutter_screenutil.dart';
 
 //assets
 export '../../utils/gen/assets.gen.dart';
+export 'package:easy_localization/easy_localization.dart' hide TextDirection;

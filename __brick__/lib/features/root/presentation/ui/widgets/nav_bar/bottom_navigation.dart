@@ -1,13 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../../common/widgets/app_icon_source.dart';
-import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../utils/extensions/theme_extensions.dart';
-import '../../../../../../utils/extensions/context_extensions.dart';
+import '../../../../../../common/imports/imports.dart';
 import 'navigation_controller.dart';
 
 /// A single item in [BottomNavBar].
@@ -33,6 +29,8 @@ class BottomNavItem {
   }) {
     return BottomNavItem._(
       builder: (context, state) {
+        context.locale;
+
         final effectiveLabel = (label != null && label.trim().isNotEmpty)
             ? label.trim()
             : null;
@@ -206,6 +204,7 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.locale;
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
@@ -306,7 +305,10 @@ class BottomNavBar extends StatelessWidget {
                                 isActive: isActive,
                                 duration: animationDuration,
                                 curve: animationCurve,
-                                onTap: () => controller.setIndex(index),
+                                onTap: () {
+                                  HapticFeedback.mediumImpact();
+                                  controller.setIndex(index);
+                                },
                                 index: index,
                                 child: child,
                               ),
@@ -358,6 +360,8 @@ class _BottomNavTap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.locale;
+
     // We keep this as a simple GestureDetector because:
     // - The caller may wrap their own Material/Ink effects.
     // - We want to avoid forcing ripple behavior.
@@ -404,6 +408,8 @@ class _BottomNavIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.locale;
+
     return AnimatedPositionedDirectional(
       duration: duration,
       curve: curve,

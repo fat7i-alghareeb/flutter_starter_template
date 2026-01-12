@@ -22,6 +22,7 @@ class AppButton extends StatefulWidget {
     super.key,
     required this.child,
     required this.onTap,
+    this.onTapWhenInactive,
     required this.variant,
     required this.fill,
     this.layout = const AppButtonLayout(),
@@ -39,6 +40,7 @@ class AppButton extends StatefulWidget {
     required AppButtonFill fill,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -50,6 +52,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: variant,
       fill: fill,
       layout: layout,
@@ -66,6 +69,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -77,6 +81,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.primary,
       fill: AppButtonFill.solid,
       layout: layout,
@@ -93,6 +98,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -106,6 +112,7 @@ class AppButton extends StatefulWidget {
       fill: AppButtonFill.solid,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       layout: layout,
       isActive: isActive,
       isLoading: isLoading,
@@ -119,6 +126,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -132,6 +140,7 @@ class AppButton extends StatefulWidget {
       fill: AppButtonFill.gradient,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       layout: layout,
       isActive: isActive,
       isLoading: isLoading,
@@ -145,6 +154,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -156,6 +166,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.primary,
       fill: AppButtonFill.gradient,
       layout: layout,
@@ -171,6 +182,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -182,6 +194,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.success,
       fill: AppButtonFill.solid,
       layout: layout,
@@ -197,6 +210,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -208,6 +222,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.success,
       fill: AppButtonFill.gradient,
       layout: layout,
@@ -223,6 +238,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -234,6 +250,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.error,
       fill: AppButtonFill.solid,
       layout: layout,
@@ -249,6 +266,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -260,6 +278,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.error,
       fill: AppButtonFill.gradient,
       layout: layout,
@@ -275,6 +294,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -286,6 +306,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.warning,
       fill: AppButtonFill.solid,
       layout: layout,
@@ -301,6 +322,7 @@ class AppButton extends StatefulWidget {
     Key? key,
     required AppButtonChild child,
     required VoidCallback? onTap,
+    VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
     bool isActive = true,
     bool isLoading = false,
@@ -312,6 +334,7 @@ class AppButton extends StatefulWidget {
       key: key,
       child: child,
       onTap: onTap,
+      onTapWhenInactive: onTapWhenInactive,
       variant: AppButtonVariant.warning,
       fill: AppButtonFill.gradient,
       layout: layout,
@@ -325,6 +348,7 @@ class AppButton extends StatefulWidget {
 
   final AppButtonChild child;
   final VoidCallback? onTap;
+  final VoidCallback? onTapWhenInactive;
   final AppButtonVariant variant;
   final AppButtonFill fill;
   final AppButtonLayout layout;
@@ -350,6 +374,9 @@ class _AppButtonState extends State<AppButton>
   /// We treat loading as a disabled state to avoid double submits.
   bool get _isEnabled =>
       widget.onTap != null && widget.isActive && !widget.isLoading;
+
+  bool get _canTapWhenInactive =>
+      widget.onTapWhenInactive != null && !widget.isActive && !widget.isLoading;
 
   @override
   void initState() {
@@ -385,7 +412,7 @@ class _AppButtonState extends State<AppButton>
       }
     }
 
-    if (!widget.isLoading && (widget.onTap == null || !widget.isActive)) {
+    if (!widget.isLoading && !(_isEnabled || _canTapWhenInactive)) {
       _setPressed(false);
     }
   }
@@ -429,7 +456,7 @@ class _AppButtonState extends State<AppButton>
 
   //  simulate press when onTapDown is skipped
   Future<void> _simulateQuickTapPress() async {
-    if (_pressed || !_isEnabled) return;
+    if (_pressed || !(_isEnabled || _canTapWhenInactive)) return;
 
     _setPressed(true);
     await Future.delayed(AppDurations.veryFast);
@@ -488,30 +515,41 @@ class _AppButtonState extends State<AppButton>
 
     /// We use low-level gesture callbacks to drive the press animation and
     /// haptic feedback.
+    final canHandleTap = _isEnabled || _canTapWhenInactive;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: _isEnabled
+      onTapDown: canHandleTap
           ? (_) {
               _setPressed(true);
               _vibratePress();
             }
           : null,
-      onTapCancel: _isEnabled
+      onTapCancel: canHandleTap
           ? () {
               if (!widget.isLoading) _setPressed(false);
             }
           : null,
-      onTapUp: _isEnabled
+      onTapUp: canHandleTap
           ? (_) {
               if (!widget.isLoading) _setPressed(false);
             }
           : null,
-      onTap: _isEnabled
+      onTap: canHandleTap
           ? () {
-              //ensures animation even for ultra-fast taps
-              unawaited(_simulateQuickTapPress());
-              _vibrateTap();
-              widget.onTap?.call();
+              if (_isEnabled) {
+                //ensures animation even for ultra-fast taps
+                unawaited(_simulateQuickTapPress());
+                _vibrateTap();
+                widget.onTap?.call();
+                return;
+              }
+
+              if (_canTapWhenInactive) {
+                unawaited(_simulateQuickTapPress());
+                _vibrateTap();
+                widget.onTapWhenInactive?.call();
+              }
             }
           : null,
       child: ScaleTransition(

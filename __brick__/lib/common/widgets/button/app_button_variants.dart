@@ -97,7 +97,7 @@ class AppButtonStyleResolver {
 
     final foreground = isActive
         ? effectiveVariant.foreground(context)
-        : context.colorScheme.onSurface;
+        : context.background;
 
     final shadows = noShadow
         ? const <BoxShadow>[]
@@ -114,11 +114,6 @@ class AppButtonStyleResolver {
       foreground: foreground,
       shadows: shadows,
     );
-  }
-
-  static Color foregroundForColor(Color background) {
-    final b = ThemeData.estimateBrightnessForColor(background);
-    return b == Brightness.dark ? Colors.white : Colors.black;
   }
 
   static List<BoxShadow> _resolveShadows(
@@ -158,8 +153,7 @@ class _SuccessButtonVariant extends AppButtonVariant {
   LinearGradient gradient(BuildContext context) => context.gradients.success;
 
   @override
-  Color foreground(BuildContext context) =>
-      AppButtonStyleResolver.foregroundForColor(AppColors.success);
+  Color foreground(BuildContext context) => context.background;
 }
 
 class _ErrorButtonVariant extends AppButtonVariant {
@@ -172,8 +166,7 @@ class _ErrorButtonVariant extends AppButtonVariant {
   LinearGradient gradient(BuildContext context) => context.gradients.error;
 
   @override
-  Color foreground(BuildContext context) =>
-      AppButtonStyleResolver.foregroundForColor(AppColors.error);
+  Color foreground(BuildContext context) => context.background;
 }
 
 class _WarningButtonVariant extends AppButtonVariant {
@@ -186,8 +179,7 @@ class _WarningButtonVariant extends AppButtonVariant {
   LinearGradient gradient(BuildContext context) => context.gradients.warning;
 
   @override
-  Color foreground(BuildContext context) =>
-      AppButtonStyleResolver.foregroundForColor(AppColors.warning);
+  Color foreground(BuildContext context) => context.background;
 }
 
 class _GreyButtonVariant extends AppButtonVariant {
@@ -200,7 +192,7 @@ class _GreyButtonVariant extends AppButtonVariant {
   LinearGradient gradient(BuildContext context) => context.gradients.grey;
 
   @override
-  Color foreground(BuildContext context) => context.colorScheme.onSurface;
+  Color foreground(BuildContext context) => context.background;
 }
 
 class CustomButtonVariant extends AppButtonVariant {
@@ -216,5 +208,5 @@ class CustomButtonVariant extends AppButtonVariant {
       gradientColor ?? context.gradients.grey;
 
   @override
-  Color foreground(BuildContext context) => context.colorScheme.onSurface;
+  Color foreground(BuildContext context) => context.background;
 }

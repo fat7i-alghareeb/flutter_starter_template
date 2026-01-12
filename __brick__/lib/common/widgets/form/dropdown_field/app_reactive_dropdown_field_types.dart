@@ -7,6 +7,16 @@ part of 'app_reactive_dropdown_field.dart';
 typedef AppReactiveDropdownSelectedCallback<T> =
     void Function(AppDropdownOption<T> selected);
 
+/// Called when the user taps an option that is marked disabled (`enable: false`).
+///
+/// The dropdown will not select the option and will not update the bound
+/// reactive form control.
+///
+/// This is useful when you want to show a warning/snackbar or explain why an
+/// option is disabled.
+typedef AppReactiveDropdownUnEnabledItemCallback<T> =
+    void Function(AppDropdownOption<T> option);
+
 /// Called when the user selects an option.
 ///
 /// Return `null` to accept the selection.

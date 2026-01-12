@@ -113,6 +113,7 @@ class _DropdownPicker<T> extends StatefulWidget {
     required this.enableSearch,
     required this.optionsTextStyle,
     required this.onSelect,
+    this.onSelectDisabled,
   });
 
   final List<AppDropdownOption<T>> options;
@@ -120,6 +121,7 @@ class _DropdownPicker<T> extends StatefulWidget {
   final bool enableSearch;
   final TextStyle? optionsTextStyle;
   final ValueChanged<AppDropdownOption<T>> onSelect;
+  final ValueChanged<AppDropdownOption<T>>? onSelectDisabled;
 
   @override
   State<_DropdownPicker<T>> createState() => _DropdownPickerState<T>();
@@ -158,7 +160,7 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
       children: <Widget>[
         if (widget.enableSearch)
           Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
+            padding: EdgeInsets.only(bottom: AppSpacing.md.h),
             child: Container(
               decoration: BoxDecoration(
                 color: context.onSurface.withValues(alpha: 0.04),
@@ -228,7 +230,8 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
               : ListView.separated(
                   shrinkWrap: true,
                   itemCount: options.length,
-                  separatorBuilder: (_, _) => AppSpacing.xs.verticalSpace,
+                  padding: EdgeInsets.zero,
+                  separatorBuilder: (_, _) => AppSpacing.sm.verticalSpace,
                   itemBuilder: (context, index) {
                     final option = options[index];
                     final isSelected = widget.selected?.id == option.id;
@@ -251,7 +254,13 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
                             .copyWith(color: color);
 
                     return _TapArea(
-                      onTap: enabled ? () => widget.onSelect(option) : null,
+                      onTap: () {
+                        if (enabled) {
+                          widget.onSelect(option);
+                          return;
+                        }
+                        widget.onSelectDisabled?.call(option);
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: AppSpacing.sm.w,

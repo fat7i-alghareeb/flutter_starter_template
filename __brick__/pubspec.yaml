@@ -1,5 +1,5 @@
-name: "{{project_name}}"
-# name: "test_name_to_delete"
+# name: "{{project_name}}"
+name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
@@ -44,6 +44,9 @@ dependencies:
   flutter_animate: ^4.5.2
   animations: ^2.1.1
   shimmer: ^3.0.0
+  device_info_plus: ^12.3.0
+  mobile_device_identifier: ^0.0.3
+  unique_identifier: ^0.4.0
 
 dev_dependencies:
   flutter_test:

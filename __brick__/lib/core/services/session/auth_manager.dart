@@ -91,6 +91,26 @@ class AuthManager {
     if (mode == AuthMode.withJwt && tokenStorage != null) {
       await tokenStorage!.initialize();
 
+      final shouldLogExpiry = state.user != null && !state.isGuest;
+      if (shouldLogExpiry) {
+        final expiry = await tokenStorage!.loadExpiry();
+        final remaining = await tokenStorage!.remainingUntilExpiry();
+
+        if (expiry == null || remaining == null) {
+          printY('${AuthLogTags.authManager} token expiry not available');
+        } else if (remaining.isNegative) {
+          printR('${AuthLogTags.authManager} token expired');
+        } else {
+          final days = remaining.inDays;
+          final hours = remaining.inHours % 24;
+          final minutes = remaining.inMinutes % 60;
+          printG(
+            '${AuthLogTags.authManager} token expires in: '
+            '$days d, $hours h, $minutes m (at $expiry)',
+          );
+        }
+      }
+
       // Make sure we don't stay in [Status.initial] while waiting for stream
       // emissions.
       if (state.authStatus.status == Status.initial) {
@@ -134,11 +154,13 @@ class AuthManager {
     await storage.remove(AuthStorageKeys.user);
     await storage.remove(AuthStorageKeys.guestFlag);
 
+
     state.setUser(null);
     state.setGuest(false);
     state.setAuthStatus(
       AuthStatus.unauthenticated(message: AuthReasons.logout),
     );
+
 
     if (mode == AuthMode.withJwt && tokenStorage != null) {
       await tokenStorage!.delete(AuthReasons.logout);

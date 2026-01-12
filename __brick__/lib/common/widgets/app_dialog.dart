@@ -1,5 +1,4 @@
 import '../imports/imports.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// AppDialog
 /// ---------
@@ -141,6 +140,7 @@ class AppDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(borderRadius.r);
     final colors = context.colorScheme;
+    final viewInsets = MediaQuery.viewInsetsOf(context);
 
     final effectiveTitle = title?.trim();
     final effectiveMessage = message?.trim();
@@ -149,63 +149,74 @@ class AppDialog extends StatelessWidget {
 
     final body = Material(
       color: Colors.transparent,
-      child: Center(
-        child: ConstrainedBox(
-          // Constraining width keeps the dialog readable on tablets/desktop.
-          constraints: BoxConstraints(maxWidth: (maxWidth ?? 520).w),
-          child: Container(
-            decoration: BoxDecoration(
-              color: backgroundColor ?? colors.surface,
-              borderRadius: radius,
-            ),
-            padding: padding ?? AppSpacing.standardPadding,
-            margin: AppSpacing.standardPadding,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  icon!.build(
-                    context,
-                    color: colors.onSurface.withValues(alpha: 0.65),
-                    size: 56,
-                  ),
-                  AppSpacing.md.verticalSpace,
-                ],
-                if (effectiveTitle?.isNotEmpty == true) ...[
-                  Text(
-                    effectiveTitle!,
-                    textAlign: TextAlign.center,
-                    style:
-                        titleStyle ??
-                        AppTextStyles.s20w700.copyWith(color: colors.onSurface),
-                  ),
-                ],
-                if (effectiveMessage?.isNotEmpty == true) ...[
-                  if (effectiveTitle?.isNotEmpty == true)
-                    AppSpacing.sm.verticalSpace
-                  else
-                    AppSpacing.xs.verticalSpace,
-                  Text(
-                    effectiveMessage!,
-                    textAlign: TextAlign.center,
-                    style:
-                        messageStyle ??
-                        AppTextStyles.s16w400.copyWith(
-                          color: colors.onSurface.withValues(alpha: 0.82),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.only(bottom: viewInsets.bottom),
+        child: Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            // keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: ConstrainedBox(
+              // Constraining width keeps the dialog readable on tablets/desktop.
+              constraints: BoxConstraints(maxWidth: (maxWidth ?? 520).w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: backgroundColor ?? colors.surface,
+                  borderRadius: radius,
+                ),
+                padding: padding ?? AppSpacing.standardPadding,
+                margin: AppSpacing.standardPadding,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      icon!.build(
+                        context,
+                        color: colors.onSurface.withValues(alpha: 0.65),
+                        size: 56,
+                      ),
+                      AppSpacing.md.verticalSpace,
+                    ],
+                    if (effectiveTitle?.isNotEmpty == true) ...[
+                      Text(
+                        effectiveTitle!,
+                        textAlign: TextAlign.center,
+                        style:
+                            titleStyle ??
+                            AppTextStyles.s20w700.copyWith(
+                              color: colors.onSurface,
+                            ),
+                      ),
+                    ],
+                    if (effectiveMessage?.isNotEmpty == true) ...[
+                      if (effectiveTitle?.isNotEmpty == true)
+                        AppSpacing.sm.verticalSpace
+                      else
+                        AppSpacing.xs.verticalSpace,
+                      Text(
+                        effectiveMessage!,
+                        textAlign: TextAlign.center,
+                        style:
+                            messageStyle ??
+                            AppTextStyles.s16w400.copyWith(
+                              color: colors.onSurface.withValues(alpha: 0.82),
+                            ),
+                      ),
+                    ],
+                    if (child != null) ...[AppSpacing.lg.verticalSpace, child!],
+                    if (resolvedActions.isNotEmpty) ...[
+                      AppSpacing.xl.verticalSpace,
+                      ...resolvedActions.map(
+                        (a) => Padding(
+                          padding: EdgeInsets.only(top: AppSpacing.sm.h),
+                          child: a.build(context),
                         ),
-                  ),
-                ],
-                if (child != null) ...[AppSpacing.lg.verticalSpace, child!],
-                if (resolvedActions.isNotEmpty) ...[
-                  AppSpacing.xl.verticalSpace,
-                  ...resolvedActions.map(
-                    (a) => Padding(
-                      padding: EdgeInsets.only(top: AppSpacing.sm.h),
-                      child: a.build(context),
-                    ),
-                  ),
-                ],
-              ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -254,6 +265,36 @@ class AppDialogAction {
     return AppDialogAction._(
       label: label,
       variant: AppButtonVariant.grey,
+      fill: AppButtonFill.solid,
+      icon: icon,
+      labelStyle: labelStyle,
+      onPressed: onPressed,
+    );
+  }
+  factory AppDialogAction.danger({
+    required String label,
+    VoidCallback? onPressed,
+    IconSource? icon,
+    TextStyle? labelStyle,
+  }) {
+    return AppDialogAction._(
+      label: label,
+      variant: AppButtonVariant.error,
+      fill: AppButtonFill.solid,
+      icon: icon,
+      labelStyle: labelStyle,
+      onPressed: onPressed,
+    );
+  }
+  factory AppDialogAction.success({
+    required String label,
+    VoidCallback? onPressed,
+    IconSource? icon,
+    TextStyle? labelStyle,
+  }) {
+    return AppDialogAction._(
+      label: label,
+      variant: AppButtonVariant.success,
       fill: AppButtonFill.solid,
       icon: icon,
       labelStyle: labelStyle,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../utils/extensions/theme_extensions.dart';
 
 /// Central typography configuration for the app.
 ///
@@ -15,9 +14,9 @@ class AppTypography {
   ///
   /// To swap fonts, change this to another [GoogleFonts] family and adjust
   /// weights in this method as needed.
-  static TextTheme baseTextTheme(BuildContext context) {
-    final textTheme = context.textTheme;
-    return GoogleFonts.poppinsTextTheme(textTheme);
+  static TextTheme get baseTextTheme {
+    // final textTheme = context.textTheme;
+    return GoogleFonts.reemKufiTextTheme();
   }
 
   static TextTheme? _cachedTextTheme;
@@ -29,8 +28,8 @@ class AppTypography {
   /// All base sizes are specified in logical pixels and converted to `.sp`
   /// so that the global [ScreenUtilInit.fontSizeResolver] controls the
   /// final scaling behavior.
-  static TextTheme buildTextTheme(BuildContext context) {
-    final base = baseTextTheme(context);
+  static TextTheme get buildTextTheme {
+    final base = baseTextTheme;
 
     double s(double size) => size.sp;
 

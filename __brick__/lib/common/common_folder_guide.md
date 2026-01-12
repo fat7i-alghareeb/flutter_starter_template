@@ -34,10 +34,6 @@ This is the main library of reusable UI widgets.
   - **Now**: A reusable bottom-sheet API (wrapping modal sheets with consistent styling/behavior).
   - **Future**: Additional variants (full-screen sheets, nested navigation, advanced header layouts).
 
-- **`app_compact_scaffold.dart`**
-  - **Now**: A simplified/compact scaffold wrapper for specific screens.
-  - **Future**: More scaffold presets optimized for different layouts (forms, lists, media).
-
 - **`app_dialog.dart`**
   - **Now**: A standardized dialog widget API for consistent dialogs across the app.
   - **Future**: More dialog types (confirmation, destructive, multi-step, custom animations).
@@ -74,10 +70,15 @@ This is the main library of reusable UI widgets.
   - **Now**: A main progress/loading widget for blocking states.
   - **Future**: Variants for overlay loading, skeleton-first loading, and branded animations.
 
+- **`show_error_overlay.dart`**
+  - **Now**: Toast-like overlay banners (success/error/loading/custom) with a glassy blur effect.
+  - **Future**: Add richer templates (actions, stacking rules, and accessibility presets).
+
 #### `widgets/button/`
 
 - **`app_button.dart`**
   - **Now**: The primary reusable button widget with consistent behavior and styling.
+  - **Now**: Supports `onTapWhenInactive` for handling taps when `isActive` is false (without affecting normal `onTap`).
   - **Future**: Add more presets (icon-only tool buttons, segmented buttons), and enhanced accessibility.
 
 - **`app_button_child.dart`**

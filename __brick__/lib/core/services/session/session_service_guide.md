@@ -34,6 +34,7 @@ Key points:
   - Loads persisted user + guest flag.
   - Ensures `AuthStateNotifier.authStatus` is not stuck on `Status.initial`.
   - (JWT mode) initializes token storage and subscribes to `authenticationStatus`.
+  - (JWT mode) may log token expiry/remaining time for debugging purposes.
 
 - During `login(...)`:
 
@@ -112,7 +113,8 @@ This file is intentionally small: it’s a compatibility bridge between API/stor
 
 What it does:
 
-- `initialize()` loads token JSON from secure storage, validates expiry, and seeds in-memory token.
+- `initialize()` loads token JSON from secure storage and seeds the in-memory token.
+- If a stored token is expired, it is intentionally kept in memory so the refresh interceptor can attempt a refresh on the first protected call (401) instead of forcing an immediate logout on app start.
 - `write(token)` persists token + a derived expiry timestamp.
 - `delete(reason)` clears secure storage and updates the dio_refresh_bot status stream.
 

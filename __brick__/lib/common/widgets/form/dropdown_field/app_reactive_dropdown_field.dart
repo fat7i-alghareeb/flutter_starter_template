@@ -108,6 +108,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     this.titleSpacing = AppSpacing.sm,
     this.layout = const AppFieldLayout(),
     this.enabled = true,
+    this.isLoading = false,
     this.hintText,
     this.decoration = const AppTextFieldDecoration(),
     this.style = const AppTextFieldStyle(),
@@ -120,6 +121,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     this.optionsTextStyle,
     this.missingOptionNameBuilder,
     this.onSelected,
+    this.onSelectUnEnabledItem,
     this.onSelectReturn,
   });
 
@@ -141,6 +143,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     double titleSpacing = AppSpacing.sm,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
+    bool isLoading = false,
     String? hintText,
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
@@ -154,6 +157,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     TextStyle? optionsTextStyle,
     String Function(T id)? missingOptionNameBuilder,
     AppReactiveDropdownSelectedCallback<T>? onSelected,
+    AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
   }) {
     return AppReactiveDropdownField<T>._(
@@ -166,6 +170,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       titleSpacing: titleSpacing,
       layout: layout,
       enabled: enabled,
+      isLoading: isLoading,
       hintText: hintText,
       decoration: decoration,
       style: style,
@@ -178,6 +183,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       optionsTextStyle: optionsTextStyle,
       missingOptionNameBuilder: missingOptionNameBuilder,
       onSelected: onSelected,
+      onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
     );
   }
@@ -193,6 +199,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     double titleSpacing = AppSpacing.sm,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
+    bool isLoading = false,
     String? hintText,
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
@@ -204,6 +211,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     TextStyle? optionsTextStyle,
     String Function(T id)? missingOptionNameBuilder,
     AppReactiveDropdownSelectedCallback<T>? onSelected,
+    AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
   }) {
     return AppReactiveDropdownField<T>._(
@@ -216,6 +224,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       titleSpacing: titleSpacing,
       layout: layout,
       enabled: enabled,
+      isLoading: isLoading,
       hintText: hintText,
       decoration: decoration,
       style: style,
@@ -227,6 +236,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       optionsTextStyle: optionsTextStyle,
       missingOptionNameBuilder: missingOptionNameBuilder,
       onSelected: onSelected,
+      onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
     );
   }
@@ -242,6 +252,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     double titleSpacing = AppSpacing.sm,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
+    bool isLoading = false,
     String? hintText,
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
@@ -253,6 +264,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     TextStyle? optionsTextStyle,
     String Function(T id)? missingOptionNameBuilder,
     AppReactiveDropdownSelectedCallback<T>? onSelected,
+    AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
   }) {
     return AppReactiveDropdownField<T>._(
@@ -265,6 +277,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       titleSpacing: titleSpacing,
       layout: layout,
       enabled: enabled,
+      isLoading: isLoading,
       hintText: hintText,
       decoration: decoration,
       style: style,
@@ -277,6 +290,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       optionsTextStyle: optionsTextStyle,
       missingOptionNameBuilder: missingOptionNameBuilder,
       onSelected: onSelected,
+      onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
     );
   }
@@ -292,6 +306,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     double titleSpacing = AppSpacing.sm,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
+    bool isLoading = false,
     String? hintText,
     AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
     AppTextFieldStyle style = const AppTextFieldStyle(),
@@ -303,6 +318,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     TextStyle? optionsTextStyle,
     String Function(T id)? missingOptionNameBuilder,
     AppReactiveDropdownSelectedCallback<T>? onSelected,
+    AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
   }) {
     return AppReactiveDropdownField<T>._(
@@ -315,6 +331,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       titleSpacing: titleSpacing,
       layout: layout,
       enabled: enabled,
+      isLoading: isLoading,
       hintText: hintText,
       decoration: decoration,
       style: style,
@@ -327,6 +344,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       optionsTextStyle: optionsTextStyle,
       missingOptionNameBuilder: missingOptionNameBuilder,
       onSelected: onSelected,
+      onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
     );
   }
@@ -355,6 +373,10 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
 
   /// Enables/disables the entire field.
   final bool enabled;
+
+  /// When `true`, the field shows a loading indicator and prevents opening the
+  /// picker until options are ready.
+  final bool isLoading;
 
   /// Hint text shown when no option is selected.
   final String? hintText;
@@ -391,6 +413,11 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
 
   /// Called after a successful selection where the control value is written.
   final AppReactiveDropdownSelectedCallback<T>? onSelected;
+
+  /// Called when the user taps a disabled option (`enable: false`).
+  ///
+  /// The widget will not update the form control value.
+  final AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem;
 
   /// Called during selection to accept/reject the chosen option.
   final AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn;

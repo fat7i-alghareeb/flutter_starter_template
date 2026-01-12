@@ -97,6 +97,10 @@ This folder should stay **framework-light** where possible, and avoid feature-sp
   - **Now**: Colored console logging helper.
   - **Future**: Add log levels, tags, and integration with a logging service.
 
+- **`device_helper.dart`**
+  - **Now**: Device identifier and device info helpers (Android/iOS) using `device_info_plus` + platform-specific identifiers.
+  - **Future**: Expand with safer fallbacks and explicitly documented privacy considerations.
+
 - **`input_formatters.dart`**
   - **Now**: Shared `TextInputFormatter` implementations.
   - **Future**: Expand with more formatters (currency, phone, OTP, ID formats).
