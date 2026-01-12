@@ -22,7 +22,10 @@ class JwtTokenStorage extends BotMemoryTokenStorage<AuthTokenModel>
 
   final StorageService _storage;
 
+  AuthTokenModel? _cachedToken;
   DateTime? _cachedExpiry;
+
+  AuthTokenModel? get cachedToken => _cachedToken;
 
   /// Loads a previously stored token and initializes the in-memory cache.
   Future<void> initialize() async {
@@ -33,6 +36,7 @@ class JwtTokenStorage extends BotMemoryTokenStorage<AuthTokenModel>
       );
       if (raw == null || raw.isEmpty) {
         printY('${AuthLogTags.jwtTokenStorage} no token found in storage');
+        _cachedToken = null;
         await super.write(null);
         return;
       }
@@ -45,17 +49,23 @@ class JwtTokenStorage extends BotMemoryTokenStorage<AuthTokenModel>
 
       if (_isExpired(expiry)) {
         printY('${AuthLogTags.jwtTokenStorage} stored token is expired');
-        await _clearStorage();
-        await super.write(null);
+        // Keep the token so dio_refresh_bot can attempt a refresh on the first
+        // protected call (401) instead of forcing an immediate logout on app
+        // start.
+        _cachedToken = token;
+        _cachedExpiry = expiry;
+        await super.write(token);
         return;
       }
 
+      _cachedToken = token;
       _cachedExpiry = expiry;
       printC('${AuthLogTags.jwtTokenStorage} token restored from storage');
       await super.write(token);
     } catch (e) {
       printR('${AuthLogTags.jwtTokenStorage} initialize error: $e');
       await _clearStorage();
+      _cachedToken = null;
       await super.write(null);
     }
   }
@@ -67,11 +77,13 @@ class JwtTokenStorage extends BotMemoryTokenStorage<AuthTokenModel>
     if (token == null || token.accessToken.isEmpty) {
       printY('${AuthLogTags.jwtTokenStorage} clearing token');
       await _clearStorage();
+      _cachedToken = null;
       _cachedExpiry = null;
       await super.write(null);
       return;
     }
 
+    _cachedToken = token;
     final expiry = _deriveExpiry(token);
     _cachedExpiry = expiry;
 
@@ -96,6 +108,7 @@ class JwtTokenStorage extends BotMemoryTokenStorage<AuthTokenModel>
   FutureOr<void> delete([String? message]) async {
     printY('${AuthLogTags.jwtTokenStorage} delete (reason: $message)');
     await _clearStorage();
+    _cachedToken = null;
     _cachedExpiry = null;
     await super.delete(message);
     return null;
@@ -106,6 +119,16 @@ class JwtTokenStorage extends BotMemoryTokenStorage<AuthTokenModel>
     final expiry = _cachedExpiry ?? await _loadExpiryFromStorage();
     if (expiry == null) return false;
     return !_isExpired(expiry);
+  }
+
+  Future<DateTime?> loadExpiry() async {
+    return _cachedExpiry ?? await _loadExpiryFromStorage();
+  }
+
+  Future<Duration?> remainingUntilExpiry() async {
+    final expiry = await loadExpiry();
+    if (expiry == null) return null;
+    return expiry.difference(DateTime.now());
   }
 
   Future<void> _clearStorage() async {

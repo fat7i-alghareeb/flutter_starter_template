@@ -268,7 +268,7 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
         if (widget.affixes.prefixIcon != null) AppSpacing.sm.horizontalSpace,
         Expanded(
           child: _TapArea(
-            onTap: widget.enabled ? () => _onTap(control) : null,
+            onTap: widget.enabled ? () => _onTap(context, control) : null,
             child: Align(
               alignment: textAlign,
               child: _DateTimeFieldValueText(
@@ -285,7 +285,10 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
     );
   }
 
-  Future<void> _onTap(AbstractControl<dynamic> control) async {
+  Future<void> _onTap(
+    BuildContext context,
+    AbstractControl<dynamic> control,
+  ) async {
     if (widget._type == AppReactiveDateTimeFieldType.dateRange) {
       return _onTapDateRange(control);
     }

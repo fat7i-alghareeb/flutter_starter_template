@@ -1,6 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show DateTimeComponents;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../common/imports/imports.dart';
 import '../../../../../../core/injection/injectable.dart';

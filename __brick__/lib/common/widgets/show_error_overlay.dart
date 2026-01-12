@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:flutter_screenutil/flutter_screenutil.dart' show SizeExtension;
 
 import '../imports/imports.dart';
 

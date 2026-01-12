@@ -13,6 +13,17 @@
       ]
     },
     {
+      "name": "Stage (Profile)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "stage"
+      ]
+    },
+    {
       "name": "Production",
       "request": "launch",
       "type": "dart",

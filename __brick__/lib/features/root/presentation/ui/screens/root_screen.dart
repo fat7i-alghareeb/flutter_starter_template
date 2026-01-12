@@ -65,6 +65,8 @@ class _RootScreenState extends State<RootScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.locale;
+
     // Example items. These can be replaced with your real tab definitions.
     final items = <BottomNavItem>[
       BottomNavItem.icon(

@@ -101,6 +101,7 @@ class AppReactiveTextField extends StatefulWidget {
     this.phoneCountries,
     this.phoneUseEmojiFlags = true,
     this.phoneDefaultIsoCode,
+
     required _AppReactiveTextFieldType type,
   }) : _type = type;
 
@@ -228,6 +229,7 @@ class AppReactiveTextField extends StatefulWidget {
     bool passwordEnableToggle = true,
     Widget? passwordObscuredWidget,
     Widget? passwordRevealedWidget,
+    TextInputAction? textInputAction,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -254,6 +256,7 @@ class AppReactiveTextField extends StatefulWidget {
       passwordRevealedWidget: passwordRevealedWidget,
       maxLines: 1,
       minLines: 1,
+      textInputAction: textInputAction,
       type: _AppReactiveTextFieldType.password,
     );
   }
@@ -280,6 +283,7 @@ class AppReactiveTextField extends StatefulWidget {
     List<String>? phoneCountries,
     bool phoneUseEmojiFlags = false,
     String? phoneDefaultIsoCode,
+    TextInputAction? textInputAction,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -289,6 +293,7 @@ class AppReactiveTextField extends StatefulWidget {
       isRequired: isRequired,
       titleSpacing: titleSpacing,
       layout: layout,
+      textInputAction: textInputAction,
       enabled: enabled,
       hintText: hintText,
       decoration: decoration,
@@ -329,6 +334,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppReactiveTextFieldValueCallback? onSubmitted,
     bool allowNegative = false,
     bool removeTrailingDotZero = false,
+    TextInputAction? textInputAction,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -340,6 +346,7 @@ class AppReactiveTextField extends StatefulWidget {
       layout: layout,
       enabled: enabled,
       hintText: hintText,
+      textInputAction: textInputAction,
       decoration: decoration,
       style: style,
       validation: validation,
@@ -375,11 +382,14 @@ class AppReactiveTextField extends StatefulWidget {
     AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
     AppReactiveTextFieldValueCallback? onSubmitted,
+    TextInputAction? textInputAction,
+
     bool allowNegative = false,
   }) {
     return AppReactiveTextField._(
       key: key,
       formControlName: formControlName,
+      textInputAction: textInputAction,
       formGroup: formGroup,
       title: title,
       isRequired: isRequired,
@@ -421,6 +431,7 @@ class AppReactiveTextField extends StatefulWidget {
     AppReactiveTextFieldValueCallback? onChangedDebounced,
     Duration onChangedDebounceDuration = const Duration(milliseconds: 400),
     AppReactiveTextFieldValueCallback? onSubmitted,
+    TextInputAction? textInputAction,
   }) {
     return AppReactiveTextField._(
       key: key,
@@ -430,6 +441,7 @@ class AppReactiveTextField extends StatefulWidget {
       isRequired: isRequired,
       titleSpacing: titleSpacing,
       layout: layout,
+      textInputAction: textInputAction,
       enabled: enabled,
       hintText: hintText,
       decoration: decoration,

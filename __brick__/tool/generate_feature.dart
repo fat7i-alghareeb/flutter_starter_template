@@ -399,7 +399,7 @@ abstract class ${name.pascal}State with _\$${name.pascal}State {
     'presentation/ui/screens/${name.snake}_screen.dart',
     """import 'package:flutter/material.dart';
 
-import '../../../../common/widgets/custom_scaffold/app_scaffold.dart';
+import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart';
 import '../widgets/${name.snake}_body.dart';
 
 class ${name.pascal}Screen extends StatelessWidget {

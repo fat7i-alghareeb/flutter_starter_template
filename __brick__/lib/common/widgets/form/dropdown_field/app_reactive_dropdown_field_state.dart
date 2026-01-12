@@ -145,8 +145,11 @@ class _AppReactiveDropdownFieldState<T>
           // Sync internal display state from the reactive form control.
           _syncFromControl(control);
 
+          final effectiveEnabled = widget.enabled && !widget.isLoading;
+          final isInteractive = effectiveEnabled;
+
           // Validation UX is disabled if the field is disabled.
-          final showValidation = widget.enabled && widget.validation.enabled;
+          final showValidation = isInteractive && widget.validation.enabled;
 
           // Determine if we should show an error state.
           // This follows the same pattern used by other form widgets.
@@ -172,6 +175,7 @@ class _AppReactiveDropdownFieldState<T>
           final borderColor = _resolveBorderColor(
             context,
             shouldShowError: shouldShowError,
+            isEnabled: effectiveEnabled,
           );
 
           final boxShadow = widget.decoration.noShadow
@@ -180,12 +184,15 @@ class _AppReactiveDropdownFieldState<T>
 
           // Colors change when the field is invalid to match the global form
           // widgets styling (red border/text).
+          final enabledTextColor = context.onSurface;
+          final disabledTextColor = context.grey.withValues(alpha: 0.8);
+
           final inputTextColor = shouldShowError
               ? AppColors.error
-              : context.onSurface;
+              : (isInteractive ? enabledTextColor : disabledTextColor);
           final titleColor = shouldShowError
               ? AppColors.error
-              : context.onSurface;
+              : (isInteractive ? enabledTextColor : disabledTextColor);
 
           final decoration = BoxDecoration(
             color: widget.decoration.fillColor,
@@ -218,6 +225,12 @@ class _AppReactiveDropdownFieldState<T>
             iconColor: inputTextColor,
           );
 
+          final innerHeight = effectiveHeight - resolvedPadding.vertical;
+          double progressSize = innerHeight * 0.5;
+          if (progressSize < 16) progressSize = 16;
+          if (progressSize > innerHeight) progressSize = innerHeight;
+          final progressStrokeWidth = (progressSize / 10).clamp(2.0, 4.0);
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -229,46 +242,68 @@ class _AppReactiveDropdownFieldState<T>
                 height: effectiveHeight,
                 decoration: decoration,
                 padding: EdgeInsets.zero,
-                child: Padding(
-                  padding: contentPadding,
-                  child: Row(
-                    children: <Widget>[
-                      if (widget.affixes.prefixIcon != null)
-                        _TapArea(
-                          onTap: widget.affixes.onPrefixTap,
-                          child: widget.affixes.prefixIcon!.build(
-                            context,
-                            color: inputTextColor,
-                            size: 20,
-                          ),
-                        ),
-                      if (widget.affixes.prefixIcon != null)
-                        AppSpacing.sm.horizontalSpace,
-                      Expanded(
-                        child: _TapArea(
-                          onTap: widget.enabled ? () => _open(control) : null,
-                          child: Align(
-                            alignment: context.isRtl
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: _DropdownValueText(
-                              text: valueText,
-                              hintText:
-                                  widget.hintText ?? AppStrings.selectOption,
-                              textStyle: baseTextStyle.copyWith(
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: contentPadding,
+                      child: Row(
+                        children: <Widget>[
+                          if (widget.affixes.prefixIcon != null)
+                            _TapArea(
+                              onTap: isInteractive
+                                  ? widget.affixes.onPrefixTap
+                                  : null,
+                              child: widget.affixes.prefixIcon!.build(
+                                context,
                                 color: inputTextColor,
+                                size: 20,
                               ),
-                              hintStyle: hintStyle,
                             ),
+                          if (widget.affixes.prefixIcon != null)
+                            AppSpacing.sm.horizontalSpace,
+                          Expanded(
+                            child: _TapArea(
+                              onTap: isInteractive
+                                  ? () => _open(control)
+                                  : null,
+                              child: Align(
+                                alignment: context.isRtl
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                child: widget.isLoading
+                                    ? const SizedBox.shrink()
+                                    : _DropdownValueText(
+                                        text: valueText,
+                                        hintText:
+                                            widget.hintText ??
+                                            AppStrings.selectOption,
+                                        textStyle: baseTextStyle.copyWith(
+                                          color: inputTextColor,
+                                        ),
+                                        hintStyle: hintStyle,
+                                      ),
+                              ),
+                            ),
+                          ),
+                          if (suffixWidget != null) ...[
+                            AppSpacing.sm.horizontalSpace,
+                            suffixWidget,
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (widget.isLoading)
+                      Center(
+                        child: SizedBox(
+                          width: progressSize,
+                          height: progressSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: progressStrokeWidth,
+                            color: inputTextColor,
                           ),
                         ),
                       ),
-                      if (suffixWidget != null) ...[
-                        AppSpacing.sm.horizontalSpace,
-                        suffixWidget,
-                      ],
-                    ],
-                  ),
+                  ],
                 ),
               ),
               // Error text is shown only when:
@@ -298,6 +333,7 @@ class _AppReactiveDropdownFieldState<T>
   Color? _resolveBorderColor(
     BuildContext context, {
     required bool shouldShowError,
+    required bool isEnabled,
   }) {
     // If borders are disabled entirely, we return null so no border is painted.
     if (!widget.decoration.borderEnabled) return null;
@@ -310,7 +346,7 @@ class _AppReactiveDropdownFieldState<T>
     }
 
     // Disabled state has the next priority.
-    if (!widget.enabled) {
+    if (!isEnabled) {
       return colors?.disabled ?? context.grey.withValues(alpha: 0.6);
     }
 
@@ -373,6 +409,10 @@ class _AppReactiveDropdownFieldState<T>
     required bool hasDisplayedValue,
     required Color iconColor,
   }) {
+    if (widget.isLoading) return null;
+
+    final canInteract = widget.enabled;
+
     // Clear button is shown only when:
     // - field is enabled
     // - allowClear is enabled
@@ -382,8 +422,14 @@ class _AppReactiveDropdownFieldState<T>
     // When clear is shown we clear the value.
     // Otherwise, tapping the arrow opens the picker.
     final child = showClear
-        ? _TapArea(onTap: () => _clear(control), child: const _ClearIcon())
-        : _TapArea(onTap: () => _open(control), child: const _ArrowIcon());
+        ? _TapArea(
+            onTap: canInteract ? () => _clear(control) : null,
+            child: const _ClearIcon(),
+          )
+        : _TapArea(
+            onTap: canInteract ? () => _open(control) : null,
+            child: const _ArrowIcon(),
+          );
 
     return AnimatedSwitcher(
       duration: AppDurations.fast,
@@ -392,6 +438,7 @@ class _AppReactiveDropdownFieldState<T>
   }
 
   void _clear(AbstractControl<dynamic> control) {
+    if (widget.isLoading) return;
     // When the user clears manually, we also stop the special
     // “keep displaying selection while control is null” behavior.
     _keepDisplayWhileControlNull = false;
@@ -412,6 +459,7 @@ class _AppReactiveDropdownFieldState<T>
   }
 
   Future<void> _open(AbstractControl<dynamic> control) async {
+    if (widget.isLoading) return;
     // Trigger focus to show focused border and match other field UX.
     _focusNode.requestFocus();
     // Mark as touched so validation showErrorsMode.touched can take effect.
@@ -441,6 +489,7 @@ class _AppReactiveDropdownFieldState<T>
           enableSearch: widget.enableSearch,
           optionsTextStyle: widget.optionsTextStyle,
           onSelect: (option) => _handleSelect(control, option),
+          onSelectDisabled: widget.onSelectUnEnabledItem,
         ),
       ),
       barrierDismissible: widget.dialogBarrierDismissible,
@@ -461,6 +510,7 @@ class _AppReactiveDropdownFieldState<T>
           enableSearch: widget.enableSearch,
           optionsTextStyle: widget.optionsTextStyle,
           onSelect: (option) => _handleSelect(control, option),
+          onSelectDisabled: widget.onSelectUnEnabledItem,
         ),
       ),
     );
@@ -544,6 +594,7 @@ class _AppReactiveDropdownFieldState<T>
                       enableSearch: widget.enableSearch,
                       optionsTextStyle: widget.optionsTextStyle,
                       onSelect: (option) => _handleSelect(control, option),
+                      onSelectDisabled: widget.onSelectUnEnabledItem,
                     ),
                   ),
                 ),

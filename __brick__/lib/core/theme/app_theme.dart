@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 
 import '../../utils/constants/design_constants.dart';
 import 'app_theme_colors.dart';
+import 'app_typography.dart';
 
 /// Builds light and dark [ThemeData] instances for the app using
 /// Material 3 and shared configuration.
@@ -10,19 +11,19 @@ class AppTheme {
   AppTheme._();
 
   /// Light theme based on [AppColorSchemes.light].
-  static ThemeData light(BuildContext context, TextTheme textTheme) {
+  static ThemeData get light {
     return _buildTheme(
       colorScheme: AppColorSchemes.light,
-      textTheme: textTheme,
+      textTheme: AppTypography.buildTextTheme,
       useMaterial3: true,
     );
   }
 
   /// Dark theme based on [AppColorSchemes.dark].
-  static ThemeData dark(BuildContext context, TextTheme textTheme) {
+  static ThemeData get dark {
     return _buildTheme(
       colorScheme: AppColorSchemes.dark,
-      textTheme: textTheme,
+      textTheme: AppTypography.buildTextTheme,
       useMaterial3: true,
     );
   }
@@ -36,7 +37,7 @@ class AppTheme {
     final base = ThemeData(
       useMaterial3: useMaterial3,
       colorScheme: colorScheme,
-      fontFamily: GoogleFonts.poppins().fontFamily,
+      fontFamily: GoogleFonts.reemKufi().fontFamily,
     );
 
     return base.copyWith(

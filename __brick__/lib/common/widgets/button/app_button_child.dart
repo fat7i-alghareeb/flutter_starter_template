@@ -39,7 +39,7 @@ abstract class AppButtonChild {
     double size = 20,
     EdgeInsetsGeometry? padding,
   }) {
-    return _IconOnlyButtonChild(icon, size: size, padding: padding);
+    return _IconOnlyButtonChild(icon, padding: padding);
   }
 
   /// Combined label + icon content.
@@ -58,7 +58,6 @@ abstract class AppButtonChild {
       label: label,
       icon: icon,
       position: position,
-      iconSize: iconSize,
       spacing: spacing,
       textAlign: textAlign,
       maxLines: maxLines,
@@ -106,15 +105,14 @@ class _LabelButtonChild extends AppButtonChild {
 }
 
 class _IconOnlyButtonChild extends AppButtonChild {
-  const _IconOnlyButtonChild(this.icon, {this.size = 20, this.padding});
+  const _IconOnlyButtonChild(this.icon, {this.padding});
 
   final IconSource icon;
-  final double size;
   final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context, {required Color foreground}) {
-    return icon.build(context, color: foreground, size: size);
+    return icon.build(context, color: foreground);
   }
 
   @override
@@ -128,7 +126,6 @@ class _LabelIconButtonChild extends AppButtonChild {
     required this.label,
     required this.icon,
     this.position = AppButtonIconPosition.leading,
-    this.iconSize = 18,
     this.spacing = AppSpacing.sm,
     this.textAlign = TextAlign.center,
     this.maxLines,
@@ -139,7 +136,6 @@ class _LabelIconButtonChild extends AppButtonChild {
   final String label;
   final IconSource icon;
   final AppButtonIconPosition position;
-  final double iconSize;
   final double spacing;
   final TextAlign textAlign;
   final int? maxLines;
@@ -148,7 +144,7 @@ class _LabelIconButtonChild extends AppButtonChild {
 
   @override
   Widget build(BuildContext context, {required Color foreground}) {
-    final iconWidget = icon.build(context, color: foreground, size: iconSize);
+    final iconWidget = icon.build(context, color: foreground);
     final base = (textStyle ?? AppTextStyles.s12w400).copyWith(
       color: foreground,
     );

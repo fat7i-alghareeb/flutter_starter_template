@@ -10,19 +10,20 @@ import 'package:flutter/material.dart';
 /// context.unfocus();
 /// ```
 extension AppContextExtensions on BuildContext {
-  MediaQueryData get mediaQuery => MediaQuery.of(this);
+  EdgeInsets get paddingOf => MediaQuery.paddingOf(this);
+  EdgeInsets get viewInsetsOf => MediaQuery.viewInsetsOf(this);
 
-  Size get screenSize => mediaQuery.size;
+  Size get screenSize => MediaQuery.sizeOf(this);
 
   double get screenWidth => screenSize.width;
 
   double get screenHeight => screenSize.height;
 
-  double get topPadding => mediaQuery.viewPadding.top;
+  double get topPadding => paddingOf.top;
 
-  double get bottomPadding => mediaQuery.viewPadding.bottom;
+  double get bottomPadding => paddingOf.bottom;
 
-  double get bottomInset => mediaQuery.viewInsets.bottom;
+  double get bottomInset => viewInsetsOf.bottom;
 
   bool get isSmallHeight => screenHeight < 650;
 
