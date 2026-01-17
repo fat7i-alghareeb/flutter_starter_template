@@ -333,11 +333,27 @@ mixin _AppReactiveDateTimeFieldPickersMixin on State<AppReactiveDateTimeField> {
   }
 
   Future<DateTimeRange?> _pickDateRange(DateTimeRange initial) {
+    final effectiveFirst = widget.allowedStartDate ?? DateTime(1900);
+    final effectiveLast = widget.allowedEndDate ?? DateTime(2100);
+
+    final safeStart = initial.start.isBefore(effectiveFirst)
+        ? effectiveFirst
+        : (initial.start.isAfter(effectiveLast)
+              ? effectiveLast
+              : initial.start);
+    final safeEnd = initial.end.isAfter(effectiveLast)
+        ? effectiveLast
+        : (initial.end.isBefore(effectiveFirst) ? effectiveFirst : initial.end);
+
+    final safeRange = safeStart.isAfter(safeEnd)
+        ? DateTimeRange(start: safeStart, end: safeStart)
+        : DateTimeRange(start: safeStart, end: safeEnd);
+
     return showDateRangePicker(
       context: context,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-      initialDateRange: initial,
+      firstDate: effectiveFirst,
+      lastDate: effectiveLast,
+      initialDateRange: safeRange,
     );
   }
 }

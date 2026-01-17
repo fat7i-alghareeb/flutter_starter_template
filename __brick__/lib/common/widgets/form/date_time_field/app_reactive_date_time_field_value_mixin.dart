@@ -68,8 +68,8 @@ mixin _AppReactiveDateTimeFieldValueMixin on State<AppReactiveDateTimeField> {
   }) {
     final fromLabel = AppStrings.from.toLowerCase();
     final toLabel = AppStrings.to.toLowerCase();
-    return '$fromLabel ${from.toYmd(locale: locale)} '
-        '$toLabel ${to.toYmd(locale: locale)}';
+    return '$fromLabel ( ${from.toYmd(locale: locale)} ) '
+        '$toLabel ( ${to.toYmd(locale: locale)} )';
   }
 
   void _writeValue(AbstractControl<dynamic> control, DateTime picked) {

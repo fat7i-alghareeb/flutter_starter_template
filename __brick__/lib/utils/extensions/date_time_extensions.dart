@@ -6,13 +6,58 @@ import 'int_extensions.dart';
 typedef AppDateTimeFormatter =
     String Function(DateTime dateTime, {String locale});
 
+/// ─────────────────────────────────────────────────────────────
+/// Latin digit normalization
+///
+/// Intl uses locale-specific numerals (Arabic / Persian digits).
+/// This extension forces all digits to English (0–9) while keeping
+/// localized text (month names, AM/PM, etc.).
+/// ─────────────────────────────────────────────────────────────
+extension LatinDigits on String {
+  static const _digitMap = {
+    // Arabic-Indic digits
+    '٠': '0',
+    '١': '1',
+    '٢': '2',
+    '٣': '3',
+    '٤': '4',
+    '٥': '5',
+    '٦': '6',
+    '٧': '7',
+    '٨': '8',
+    '٩': '9',
+    // Persian digits
+    '۰': '0',
+    '۱': '1',
+    '۲': '2',
+    '۳': '3',
+    '۴': '4',
+    '۵': '5',
+    '۶': '6',
+    '۷': '7',
+    '۸': '8',
+    '۹': '9',
+  };
+
+  /// Converts Arabic / Persian digits in this string to Latin digits.
+  String toLatinDigits() {
+    var result = this;
+    _digitMap.forEach((key, value) {
+      result = result.replaceAll(key, value);
+    });
+    return result;
+  }
+}
+
 extension AppDateTimeFormatterExtensions on DateTime {
   /// Formats this value using a shared [AppDateTimeFormatter] signature.
   ///
   /// This is used by both the form widgets and the `DateTime` / ISO-string
   /// extension methods so you can swap formatting logic consistently.
+  ///
+  /// English digits are enforced regardless of locale.
   String formatWith(AppDateTimeFormatter formatter, {String locale = 'en_US'}) {
-    return formatter(this, locale: locale);
+    return formatter(this, locale: locale).toLatinDigits();
   }
 }
 
@@ -20,19 +65,19 @@ class _AppDateTimeFormatters {
   const _AppDateTimeFormatters._();
 
   static String ymd(DateTime dateTime, {String locale = 'en_US'}) {
-    return DateFormat('yyyy-MM-dd', locale).format(dateTime);
+    return DateFormat('yyyy-MM-dd', locale).format(dateTime).toLatinDigits();
   }
 
   static String time12(DateTime dateTime, {String locale = 'en_US'}) {
-    return DateFormat('hh:mm a', locale).format(dateTime);
+    return DateFormat('hh:mm a', locale).format(dateTime).toLatinDigits();
   }
 
   static String time12Compact(DateTime dateTime, {String locale = 'en_US'}) {
-    return DateFormat('hh:mma', locale).format(dateTime);
+    return DateFormat('hh:mma', locale).format(dateTime).toLatinDigits();
   }
 
   static String time24(DateTime dateTime, {String locale = 'en_US'}) {
-    return DateFormat('HH:mm', locale).format(dateTime);
+    return DateFormat('HH:mm', locale).format(dateTime).toLatinDigits();
   }
 
   static String fullDateTime(DateTime dateTime, {String locale = 'en_US'}) {
@@ -42,15 +87,15 @@ class _AppDateTimeFormatters {
   }
 
   static String monthYearShort(DateTime dateTime, {String locale = 'en_US'}) {
-    return '${dateTime.month.monthNameShort} ${dateTime.year}';
+    return '${dateTime.month.monthNameShort} ${dateTime.year}'.toLatinDigits();
   }
 
   static String year(DateTime dateTime, {String locale = 'en_US'}) {
-    return '${dateTime.year}';
+    return '${dateTime.year}'.toLatinDigits();
   }
 
   static String monthDayFull(DateTime dateTime, {String locale = 'en_US'}) {
-    return '${dateTime.month.monthNameFull} ${dateTime.day}';
+    return '${dateTime.month.monthNameFull} ${dateTime.day}'.toLatinDigits();
   }
 
   static String monthFull(DateTime dateTime, {String locale = 'en_US'}) {
@@ -58,7 +103,8 @@ class _AppDateTimeFormatters {
   }
 
   static String weekdayDayShort(DateTime dateTime, {String locale = 'en_US'}) {
-    return '${dateTime.weekday.weekdayNameShort} ${dateTime.day}';
+    return '${dateTime.weekday.weekdayNameShort} ${dateTime.day}'
+        .toLatinDigits();
   }
 }
 
@@ -71,8 +117,10 @@ extension DateTimeFormattingExtensions on DateTime {
   ///
   /// Example:
   /// `now.formatDateTime('yyyy-MM-dd HH:mm', locale: 'en_US');`
+  ///
+  /// English digits are enforced regardless of locale.
   String formatDateTime(String pattern, {String locale = 'en_US'}) {
-    return DateFormat(pattern, locale).format(this);
+    return DateFormat(pattern, locale).format(this).toLatinDigits();
   }
 
   /// Format as `yyyy-MM-dd`.
@@ -162,8 +210,8 @@ extension DateTimeFormattingExtensions on DateTime {
     String locale = 'en_US',
   }) {
     final format = is24 ? DateFormat('HH:mm', locale) : DateFormat.jm(locale);
-    final startStr = format.format(this);
-    final endStr = format.format(endTime);
+    final startStr = format.format(this).toLatinDigits();
+    final endStr = format.format(endTime).toLatinDigits();
     return isLtr ? '$startStr - $endStr' : '$endStr - $startStr';
   }
 }
@@ -192,10 +240,12 @@ extension DateTimeCalendarExtensions on DateTime {
   bool get isTomorrow => isSameDay(DateTime.now().add(const Duration(days: 1)));
 
   /// Midnight at the start of the same calendar day.
+  ///
   /// Example: `2025-09-22 10:37` → `2025-09-22 00:00`.
   DateTime get startOfDay => DateTime(year, month, day);
 
   /// Last millisecond of the same calendar day.
+  ///
   /// Example: `2025-09-22 10:37` → `2025-09-22 23:59:59.999`.
   DateTime get endOfDay => DateTime(year, month, day, 23, 59, 59, 999);
 
@@ -226,17 +276,19 @@ extension DateTimeCalendarExtensions on DateTime {
   }
 
   /// Adds [days] to this [DateTime].
+  ///
   /// Example: `now.addDays(7)`.
   DateTime addDays(int days) => add(Duration(days: days));
 
   /// Subtracts [days] from this [DateTime].
+  ///
   /// Example: `now.subtractDays(1)`.
   DateTime subtractDays(int days) => subtract(Duration(days: days));
 }
 
 /// Safe parsing helpers for ISO-8601 date-time strings.
 extension DateTimeParsingExtensions on String {
-  /// Parses this ISO‑8601 string into a [DateTime], or returns `null`
+  /// Parses this ISO-8601 string into a [DateTime], or returns `null`
   /// if parsing fails.
   ///
   /// Example:
@@ -251,53 +303,30 @@ extension DateTimeParsingExtensions on String {
 
   /// Parses this string and converts it to UTC, or returns `null` if
   /// parsing fails.
-  ///
-  /// Example:
-  /// `'2025-09-22T10:37:00'.toUtcDateTimeOrNull()`.
   DateTime? toUtcDateTimeOrNull() => toDateTimeOrNull()?.toUtc();
 
   /// Parses this string and converts it to local time, or returns
   /// `null` if parsing fails.
-  ///
-  /// Example:
-  /// `'2025-09-22T07:37:39.849Z'.toLocalDateTimeOrNull()`.
   DateTime? toLocalDateTimeOrNull() => toDateTimeOrNull()?.toLocal();
 }
 
 /// Convenience helpers for [DateTimeRange].
 extension DateTimeRangeExtensions on DateTimeRange {
   /// `true` if [start] and [end] lie on the same calendar day.
-  ///
-  /// Example:
-  /// `DateTimeRange(start: d1, end: d1.add(Duration(hours: 2))).isSingleDay`.
   bool get isSingleDay => start.isSameDay(end);
 
-  /// Formats the range as `yyyy-MM-dd{separator}yyyy-MM-dd` using
-  /// [DateTimeFormattingExtensions.toYmd].
-  ///
-  /// Example:
-  /// ```dart
-  /// final range = DateTimeRange(
-  ///   start: DateTime(2025, 9, 22),
-  ///   end: DateTime(2025, 9, 25),
-  /// );
-  /// range.formatYmdRange();          // '2025-09-22 / 2025-09-25'
-  /// range.formatYmdRange(separator: ' - ');
-  /// // '2025-09-22 - 2025-09-25'
-  /// ```
+  /// Formats the range as `yyyy-MM-dd{separator}yyyy-MM-dd`.
   String formatYmdRange({String separator = ' / '}) {
     return '${start.toYmd()}$separator${end.toYmd()}';
   }
 }
 
-/// Human-friendly formatting helpers for ISO-8601 date/time [String] values.
+/// Human-friendly formatting helpers for ISO-8601 date/time strings.
 extension IsoDateStringFormatting on String {
   DateTime? _parseIsoToLocal() => toLocalDateTimeOrNull();
 
-  /// Formats this ISO string using the shared [AppDateTimeFormatter] signature.
-  ///
-  /// Example:
-  /// `'2025-09-22T07:37:39.849Z'.isoFormat((dt, {locale = 'en_US'}) => dt.toYmd(locale: locale))`.
+  /// Formats this ISO string using the shared
+  /// [AppDateTimeFormatter] signature.
   String isoFormat(AppDateTimeFormatter formatter, {String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
@@ -305,10 +334,6 @@ extension IsoDateStringFormatting on String {
   }
 
   /// Equivalent of the old `fullDate` helper.
-  ///
-  /// Example input (UTC+3):
-  /// `'2025-09-22T07:37:39.849Z'.isoFullDate()`
-  /// → `'(10:37AM) 2025-09-22'`.
   String isoFullDate({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
@@ -330,20 +355,16 @@ extension IsoDateStringFormatting on String {
   }
 
   /// Smart date/time similar to the old `timeWithSmartDate`.
-  ///
-  /// Example outputs:
-  /// - `'sep 22, 10:37 am'`
-  /// - `'sep 22, 2024, 10:37 am'`
   String isoSmartDateTime({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;
     final now = DateTime.now();
     final sameYear = dt.year == now.year;
     final pattern = sameYear ? 'MMM d, h:mm a' : 'MMM d, y, h:mm a';
-    return DateFormat(pattern, locale).format(dt).toLowerCase();
+    return DateFormat(pattern, locale).format(dt).toLowerCase().toLatinDigits();
   }
 
-  /// Day-month-year with dashes, e.g. `'22-9-2025'`.
+  /// Day-month-year with dashes, e.g. `22-9-2025`.
   String isoDayMonthYearDash({String locale = 'en_US'}) {
     final dt = _parseIsoToLocal();
     if (dt == null) return this;

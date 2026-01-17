@@ -1,12 +1,12 @@
-import 'dart:ui' as ui;
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import '../../../../common/widgets/app_affixes.dart';
 
+import '../../../../common/widgets/app_affixes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../utils/constants/design_constants.dart';
@@ -18,11 +18,11 @@ import '../../../../utils/helpers/app_strings.dart';
 import '../app_reactive_text_field.dart';
 import '../app_reactive_validation_messages.dart';
 
-part 'app_reactive_date_time_field_variants.dart';
 part 'app_reactive_date_time_field_internal_widgets.dart';
 part 'app_reactive_date_time_field_pickers_mixin.dart';
-part 'app_reactive_date_time_field_value_mixin.dart';
 part 'app_reactive_date_time_field_state.dart';
+part 'app_reactive_date_time_field_value_mixin.dart';
+part 'app_reactive_date_time_field_variants.dart';
 
 /// A high-performance, reactive date/time picker field built on top of
 /// `reactive_forms`.
@@ -96,6 +96,8 @@ class AppReactiveDateTimeField extends StatefulWidget {
     this.onSelected,
     this.pickerOverride,
     this.acceptSameDay = true,
+    this.allowedStartDate,
+    this.allowedEndDate,
     required AppReactiveDateTimeFieldType type,
   }) : _type = type;
 
@@ -458,6 +460,8 @@ class AppReactiveDateTimeField extends StatefulWidget {
     AppAffixes affixes = const AppAffixes(),
     bool allowClear = true,
     bool acceptSameDay = true,
+    DateTime? allowedStartDate,
+    DateTime? allowedEndDate,
     AppReactiveDateTimeFieldRangeTextBuilder? rangeTextBuilder,
     AppReactiveDateTimeFieldSelectedCallback? onSelected,
   }) {
@@ -477,6 +481,8 @@ class AppReactiveDateTimeField extends StatefulWidget {
       affixes: affixes,
       allowClear: allowClear,
       acceptSameDay: acceptSameDay,
+      allowedStartDate: allowedStartDate,
+      allowedEndDate: allowedEndDate ?? DateTime.now(),
       rangeTextBuilder: rangeTextBuilder,
       onSelected: onSelected,
       type: AppReactiveDateTimeFieldType.dateRange,
@@ -529,6 +535,9 @@ class AppReactiveDateTimeField extends StatefulWidget {
   ///
   /// Only applies when [_type] is [AppReactiveDateTimeFieldType.dateRange].
   final bool acceptSameDay;
+
+  final DateTime? allowedStartDate;
+  final DateTime? allowedEndDate;
 
   /// Called after a successful selection.
   ///
