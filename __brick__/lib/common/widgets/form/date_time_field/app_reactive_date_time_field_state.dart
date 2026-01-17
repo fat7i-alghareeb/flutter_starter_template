@@ -354,9 +354,28 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
 
     final now = DateTime.now();
     final (existingRange, hasValue) = _resolveControlDateRange(control);
-    final initial = hasValue && existingRange != null
+    final rawInitial = hasValue && existingRange != null
         ? existingRange
         : DateTimeRange(start: now, end: now);
+
+    final effectiveFirst = widget.allowedStartDate ?? DateTime(1900);
+    final effectiveLast = widget.allowedEndDate ?? DateTime(2100);
+
+    final safeStart = rawInitial.start.isBefore(effectiveFirst)
+        ? effectiveFirst
+        : (rawInitial.start.isAfter(effectiveLast)
+              ? effectiveLast
+              : rawInitial.start);
+
+    final safeEnd = rawInitial.end.isAfter(effectiveLast)
+        ? effectiveLast
+        : (rawInitial.end.isBefore(effectiveFirst)
+              ? effectiveFirst
+              : rawInitial.end);
+
+    final initial = safeStart.isAfter(safeEnd)
+        ? DateTimeRange(start: safeStart, end: safeStart)
+        : DateTimeRange(start: safeStart, end: safeEnd);
 
     final picked = await _pickDateRange(initial);
     if (!mounted) return;
