@@ -1,5 +1,5 @@
-# name: "{{project_name}}"
-name: "test_name_to_delete"
+name: "{{project_name}}"
+# name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
@@ -14,51 +14,68 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  vector_graphics: ^1.1.19
+  # UI / Design system
   cupertino_icons: ^1.0.8
   cached_network_image: ^3.4.1
+  google_fonts: ^6.3.2
+  flutter_screenutil: ^5.9.3
+  flutter_animate: ^4.5.2
+  animations: ^2.1.1
+  shimmer: ^3.0.0
+  vector_graphics: ^1.1.19
+
+  # State management / DI / Routing
   bloc: ^9.1.0
   flutter_bloc: ^9.1.1
+  get_it: ^9.2.0
+  injectable: ^2.7.1
+  go_router: ^17.0.0
+
+  # Networking / Session
   dio: ^5.9.0
   dio_refresh_bot: ^2.2.1
   shared_preferences: ^2.5.3
   flutter_secure_storage: ^9.2.4
   jwt_decoder: ^2.0.1
+
+  # Localization / Intl
   easy_localization: ^3.0.8
-  freezed_annotation: ^3.1.0
-  flutter_screenutil: ^5.9.3
-  get_it: ^9.2.0
-  go_router: ^17.0.0
-  injectable: ^2.7.1
-  flutter_timezone: ^5.0.1
-  google_fonts: ^6.3.2
-  firebase_core: ^4.3.0
-  firebase_messaging: ^16.1.0
-  flutter_local_notifications: ^19.5.0
-  permission_handler: ^12.0.1
-  timezone: ^0.10.1
-  vibration: ^3.1.5
-  reactive_forms: ^18.2.0
-  intl_phone_number_input: ^0.7.5
   intl: ^0.20.2
-  flutter_animate: ^4.5.2
-  animations: ^2.1.1
-  shimmer: ^3.0.0
+  flutter_timezone: ^5.0.1
+  intl_phone_number_input: ^0.7.5
+
+  # Forms
+  reactive_forms: ^18.2.0
+
+  # Device / Permissions
+  permission_handler: ^12.0.1
+  vibration: ^3.1.5
   device_info_plus: ^12.3.0
   mobile_device_identifier: ^0.0.3
   unique_identifier: ^0.4.0
+
+  # Codegen annotations
+  freezed_annotation: ^3.1.0
+  font_awesome_flutter: ^10.12.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^2.10.4
+  # Lints
   flutter_lints: ^6.0.0
-  flutter_flavorizr: ^2.4.1
-  freezed: ^3.2.3
-  vector_graphics_compiler: ^1.1.19
-  flutter_gen_runner: ^5.12.0
+
+  # Code generation
+  build_runner: ^2.10.4
   injectable_generator: ^2.9.0
+  freezed: ^3.2.3
+  flutter_gen_runner: ^5.12.0
+  vector_graphics_compiler: ^1.1.19
+
+  # Tooling
+  flutter_flavorizr: ^2.4.1
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.7
 
 flutter:
   uses-material-design: true
@@ -70,6 +87,9 @@ flutter:
       transformers:
         - package: vector_graphics_compiler
     - assets/icons/
+
+flutter_gen:
+  output: lib/utils/gen/
 
 # dart run flutter_flavorizr
 flavorizr:
@@ -92,6 +112,3 @@ flavorizr:
     - android:buildGradle
     - flutter:flavors
     - ide:config
-
-flutter_gen:
-  output: lib/utils/gen/

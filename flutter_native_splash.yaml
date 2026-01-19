@@ -1,0 +1,23 @@
+# Run this file from the project root:
+#   dart run flutter_native_splash:create --path flutter_native_splash.yaml
+# Remove generated splash resources:
+#   dart run flutter_native_splash:remove
+
+flutter_native_splash:
+  # Light theme
+  color: "#FFF9EF"
+  image: assets/images/splash_light.png
+
+  # Dark theme
+  color_dark: "#26241D"
+  image_dark: assets/images/splash_dark.png
+
+  fullscreen: true
+
+  # Android 12+
+  android_12:
+    color: "#FFF9EF"
+    image: assets/images/splash_light.png
+
+    color_dark: "#26241D"
+    image_dark: assets/images/splash_dark.png
