@@ -1,5 +1,5 @@
-name: "{{project_name}}"
-# name: "test_name_to_delete"
+# name: "{{project_name}}"
+name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
@@ -57,6 +57,10 @@ dependencies:
   # Codegen annotations
   freezed_annotation: ^3.1.0
   font_awesome_flutter: ^10.12.0
+  flutter_local_notifications: ^19.5.0
+  firebase_messaging: ^16.1.1
+  firebase_core: ^4.4.0
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:
