@@ -1,5 +1,5 @@
-# name: "{{project_name}}"
-name: "test_name_to_delete"
+name: "{{project_name}}"
+# name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
