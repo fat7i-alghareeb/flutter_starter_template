@@ -112,13 +112,9 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
               ? const <BoxShadow>[]
               : (widget.decoration.shadows ?? context.shadows.grey);
 
-          final inputTextColor = shouldShowError
-              ? AppColors.error
-              : context.onSurface;
+          final inputTextColor = shouldShowError ? AppColors.error : null;
 
-          final titleColor = shouldShowError
-              ? AppColors.error
-              : context.onSurface;
+          final titleColor = shouldShowError ? AppColors.error : null;
 
           final decoration = BoxDecoration(
             color: widget.decoration.fillColor,
