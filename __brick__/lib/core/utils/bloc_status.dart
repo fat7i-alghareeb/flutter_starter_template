@@ -19,6 +19,9 @@ extension ResultExtension<T> on BlocStatus<T> {
 
   bool get isFailed => maybeWhen(orElse: () => false, failure: (error) => true);
 
+  String? get errorMessage =>
+      maybeWhen(orElse: () => null, failure: (message) => message);
+
   T? get getDataWhenSuccess =>
       maybeWhen(orElse: () => null, success: (data) => data);
 }

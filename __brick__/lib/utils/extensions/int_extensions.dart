@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../helpers/app_strings.dart';
 
 /// Localization helpers for [int] values that represent calendar parts.
@@ -73,4 +76,12 @@ extension AppIntWeekdayNameExtensions on int {
       _ => '',
     };
   }
+}
+
+extension SliverSpacing on int {
+  SliverToBoxAdapter get sliverHorizentalSpace =>
+      SliverToBoxAdapter(child: horizontalSpace);
+
+  SliverToBoxAdapter get sliverVerticalSpace =>
+      SliverToBoxAdapter(child: verticalSpace);
 }

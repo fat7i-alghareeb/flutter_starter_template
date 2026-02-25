@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'
     show REdgeInsets, SizeExtension;
 
-import '../../utils/constants/design_constants.dart';
+import '../constants/design_constants.dart';
 
 /// Layout helpers for widgets referenced by a [GlobalKey].
 ///
@@ -114,4 +114,9 @@ extension WidgetBoxX on Widget {
   /// ```
   Widget sized({double? w, double? h}) =>
       SizedBox(width: w?.w, height: h?.h, child: this);
+}
+
+extension ToSliverToBoxAdapter on Widget {
+  SliverToBoxAdapter get toSliverToBoxAdapter =>
+      SliverToBoxAdapter(child: this);
 }

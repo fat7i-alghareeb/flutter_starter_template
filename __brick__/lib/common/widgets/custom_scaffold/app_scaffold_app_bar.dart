@@ -160,7 +160,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
     };
 
     final fullWidth = DecoratedBox(
-      decoration: BoxDecoration(color: context.surface),
+      decoration: const BoxDecoration(),
       child: SizedBox(width: double.infinity, child: body),
     );
 
@@ -188,7 +188,9 @@ class _AppScaffoldAppBar extends StatelessWidget {
     final icon =
         config.leading ??
         IconSource.icon(
-          Icons.arrow_back,
+          context.isDarkTheme
+              ? FontAwesomeIcons.chevronLeft
+              : FontAwesomeIcons.chevronRight,
         ).build(context, color: context.onSurface, size: 22);
 
     /// If no leading callback is provided, default behavior is route pop.
@@ -256,9 +258,7 @@ class _AppScaffoldTitle extends StatelessWidget {
       AppScaffoldTitleAlignment.end => TextAlign.end,
     };
 
-    final defaultTitleStyle = (titleStyle ?? AppTextStyles.s16w600).copyWith(
-      color: context.onSurface,
-    );
+    final defaultTitleStyle = (titleStyle ?? AppTextStyles.s20w700);
 
     final defaultSubtitleStyle = (subtitleStyle ?? AppTextStyles.s12w400)
         .copyWith(color: context.grey.withValues(alpha: 0.85));

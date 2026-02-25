@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart' show FontAwesomeIcons;
 import 'package:go_router/go_router.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -26,6 +27,7 @@ final class AppScaffoldConfig {
   const AppScaffoldConfig({
     this.backgroundColor,
     this.resizeToAvoidBottomInset = true,
+    this.safeArea = const [AppScaffoldSafeArea.top],
   });
 
   /// Background color passed to [Scaffold].
@@ -33,6 +35,7 @@ final class AppScaffoldConfig {
 
   /// Passed to [Scaffold.resizeToAvoidBottomInset].
   final bool resizeToAvoidBottomInset;
+  final List<AppScaffoldSafeArea> safeArea;
 }
 
 /// A compact, feature-driven scaffold that composes optional UI sections
@@ -253,7 +256,10 @@ class AppScaffold extends StatelessWidget {
     /// The body is composed from top-to-bottom.
     /// Disabled sections are not built at all.
     final body = SafeArea(
-      bottom: false,
+      top: scaffoldConfig.safeArea.contains(AppScaffoldSafeArea.top),
+      bottom: scaffoldConfig.safeArea.contains(AppScaffoldSafeArea.bottom),
+      left: scaffoldConfig.safeArea.contains(AppScaffoldSafeArea.left),
+      right: scaffoldConfig.safeArea.contains(AppScaffoldSafeArea.right),
       child: Column(
         children: <Widget>[
           if (topSpacing > 0) topSpacing.verticalSpace,

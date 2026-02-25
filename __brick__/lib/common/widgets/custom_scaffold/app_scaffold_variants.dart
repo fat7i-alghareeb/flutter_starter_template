@@ -13,3 +13,4 @@ enum ScaffoldFeature { appBar, search }
 /// - [start]/[end] align the title within the available expanded space.
 enum AppScaffoldTitleAlignment { centered, start, end }
 
+enum AppScaffoldSafeArea { top, bottom, left, right }
