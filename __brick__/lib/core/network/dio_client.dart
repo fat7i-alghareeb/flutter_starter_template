@@ -21,26 +21,21 @@ import '../services/session/jwt_token_storage.dart';
 /// passed in from the composition root so that this file stays focused on
 /// HTTP configuration.
 ///
-/// The configuration depends on the selected [AuthMode]:
-/// - [AuthMode.withJwt]: full JWT flow with refresh token support.
-/// - [AuthMode.withoutJwt]: same interceptors but without JWT logic.
-///
 /// High-level pipeline:
 /// //! 1) Create [BaseOptions] (baseUrl, timeouts, default headers).
 /// //! 2) Attach [MemoryAwareInterceptor] to guard against huge responses.
-/// //! 3) Optionally wire JWT + refresh flow when [AuthMode.withJwt].
+/// //! 3) Wire JWT + refresh flow.
 /// //! 4) Attach cross-cutting interceptors:
 ///     - [LocalizationInterceptor] → language / timezone headers.
 ///     - [CustomDioInterceptor] → pretty colored logging (debug only).
 ///     - [ErrorInterceptor] → map all errors to [AppException].
 Dio createDioClient({
-  required AuthMode mode,
   required MemoryAwareInterceptor memoryAwareInterceptor,
   required LocalizationInterceptor localizationInterceptor,
   required ErrorInterceptor errorInterceptor,
   required CustomDioInterceptor logInterceptor,
-  AuthManager? authManager,
-  JwtTokenStorage? tokenStorage,
+  required AuthManager authManager,
+  required JwtTokenStorage tokenStorage,
 }) {
   final baseUrl = ApiConfig.baseUrl;
 
@@ -62,21 +57,13 @@ Dio createDioClient({
   //! 1) Memory guard – always first
   dio.interceptors.add(memoryAwareInterceptor);
 
-  //! 2) Optional JWT flow – only when using AuthMode.withJwt
-  if (mode == AuthMode.withJwt) {
-    if (authManager == null || tokenStorage == null) {
-      throw ArgumentError(
-        'AuthManager and JwtTokenStorage are required for AuthMode.withJwt',
-      );
-    }
-
-    _configureJwtFlow(
-      dio: dio,
-      authManager: authManager,
-      tokenStorage: tokenStorage,
-      logInterceptor: logInterceptor,
-    );
-  }
+  //! 2) JWT flow
+  _configureJwtFlow(
+    dio: dio,
+    authManager: authManager,
+    tokenStorage: tokenStorage,
+    logInterceptor: logInterceptor,
+  );
 
   //! 3) Cross-cutting interceptors (order matters)
   dio.interceptors.addAll(<Interceptor>[
@@ -85,10 +72,7 @@ Dio createDioClient({
     errorInterceptor,
   ]);
 
-  printC(
-    '[DioClient] Created Dio for mode: $mode, baseUrl: $baseUrl, '
-    'jwtEnabled: ${mode == AuthMode.withJwt}',
-  );
+  printC('[DioClient] Created Dio (JWT enabled), baseUrl: $baseUrl');
 
   return dio;
 }

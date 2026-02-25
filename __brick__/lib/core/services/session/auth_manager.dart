@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio_refresh_bot/dio_refresh_bot.dart';
+import 'package:injectable/injectable.dart';
 
 import '../../../utils/constants/auth_constants.dart';
 import '../../../utils/helpers/colored_print.dart';
@@ -11,53 +12,22 @@ import 'auth_state_notifier.dart';
 import 'auth_token_model.dart';
 import 'jwt_token_storage.dart';
 
-/// Defines how authentication is handled in the app.
-///
-/// Coordinates persisted user data, guest mode, and JWT token lifecycle via
-/// [StorageService], [JwtTokenStorage], and [AuthStateNotifier].
-enum AuthMode { withJwt, withoutJwt }
-
 /// Central service responsible only for authentication concerns.
 ///
 /// It exposes a simple API for login, logout, guest mode, user updates and
 /// token updates, while keeping all persistence and reactive concerns hidden
 /// behind dedicated collaborators.
+@lazySingleton
 class AuthManager {
-  AuthManager._({
+  AuthManager({
     required this.storage,
     required this.state,
-    required this.mode,
-    this.tokenStorage,
+    required this.tokenStorage,
   });
-
-  factory AuthManager.withJwt({
-    required StorageService storage,
-    required AuthStateNotifier state,
-    required JwtTokenStorage tokenStorage,
-  }) {
-    return AuthManager._(
-      storage: storage,
-      state: state,
-      mode: AuthMode.withJwt,
-      tokenStorage: tokenStorage,
-    );
-  }
-
-  factory AuthManager.withoutJwt({
-    required StorageService storage,
-    required AuthStateNotifier state,
-  }) {
-    return AuthManager._(
-      storage: storage,
-      state: state,
-      mode: AuthMode.withoutJwt,
-    );
-  }
 
   final StorageService storage;
   final AuthStateNotifier state;
-  final AuthMode mode;
-  final JwtTokenStorage? tokenStorage;
+  final JwtTokenStorage tokenStorage;
 
   StreamSubscription<AuthStatus>? _tokenStatusSub;
 
@@ -67,68 +37,53 @@ class AuthManager {
   AuthStatus get authStatus => state.authStatus;
 
   /// Emits authentication status changes coming from dio_refresh_bot.
-  Stream<AuthStatus>? get authStatusStream =>
-      tokenStorage?.authenticationStatus;
+  Stream<AuthStatus> get authStatusStream => tokenStorage.authenticationStatus;
 
   /// Initializes the manager by loading user and guest flag, and wiring token
   /// status updates when JWT mode is enabled.
   Future<void> initialize() async {
-    printC('${AuthLogTags.authManager} initialize (mode: $mode)');
+    printC('${AuthLogTags.authManager} initialize');
     await _loadUserFromStorage();
 
-    // In non-JWT mode there is no token stream to update [AuthStatus], so we
-    // must compute it once during initialization.
-    if (mode == AuthMode.withoutJwt) {
-      final shouldBeAuthenticated = state.user != null && !state.isGuest;
-      state.setAuthStatus(
-        shouldBeAuthenticated
-            ? AuthStatus.authenticated()
-            : AuthStatus.unauthenticated(message: 'No active session'),
-      );
-      return;
-    }
+    await tokenStorage.initialize();
 
-    if (mode == AuthMode.withJwt && tokenStorage != null) {
-      await tokenStorage!.initialize();
+    final shouldLogExpiry = state.user != null && !state.isGuest;
+    if (shouldLogExpiry) {
+      final expiry = await tokenStorage.loadExpiry();
+      final remaining = await tokenStorage.remainingUntilExpiry();
 
-      final shouldLogExpiry = state.user != null && !state.isGuest;
-      if (shouldLogExpiry) {
-        final expiry = await tokenStorage!.loadExpiry();
-        final remaining = await tokenStorage!.remainingUntilExpiry();
-
-        if (expiry == null || remaining == null) {
-          printY('${AuthLogTags.authManager} token expiry not available');
-        } else if (remaining.isNegative) {
-          printR('${AuthLogTags.authManager} token expired');
-        } else {
-          final days = remaining.inDays;
-          final hours = remaining.inHours % 24;
-          final minutes = remaining.inMinutes % 60;
-          printG(
-            '${AuthLogTags.authManager} token expires in: '
-            '$days d, $hours h, $minutes m (at $expiry)',
-          );
-        }
-      }
-
-      // Make sure we don't stay in [Status.initial] while waiting for stream
-      // emissions.
-      if (state.authStatus.status == Status.initial) {
-        state.setAuthStatus(
-          AuthStatus.unauthenticated(message: 'No active session'),
+      if (expiry == null || remaining == null) {
+        printY('${AuthLogTags.authManager} token expiry not available');
+      } else if (remaining.isNegative) {
+        printR('${AuthLogTags.authManager} token expired');
+      } else {
+        final days = remaining.inDays;
+        final hours = remaining.inHours % 24;
+        final minutes = remaining.inMinutes % 60;
+        printG(
+          '${AuthLogTags.authManager} token expires in: '
+          '$days d, $hours h, $minutes m (at $expiry)',
         );
       }
+    }
 
-      _tokenStatusSub = tokenStorage!.authenticationStatus.listen(
-        _onAuthStatusChanged,
+    // Make sure we don't stay in [Status.initial] while waiting for stream
+    // emissions.
+    if (state.authStatus.status == Status.initial) {
+      state.setAuthStatus(
+        AuthStatus.unauthenticated(message: 'No active session'),
       );
     }
+
+    _tokenStatusSub = tokenStorage.authenticationStatus.listen(
+      _onAuthStatusChanged,
+    );
   }
 
   /// Disposes internal listeners and closes the underlying token storage.
   Future<void> dispose() async {
     await _tokenStatusSub?.cancel();
-    tokenStorage?.close();
+    tokenStorage.close();
   }
 
   /// Logs in the given [user], persists their data and optionally stores JWT
@@ -142,8 +97,8 @@ class AuthManager {
     // Update router-facing status immediately.
     state.setAuthStatus(AuthStatus.authenticated());
 
-    if (mode == AuthMode.withJwt && tokenStorage != null && token != null) {
-      await tokenStorage!.write(token);
+    if (token != null) {
+      await tokenStorage.write(token);
     }
   }
 
@@ -154,17 +109,13 @@ class AuthManager {
     await storage.remove(AuthStorageKeys.user);
     await storage.remove(AuthStorageKeys.guestFlag);
 
-
     state.setUser(null);
     state.setGuest(false);
     state.setAuthStatus(
       AuthStatus.unauthenticated(message: AuthReasons.logout),
     );
 
-
-    if (mode == AuthMode.withJwt && tokenStorage != null) {
-      await tokenStorage!.delete(AuthReasons.logout);
-    }
+    await tokenStorage.delete(AuthReasons.logout);
   }
 
   /// Updates the persisted user data and notifies listeners.
@@ -174,9 +125,7 @@ class AuthManager {
 
   /// Updates the stored JWT token when JWT mode is active.
   Future<void> updateToken(AuthTokenModel token) async {
-    if (mode == AuthMode.withJwt && tokenStorage != null) {
-      await tokenStorage!.write(token);
-    }
+    await tokenStorage.write(token);
   }
 
   /// Enters guest mode by clearing the user and setting the guest flag.
@@ -187,9 +136,7 @@ class AuthManager {
     await _setGuest(true);
     state.setAuthStatus(AuthStatus.unauthenticated(message: AuthReasons.guest));
 
-    if (mode == AuthMode.withJwt && tokenStorage != null) {
-      await tokenStorage!.delete(AuthReasons.guest);
-    }
+    await tokenStorage.delete(AuthReasons.guest);
   }
 
   /// Persists the given [user] in storage and updates the in-memory state.

@@ -5,16 +5,10 @@ import 'package:flutter/services.dart';
 import 'common/widgets/stage_tools/stage_tools_overlay.dart';
 import 'core/injection/injectable.dart';
 import 'core/router/router_config.dart';
-import 'core/services/session/auth_manager.dart';
 import 'core/theme/app_system_ui_overlay.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'utils/constants/design_constants.dart';
-
-/// Global auth mode selector for this app.
-///
-/// Change this single constant to switch between JWT and non-JWT auth flows.
-const AuthMode appAuthMode = AuthMode.withJwt;
 
 /// Root widget of the application.
 class App extends StatelessWidget {

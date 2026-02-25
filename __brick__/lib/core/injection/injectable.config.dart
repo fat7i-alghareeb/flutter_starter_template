@@ -37,6 +37,8 @@ import 'package:test_name_to_delete/core/services/localization/locale_service.da
     as _i870;
 import 'package:test_name_to_delete/core/services/onboarding/onboarding_service.dart'
     as _i175;
+import 'package:test_name_to_delete/core/services/session/auth_manager.dart'
+    as _i659;
 import 'package:test_name_to_delete/core/services/session/auth_state_notifier.dart'
     as _i949;
 import 'package:test_name_to_delete/core/services/session/jwt_token_storage.dart'
@@ -117,15 +119,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i247.ThemeController>(
       () => _i247.ThemeController(gh<_i841.StorageService>()),
     );
-    gh.lazySingleton<_i847.AuthRemoteDataSource>(
-      () => _i847.AuthRemoteDataSource(gh<_i361.Dio>()),
-    );
-    gh.lazySingleton<_i544.RootRemoteDataSource>(
-      () => _i544.RootRemoteDataSource(gh<_i361.Dio>()),
-    );
-    gh.lazySingleton<_i217.AuthRepository>(
-      () => _i1058.AuthRepositoryImpl(gh<_i847.AuthRemoteDataSource>()),
-    );
     gh.lazySingleton<_i112.AppRouterConfig>(
       () => _i112.AppRouterConfig(
         gh<_i949.AuthStateNotifier>(),
@@ -143,6 +136,32 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i296.NotificationLocalService>(),
         gh<_i668.NotificationFcmService>(),
       ),
+    );
+    gh.lazySingleton<_i659.AuthManager>(
+      () => _i659.AuthManager(
+        storage: gh<_i841.StorageService>(),
+        state: gh<_i949.AuthStateNotifier>(),
+        tokenStorage: gh<_i1051.JwtTokenStorage>(),
+      ),
+    );
+    gh.singleton<_i361.Dio>(
+      () => registerModule.dio(
+        gh<_i462.MemoryAwareInterceptor>(),
+        gh<_i1004.LocalizationInterceptor>(),
+        gh<_i129.ErrorInterceptor>(),
+        gh<_i763.CustomDioInterceptor>(),
+        gh<_i659.AuthManager>(),
+        gh<_i1051.JwtTokenStorage>(),
+      ),
+    );
+    gh.lazySingleton<_i847.AuthRemoteDataSource>(
+      () => _i847.AuthRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i544.RootRemoteDataSource>(
+      () => _i544.RootRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i217.AuthRepository>(
+      () => _i1058.AuthRepositoryImpl(gh<_i847.AuthRemoteDataSource>()),
     );
     gh.lazySingleton<_i890.AuthFacade>(
       () => _i890.AuthFacade(gh<_i217.AuthRepository>()),

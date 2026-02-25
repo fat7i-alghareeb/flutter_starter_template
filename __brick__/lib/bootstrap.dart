@@ -3,11 +3,9 @@ import 'dart:developer';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show appFlavor;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart'
     show SystemChrome, SystemUiMode, appFlavor;
-import 'app.dart' show appAuthMode;
 import 'core/config/localization_config.dart';
 import 'core/injection/injectable.dart';
 import 'core/notification/notification_config.dart';
@@ -29,8 +27,7 @@ import 'utils/helpers/colored_print.dart';
 /// - Ensures Flutter bindings are initialized.
 /// - Initializes EasyLocalization's core infrastructure.
 /// - Configures dependency injection via Injectable / GetIt.
-/// - Prepares the [AuthManager] and global Dio client according to
-///   the selected [appAuthMode].
+/// - Prepares the [AuthManager] and global Dio client.
 /// - Resolves the initial locale using [LocaleService].
 /// - Runs the provided widget tree inside a guarded zone with
 ///   EasyLocalization and the active [Flavor].
@@ -122,25 +119,14 @@ Future<void> _handleNotificationNavigation(
 /// Initializes the authentication layer and HTTP client.
 ///
 /// Responsibilities:
-/// - Creates and registers a single [AuthManager] instance using the
-///   globally configured [appAuthMode].
+/// - Creates and registers a single [AuthManager] instance.
 /// - Awaits [AuthManager.initialize] so user/guest and token state are
 ///   loaded before the UI starts.
-/// - Creates and registers a global Dio client using [registerDioClient]
-///   so repositories can perform network calls immediately.
+/// - Creates and registers a global Dio client so repositories can perform
+///   network calls immediately.
 Future<void> _initializeAuthAndNetwork() async {
-  // Decide which AuthManager variant to use (JWT / non-JWT) based on
-  // the app-level selector in app.dart.
-  registerAuthManager(appAuthMode);
-
-  // Retrieve the singleton instance that was just registered and
-  // perform its asynchronous initialization.
   final authManager = getIt<AuthManager>();
   await authManager.initialize();
-
-  // Prepare the global Dio client according to the selected auth mode so
-  // that repositories can start using it immediately.
-  registerDioClient(appAuthMode);
 }
 
 /// Runs the application inside a guarded zone and wraps it with

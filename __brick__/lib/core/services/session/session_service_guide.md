@@ -1,6 +1,6 @@
 # Session Service (core/services/session)
 
-This folder owns *session state* for the entire app.
+This folder owns _session state_ for the entire app.
 
 The most important design rule is:
 
@@ -13,7 +13,7 @@ This keeps storage, JWT refresh, and auth status transitions centralized and con
 
 ### `auth_manager.dart`
 
-`AuthManager` is the *imperative API* for changing session.
+`AuthManager` is the _imperative API_ for changing session.
 
 It coordinates:
 
@@ -24,27 +24,21 @@ It coordinates:
 
 Key points:
 
-- It supports two modes:
-
-  - `AuthMode.withJwt`: token storage + refresh flow is active.
-  - `AuthMode.withoutJwt`: no token storage; `AuthStatus` must be computed and set manually.
+- The session layer is JWT-based (token storage + refresh flow is active).
 
 - During `initialize()`:
-
   - Loads persisted user + guest flag.
   - Ensures `AuthStateNotifier.authStatus` is not stuck on `Status.initial`.
-  - (JWT mode) initializes token storage and subscribes to `authenticationStatus`.
-  - (JWT mode) may log token expiry/remaining time for debugging purposes.
+  - Initializes token storage and subscribes to `authenticationStatus`.
+  - May log token expiry/remaining time for debugging purposes.
 
 - During `login(...)`:
-
   - Persists user.
   - Clears guest.
   - Updates router-facing status: `AuthStatus.authenticated()`.
   - (JWT mode) persists token into secure storage.
 
 - During `logout()`:
-
   - Clears persisted user + guest.
   - Sets status to `AuthStatus.unauthenticated(message: ...)`.
   - (JWT mode) deletes token and emits unauthenticated through dio_refresh_bot.
@@ -52,9 +46,7 @@ Key points:
 #### How it should be used in your architecture
 
 - Preferred: call it from **repository/facade** after a successful domain action.
-
   - Example (current project style):
-
     - `AuthBloc` triggers a login use case.
     - Repository maps response to `UserEntity` + `AuthTokenModel`.
     - Repository calls `AuthManager.login(...)`.
@@ -63,7 +55,7 @@ Key points:
 
 ### `auth_state_notifier.dart`
 
-`AuthStateNotifier` is the app-wide reactive *source of truth* for UI and routing.
+`AuthStateNotifier` is the app-wide reactive _source of truth_ for UI and routing.
 
 It holds:
 
@@ -80,7 +72,6 @@ It also exposes derived helpers:
 
 - Router (`GoRouter.refreshListenable`) uses it to re-run redirects.
 - Any widget can read it to decide:
-
   - show/hide authenticated UI
   - show guest-specific UI
   - show login-required prompts
@@ -96,7 +87,6 @@ Your concrete token type.
 
 - It extends `AuthToken` from `dio_refresh_bot`.
 - That allows `RefreshTokenInterceptor<AuthTokenModel>` to read:
-
   - `accessToken`
   - `refreshToken`
   - `expiresIn`
@@ -128,15 +118,13 @@ Why it exists:
 ### App startup
 
 1. DI is configured.
-2. The correct `AuthManager` variant is registered depending on `AuthMode`.
+2. `AuthManager` is registered.
 3. `AuthManager.initialize()` runs:
-
    - Loads user/guest from `StorageService`.
    - Ensures status is not `Status.initial`.
-   - (JWT mode) restores token in `JwtTokenStorage` and begins streaming `AuthStatus`.
+   - Restores token in `JwtTokenStorage` and begins streaming `AuthStatus`.
 
 4. Router starts on splash and then decides the next route based on:
-
    - `AuthStateNotifier.authStatus.status`
    - `AuthStateNotifier.isGuest`
    - onboarding state
@@ -164,44 +152,37 @@ This file builds the app’s global `Dio` instance.
 ### What it uses
 
 - Session files:
-
   - `AuthManager`
   - `AuthTokenModel`
   - `JwtTokenStorage`
 
 - Network config:
-
   - `ApiConfig.baseUrl`
   - `ApiEndpoints.refreshToken`
   - Interceptors: `LocalizationInterceptor`, `CustomDioInterceptor`, `ErrorInterceptor`, `MemoryAwareInterceptor`
 
 - JWT utilities:
-
   - `isTokenAboutToExpire(...)` from `jwt_token_utils.dart`
 
-### What happens in JWT mode
+### What happens in the JWT flow
 
-When `createDioClient(mode: AuthMode.withJwt, ...)` is used:
+When `createDioClient(...)` is used:
 
 1. `_configureJwtFlow(...)` installs `RefreshTokenInterceptor<AuthTokenModel>`.
 2. For every request, the interceptor attaches:
-
    - `Authorization: Bearer <accessToken>` via `tokenHeaderBuilder`.
 
 3. Before/after responses, `TokenProtocol.shouldRefresh` decides whether to refresh:
-
    - Refresh if token is about to expire OR if the response is `401`.
    - Do not refresh if the user is not authenticated or token is missing.
 
 4. If refresh is needed, `refreshToken(...)` executes:
-
    - Uses a dedicated `tokenDio` to avoid recursive interceptors.
    - Calls `ApiEndpoints.refreshToken`.
    - Builds a new `AuthTokenModel`.
    - Writes it into `JwtTokenStorage`.
 
 5. If refresh fails (or refresh token is revoked):
-
    - `authManager.logout()` is called.
    - That updates `AuthStateNotifier`.
    - Router is notified and redirects the user to Login.
@@ -214,7 +195,7 @@ This is the key connection:
 
 ### What should be domain-only
 
-- `AuthManager` should be treated as a *domain service*.
+- `AuthManager` should be treated as a _domain service_.
 
 It performs side effects:
 
@@ -355,7 +336,6 @@ Common extensions that keep the architecture clean:
 
 - Add additional derived getters in `AuthStateNotifier` (pure computations only).
 - Add new session actions in `AuthManager` (side effects + notifier update), e.g.:
-
   - `refreshCurrentUserProfile()` (fetch + update user)
   - `invalidateSession(reason)` (central logout reasons)
 
