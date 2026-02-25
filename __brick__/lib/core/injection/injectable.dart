@@ -13,5 +13,5 @@ final GetIt getIt = GetIt.instance;
 /// `GetItInjectableX.init()` extension.
 @InjectableInit()
 Future<void> configureDependencies() async {
-  await getIt.init();
+  await getIt.init(); 
 }
