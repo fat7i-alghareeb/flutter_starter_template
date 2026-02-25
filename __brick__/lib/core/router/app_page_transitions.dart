@@ -25,7 +25,14 @@ class AppPageTransitions {
     required GoRouterState state,
     required Widget child,
     AppTransition transition = AppTransition.fade,
+    Duration? transitionDuration,
+    Duration? reverseTransitionDuration,
   }) {
+    final effectiveTransitionDuration =
+        transitionDuration ?? const Duration(milliseconds: 300);
+    final effectiveReverseTransitionDuration =
+        reverseTransitionDuration ?? const Duration(milliseconds: 300);
+
     switch (transition) {
       case AppTransition.none:
         return MaterialPage<T>(key: state.pageKey, child: child);
@@ -34,6 +41,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             final offsetAnimation = Tween<Offset>(
               begin: const Offset(1.0, 0.0),
@@ -48,6 +57,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             final offsetAnimation = Tween<Offset>(
               begin: const Offset(-1.0, 0.0),
@@ -62,6 +73,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             final offsetAnimation = Tween<Offset>(
               begin: const Offset(0.0, 1.0),
@@ -76,6 +89,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             final offsetAnimation = Tween<Offset>(
               begin: const Offset(0.0, -1.0),
@@ -90,6 +105,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return ScaleTransition(scale: animation, child: child);
           },
@@ -99,6 +116,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,
@@ -111,6 +130,8 @@ class AppPageTransitions {
         return CustomTransitionPage<T>(
           key: state.pageKey,
           child: child,
+          transitionDuration: effectiveTransitionDuration,
+          reverseTransitionDuration: effectiveReverseTransitionDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

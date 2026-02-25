@@ -33,16 +33,14 @@ class AppSystemUiOverlay {
     return SystemUiOverlayStyle(
       // Background color for the status bar (Android). On iOS this is
       // combined with [statusBarBrightness].
-      statusBarColor: surface,
-      // On iOS, [statusBarBrightness] describes the background brightness
-      // of the status bar itself.
+      statusBarColor: Colors.transparent,
       statusBarBrightness: surfaceBrightness,
-      // On Android, this controls the actual icon brightness.
       statusBarIconBrightness: iconBrightness,
-      // Navigation bar styling (Android).
+      systemStatusBarContrastEnforced: false,
       systemNavigationBarColor: surface,
       systemNavigationBarIconBrightness: iconBrightness,
       systemNavigationBarDividerColor: surface,
+      systemNavigationBarContrastEnforced: false,
     );
   }
 }

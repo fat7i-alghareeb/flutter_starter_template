@@ -5,7 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show appFlavor;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:flutter/services.dart'
+    show SystemChrome, SystemUiMode, appFlavor;
 import 'app.dart' show appAuthMode;
 import 'core/config/localization_config.dart';
 import 'core/injection/injectable.dart';
@@ -40,6 +41,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       //    Ensure Flutter engine + widget binding are ready before any
       //    plugins or framework APIs are used.
       WidgetsFlutterBinding.ensureInitialized();
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
       // Select the active flavor (stage / production) based on the
       // compile-time value provided by the native layer.

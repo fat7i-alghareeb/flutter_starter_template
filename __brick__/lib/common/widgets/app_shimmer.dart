@@ -76,7 +76,7 @@ class AppShimmer extends StatelessWidget {
         height: height?.h,
         margin: margin,
         decoration: BoxDecoration(
-          color: color,
+          color: color ?? Colors.white,
           borderRadius: BorderRadius.circular(borderRadius.r),
         ),
       ),
@@ -109,7 +109,10 @@ class AppShimmer extends StatelessWidget {
         width: size.r,
         height: size.r,
         margin: margin,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          color: color ?? Colors.white,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

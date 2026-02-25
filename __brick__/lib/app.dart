@@ -45,6 +45,7 @@ class App extends StatelessWidget {
           builder: (context, child) {
             final theme = Theme.of(context);
             final overlayStyle = AppSystemUiOverlay.forTheme(theme);
+            SystemChrome.setSystemUIOverlayStyle(overlayStyle);
 
             return AnnotatedRegion<SystemUiOverlayStyle>(
               value: overlayStyle,

@@ -28,7 +28,7 @@ class RouterRefreshListenable extends ChangeNotifier {
   }) {
     // * Listen to all reactive sources that affect routing.
     authState.addListener(_onSourceChanged);
-    onboardingService.addListener(_onSourceChanged);
+    // onboardingService.addListener(_onSourceChanged);
 
     // * Ensure the splash is visible for at least [SplashConfig.initialDelay]
     //   even if auth/onboarding resolve instantly.
@@ -53,7 +53,7 @@ class RouterRefreshListenable extends ChangeNotifier {
   @override
   void dispose() {
     authState.removeListener(_onSourceChanged);
-    onboardingService.removeListener(_onSourceChanged);
+    // onboardingService.removeListener(_onSourceChanged);
     super.dispose();
   }
 }
@@ -150,6 +150,7 @@ class AppRouteGuard {
     final status = authState.authStatus.status;
     final isGuest = authState.isGuest;
     final isAuthenticated = status == Status.authenticated && !isGuest;
+    final canEnterApp = isAuthenticated || isGuest;
 
     printM(
       '${RouterLogTags.redirect} currentPath="$currentPath" '
@@ -185,7 +186,7 @@ class AppRouteGuard {
     // 3) Auth.
     final authRedirect = _handleAuth(
       currentPath: currentPath,
-      isAuthenticated: isAuthenticated,
+      canEnterApp: canEnterApp,
     );
     return authRedirect;
   }
@@ -227,7 +228,7 @@ class AppRouteGuard {
 
   String? _handleAuth({
     required String currentPath,
-    required bool isAuthenticated,
+    required bool canEnterApp,
   }) {
     if (!AppFlowConfig.authEnabled) {
       if (currentPath != rootPath) {
@@ -237,7 +238,7 @@ class AppRouteGuard {
       return null;
     }
 
-    if (!isAuthenticated) {
+    if (!canEnterApp) {
       if (currentPath != loginPath) {
         printY('${RouterLogTags.redirect} unauthenticated → login');
         return loginPath;

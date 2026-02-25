@@ -44,7 +44,7 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
       }
     } catch (_) {}
 
-    return 'US';
+    return 'TR';
   }
 
   /// Syncs the internal controller from the reactive control value.
@@ -158,7 +158,7 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
           child: Align(
             alignment: Alignment.centerLeft,
             child: InternationalPhoneNumberInput(
-              key: ValueKey<String>('${widget.formControlName}_$e164'),
+              key: ValueKey<String>('${widget.formControlName}_phone'),
               isEnabled: widget.enabled,
               textFieldController: phoneController,
               focusNode: _focusNode,

@@ -148,6 +148,7 @@ class _AnimatedOverlayContainerState extends State<_AnimatedOverlayContainer>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
+  static const double _dismissVelocityThreshold = 600;
 
   @override
   void initState() {
@@ -187,7 +188,7 @@ class _AnimatedOverlayContainerState extends State<_AnimatedOverlayContainer>
         ? widget.backgroundColor
         : widget.backgroundColor.withValues(alpha: 0.48);
 
-    return Material(
+    final Widget banner = Material(
       color: Colors.transparent,
       child: SlideTransition(
         position: _slide,
@@ -243,6 +244,21 @@ class _AnimatedOverlayContainerState extends State<_AnimatedOverlayContainer>
           ),
         ),
       ),
+    );
+
+    if (!widget.dismissible) return banner;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: reverseAndRemove,
+      onVerticalDragEnd: (details) {
+        if (details.primaryVelocity == null) return;
+
+        final velocity = details.primaryVelocity!;
+        final isSwipeUp = velocity < -_dismissVelocityThreshold;
+        if (isSwipeUp) reverseAndRemove();
+      },
+      child: banner,
     );
   }
 }

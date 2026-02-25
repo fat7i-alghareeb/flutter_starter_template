@@ -1,5 +1,5 @@
-name: "{{project_name}}"
-# name: "test_name_to_delete"
+# name: "{{project_name}}"
+name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
@@ -61,6 +61,9 @@ dependencies:
   firebase_messaging: ^16.1.1
   firebase_core: ^4.4.0
   timezone: ^0.10.1
+  objectbox: ^5.2.0
+  objectbox_flutter_libs: ^5.2.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +83,7 @@ dev_dependencies:
   flutter_flavorizr: ^2.4.1
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.7
+  objectbox_generator: ^5.2.0
 
 flutter:
   uses-material-design: true
