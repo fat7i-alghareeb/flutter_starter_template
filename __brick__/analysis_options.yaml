@@ -14,6 +14,7 @@ analyzer:
     void_checks: ignore
   exclude:
     - "build/**"
+    - "tool/**"
     - "ios/**"
     - "android/**"
     - "windows/**"
