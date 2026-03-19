@@ -16,6 +16,7 @@ import 'core/router/router_config.dart';
 import 'core/services/localization/locale_service.dart';
 import 'core/services/session/auth_manager.dart';
 import 'core/theme/theme_controller.dart';
+import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
 import 'flavors.dart' show F, Flavor;
 import 'utils/constants/design_constants.dart';
 import 'utils/helpers/colored_print.dart';
@@ -50,6 +51,15 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       //    Configure the dependency injection container and register
       //    low-level services and singletons.
       await configureDependencies();
+
+      if (F.appFlavor == Flavor.stage) {
+        if (!getIt.isRegistered<StageDevicePreviewController>()) {
+          getIt.registerSingleton<StageDevicePreviewController>(
+            StageDevicePreviewController(getIt()),
+          );
+        }
+        await getIt<StageDevicePreviewController>().load();
+      }
 
       await _initializeNotifications();
 

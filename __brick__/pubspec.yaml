@@ -1,5 +1,5 @@
-name: "{{project_name}}"
-# name: "test_name_to_delete"
+# name: "{{project_name}}"
+name: "test_name_to_delete"
 description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
@@ -64,6 +64,7 @@ dependencies:
   objectbox: ^5.2.0
   objectbox_flutter_libs: ^5.2.0
   path_provider: ^2.1.5
+  device_preview_plus: ^2.6.1
 
 dev_dependencies:
   flutter_test:
