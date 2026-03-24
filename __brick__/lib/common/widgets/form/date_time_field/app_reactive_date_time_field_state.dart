@@ -41,12 +41,12 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
         ? context.screenHeight * widget.layout.percentageHeight!
         : widget.layout.height?.h;
 
-    final borderRadiusValue = widget.layout.borderRadius ?? AppRadii.sm;
+    final borderRadiusValue =
+        widget.layout.borderRadius ?? AppFormFieldDefaults.borderRadiusValue();
     final borderRadius = BorderRadius.circular(borderRadiusValue.r);
 
     final contentPadding =
-        widget.layout.contentPadding ??
-        REdgeInsets.symmetric(horizontal: 12, vertical: 12);
+        widget.layout.contentPadding ?? AppFormFieldDefaults.contentPadding();
 
     final baseTextStyle = widget.style.textStyle ?? AppTextStyles.s14w400;
 
@@ -110,14 +110,19 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
 
           final boxShadow = widget.decoration.noShadow
               ? const <BoxShadow>[]
-              : (widget.decoration.shadows ?? context.shadows.grey);
+              : (widget.decoration.shadows ??
+                    AppFormFieldDefaults.shadows(context));
 
           final inputTextColor = shouldShowError ? AppColors.error : null;
 
           final titleColor = shouldShowError ? AppColors.error : null;
 
+          final resolvedFillColor =
+              widget.decoration.fillColor ??
+              AppFormFieldDefaults.fillColor(context);
+
           final decoration = BoxDecoration(
-            color: widget.decoration.fillColor,
+            color: resolvedFillColor,
             borderRadius: borderRadius,
             border: widget.decoration.borderEnabled && borderColor != null
                 ? Border.all(
@@ -133,8 +138,10 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
               : _FieldTitle(
                   title: widget.title!.trim(),
                   isRequired: widget.isRequired,
-                  style: (widget.style.titleTextStyle ?? AppTextStyles.s12w500)
-                      .copyWith(color: titleColor),
+                  style:
+                      (widget.style.titleTextStyle ??
+                              AppFormFieldDefaults.titleTextStyle(context))
+                          .copyWith(color: titleColor),
                 );
 
           // Compute the display string based on the control value.
@@ -220,21 +227,23 @@ class _AppReactiveDateTimeFieldState extends State<AppReactiveDateTimeField>
 
     // If there's a validation error, force the error border.
     if (shouldShowError) {
-      return colors?.error ?? AppColors.error;
+      return colors?.error ?? AppFormFieldDefaults.borderColorError(context);
     }
 
     // If disabled, render a muted border.
     if (!widget.enabled) {
-      return colors?.disabled ?? context.grey.withValues(alpha: 0.6);
+      return colors?.disabled ??
+          AppFormFieldDefaults.borderColorDisabled(context);
     }
 
     // If focused, show a focused border.
     if (_focusNode.hasFocus) {
-      return colors?.focused ?? context.primary;
+      return colors?.focused ??
+          AppFormFieldDefaults.borderColorFocused(context);
     }
 
     // Default border.
-    return colors?.enabled ?? context.grey;
+    return colors?.enabled ?? AppFormFieldDefaults.borderColorEnabled(context);
   }
 
   Widget _buildFieldRow(
