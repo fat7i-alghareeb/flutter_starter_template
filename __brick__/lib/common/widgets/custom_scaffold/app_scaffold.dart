@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart' show FontAwesomeIcons;
 import 'package:go_router/go_router.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -102,6 +101,8 @@ class AppScaffold extends StatelessWidget {
     this.appBarConfig,
     this.searchConfig,
 
+    this.endDrawer,
+
     this.bottomNavigationBar,
     this.topSpacing = 0,
     this.afterAppBarSpacing = AppSpacing.md,
@@ -117,6 +118,7 @@ class AppScaffold extends StatelessWidget {
     AppScaffoldConfig scaffoldConfig = const AppScaffoldConfig(),
     double topSpacing = 0,
     Widget? bottomNavigationBar,
+    Widget? endDrawer,
   }) {
     return AppScaffold._(
       key: key,
@@ -124,6 +126,7 @@ class AppScaffold extends StatelessWidget {
       scaffoldConfig: scaffoldConfig,
       topSpacing: topSpacing,
       bottomNavigationBar: bottomNavigationBar,
+      endDrawer: endDrawer,
       child: child,
     );
   }
@@ -136,6 +139,7 @@ class AppScaffold extends StatelessWidget {
     double topSpacing = 0,
     double afterAppBarSpacing = AppSpacing.md,
     Widget? bottomNavigationBar,
+    Widget? endDrawer,
   }) {
     return AppScaffold._(
       key: key,
@@ -145,6 +149,7 @@ class AppScaffold extends StatelessWidget {
       topSpacing: topSpacing,
       afterAppBarSpacing: afterAppBarSpacing,
       bottomNavigationBar: bottomNavigationBar,
+      endDrawer: endDrawer,
       child: child,
     );
   }
@@ -157,6 +162,7 @@ class AppScaffold extends StatelessWidget {
     double topSpacing = 0,
     double afterSearchSpacing = AppSpacing.md,
     Widget? bottomNavigationBar,
+    Widget? endDrawer,
   }) {
     return AppScaffold._(
       key: key,
@@ -166,6 +172,7 @@ class AppScaffold extends StatelessWidget {
       topSpacing: topSpacing,
       afterSearchSpacing: afterSearchSpacing,
       bottomNavigationBar: bottomNavigationBar,
+      endDrawer: endDrawer,
       child: child,
     );
   }
@@ -180,6 +187,7 @@ class AppScaffold extends StatelessWidget {
     double afterAppBarSpacing = AppSpacing.md,
     double afterSearchSpacing = AppSpacing.md,
     Widget? bottomNavigationBar,
+    Widget? endDrawer,
   }) {
     return AppScaffold._(
       key: key,
@@ -191,6 +199,7 @@ class AppScaffold extends StatelessWidget {
       afterAppBarSpacing: afterAppBarSpacing,
       afterSearchSpacing: afterSearchSpacing,
       bottomNavigationBar: bottomNavigationBar,
+      endDrawer: endDrawer,
       child: child,
     );
   }
@@ -206,6 +215,7 @@ class AppScaffold extends StatelessWidget {
     double afterAppBarSpacing = AppSpacing.md,
     double afterSearchSpacing = AppSpacing.md,
     Widget? bottomNavigationBar,
+    Widget? endDrawer,
   }) {
     return AppScaffold._(
       key: key,
@@ -217,6 +227,7 @@ class AppScaffold extends StatelessWidget {
       afterAppBarSpacing: afterAppBarSpacing,
       afterSearchSpacing: afterSearchSpacing,
       bottomNavigationBar: bottomNavigationBar,
+      endDrawer: endDrawer,
       child: child,
     );
   }
@@ -227,6 +238,11 @@ class AppScaffold extends StatelessWidget {
 
   final AppScaffoldAppBarConfig? appBarConfig;
   final AppScaffoldSearchConfig? searchConfig;
+
+  /// Optional end drawer content.
+  ///
+  /// Only built when the drawer feature is enabled.
+  final Widget? endDrawer;
 
   final Widget? bottomNavigationBar;
 
@@ -286,7 +302,7 @@ class AppScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: scaffoldConfig.backgroundColor,
         resizeToAvoidBottomInset: scaffoldConfig.resizeToAvoidBottomInset,
-        endDrawer: _drawerEnabled ? const _AppEndDrawerShell() : null,
+        endDrawer: _drawerEnabled ? _AppEndDrawerShell(child: endDrawer) : null,
         body: body,
         bottomNavigationBar: bottomNavigationBar,
       ),

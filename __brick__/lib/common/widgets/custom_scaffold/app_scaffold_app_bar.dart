@@ -123,7 +123,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              if (leading != null) leading,
+              ...?(leading == null ? null : <Widget>[leading]),
               const Spacer(),
               if (actions.isNotEmpty) ...[for (final w in actions) w],
             ],
@@ -133,7 +133,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
       ),
       AppScaffoldTitleAlignment.start => Row(
         children: <Widget>[
-          if (leading != null) leading,
+          ...?(leading == null ? null : <Widget>[leading]),
           Expanded(
             child: Align(
               alignment: Alignment.centerLeft,
@@ -146,7 +146,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
       ),
       AppScaffoldTitleAlignment.end => Row(
         children: <Widget>[
-          if (leading != null) leading,
+          ...?(leading == null ? null : <Widget>[leading]),
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
@@ -188,9 +188,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
     final icon =
         config.leading ??
         IconSource.icon(
-          context.isDarkTheme
-              ? FontAwesomeIcons.chevronLeft
-              : FontAwesomeIcons.chevronRight,
+          context.chevronStart,
         ).build(context, color: context.onSurface, size: 22);
 
     /// If no leading callback is provided, default behavior is route pop.
@@ -217,7 +215,17 @@ class _AppScaffoldDrawerAction extends StatelessWidget {
         /// We use maybeOf to avoid throwing if no Scaffold is found.
         final state = Scaffold.maybeOf(context);
         if (state == null) return;
-        state.openEndDrawer();
+
+        // Open whichever drawer is actually configured.
+        // This avoids relying on Directionality rules and ensures RTL/LTR
+        // always opens from the intended side.
+        if (state.hasEndDrawer) {
+          state.openEndDrawer();
+          return;
+        }
+        if (state.hasDrawer) {
+          state.openDrawer();
+        }
       },
       child: Padding(
         padding: padding,
@@ -258,35 +266,62 @@ class _AppScaffoldTitle extends StatelessWidget {
       AppScaffoldTitleAlignment.end => TextAlign.end,
     };
 
-    final defaultTitleStyle = (titleStyle ?? AppTextStyles.s20w700);
+    Widget switcher({required Widget child, required Key key}) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final slide =
+              Tween<Offset>(
+                begin: const Offset(0, 0.12),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              );
 
-    final defaultSubtitleStyle = (subtitleStyle ?? AppTextStyles.s12w400)
-        .copyWith(color: context.grey.withValues(alpha: 0.85));
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: slide, child: child),
+          );
+        },
+        child: KeyedSubtree(key: key, child: child),
+      );
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: switch (alignment) {
-        AppScaffoldTitleAlignment.centered => CrossAxisAlignment.center,
-        AppScaffoldTitleAlignment.start => CrossAxisAlignment.start,
-        AppScaffoldTitleAlignment.end => CrossAxisAlignment.end,
-      },
       children: <Widget>[
         if (hasTitle)
-          Text(
-            t,
-            textAlign: align,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: defaultTitleStyle,
+          switcher(
+            key: ValueKey('title:$t'),
+            child: Text(
+              t,
+              textAlign: align,
+              style:
+                  titleStyle ??
+                  AppTextStyles.s16w600.copyWith(color: context.onSurface),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        if (hasSubtitle)
-          Text(
-            st,
-            textAlign: align,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: defaultSubtitleStyle,
+        if (hasSubtitle) ...[
+          2.verticalSpace,
+          switcher(
+            key: ValueKey('subtitle:$st'),
+            child: Text(
+              st,
+              textAlign: align,
+              style:
+                  subtitleStyle ??
+                  AppTextStyles.s12w400.copyWith(
+                    color: context.onSurface.withValues(alpha: 0.65),
+                  ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+        ],
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Layout and focus utilities for [BuildContext].
 ///
@@ -47,4 +48,10 @@ extension AppContextExtensions on BuildContext {
   bool get isRtl => Directionality.of(this) == TextDirection.rtl;
 
   bool get isLtr => !isRtl;
+
+  IconData get chevronStart =>
+      isRtl ? FontAwesomeIcons.chevronRight : FontAwesomeIcons.chevronLeft;
+
+  IconData get chevronEnd =>
+      isRtl ? FontAwesomeIcons.chevronLeft : FontAwesomeIcons.chevronRight;
 }

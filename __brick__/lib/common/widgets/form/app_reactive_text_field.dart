@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -17,6 +18,7 @@ import '../../../utils/extensions/theme_extensions.dart';
 import '../../../utils/helpers/input_formatters.dart';
 import '../../../utils/helpers/app_strings.dart';
 import '../../../utils/helpers/colored_print.dart';
+import 'app_form_field_defaults.dart';
 import 'app_reactive_validation_messages.dart';
 
 part 'app_reactive_text_field_variants.dart';
