@@ -10,6 +10,7 @@ import '../../../core/services/localization/locale_service.dart';
 import '../../../core/config/localization_config.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../flavors.dart';
+import 'stage_device_preview_controller.dart';
 import '../button/app_button.dart';
 import '../button/app_button_child.dart';
 import '../app_icon_source.dart';
@@ -129,6 +130,15 @@ class StageToolsRegistry {
   static List<StageToolDefinition> tools() {
     return <StageToolDefinition>[
       StageToolDefinition(
+        id: 'stage_tool_device_preview',
+        icon: IconSource.icon(Icons.devices),
+        initialPosition: const StageToolInitialPosition(
+          anchor: StageToolAnchor.bottomRight,
+          margin: EdgeInsets.only(right: 16, bottom: 24 + 56 + 56),
+        ),
+        onPressed: (context) => _showDevicePreviewSheet(context),
+      ),
+      StageToolDefinition(
         id: 'stage_tool_locale',
         icon: IconSource.icon(Icons.language),
         initialPosition: const StageToolInitialPosition(
@@ -147,6 +157,45 @@ class StageToolsRegistry {
         onPressed: (context) => _showThemeSheet(context),
       ),
     ];
+  }
+
+  static Future<void> _showDevicePreviewSheet(BuildContext context) async {
+    final controller = StageDevicePreviewController.tryGet();
+    if (controller == null) return;
+
+    await _openExclusiveSheet(
+      context,
+      sheet: _StageToolsSheet.devicePreview,
+      open: (sheetContext) async {
+        await showModalBottomSheet<void>(
+          context: sheetContext,
+          useRootNavigator: true,
+          showDragHandle: true,
+          builder: (context) {
+            return SafeArea(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: controller.enabled,
+                builder: (context, enabled, _) {
+                  return ListView(
+                    shrinkWrap: true,
+                    children: [
+                      SwitchListTile(
+                        title: const Text('Device Preview'),
+                        subtitle: const Text('Enable device simulation'),
+                        value: enabled,
+                        onChanged: (value) async {
+                          await controller.setEnabled(value);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   static Future<void> _showLocaleSheet(BuildContext context) async {
@@ -235,7 +284,7 @@ class StageToolsRegistry {
   }
 }
 
-enum _StageToolsSheet { locale, theme }
+enum _StageToolsSheet { devicePreview, locale, theme }
 
 class StageToolsOverlay extends StatefulWidget {
   const StageToolsOverlay({super.key, required this.child});

@@ -102,12 +102,12 @@ class _AppReactiveDropdownFieldState<T>
         ? context.screenHeight * widget.layout.percentageHeight!
         : widget.layout.height?.h;
 
-    final borderRadiusValue = widget.layout.borderRadius ?? AppRadii.sm;
+    final borderRadiusValue =
+        widget.layout.borderRadius ?? AppFormFieldDefaults.borderRadiusValue();
     final borderRadius = BorderRadius.circular(borderRadiusValue.r);
 
     final contentPadding =
-        widget.layout.contentPadding ??
-        REdgeInsets.symmetric(horizontal: 12, vertical: 12);
+        widget.layout.contentPadding ?? AppFormFieldDefaults.contentPadding();
 
     final baseTextStyle = widget.style.textStyle ?? AppTextStyles.s14w400;
 
@@ -180,7 +180,8 @@ class _AppReactiveDropdownFieldState<T>
 
           final boxShadow = widget.decoration.noShadow
               ? const <BoxShadow>[]
-              : (widget.decoration.shadows ?? context.shadows.grey);
+              : (widget.decoration.shadows ??
+                    AppFormFieldDefaults.shadows(context));
 
           // Colors change when the field is invalid to match the global form
           // widgets styling (red border/text).
@@ -194,8 +195,12 @@ class _AppReactiveDropdownFieldState<T>
               ? AppColors.error
               : (isInteractive ? enabledTextColor : disabledTextColor);
 
+          final resolvedFillColor =
+              widget.decoration.fillColor ??
+              AppFormFieldDefaults.fillColor(context);
+
           final decoration = BoxDecoration(
-            color: widget.decoration.fillColor,
+            color: resolvedFillColor,
             borderRadius: borderRadius,
             border: widget.decoration.borderEnabled && borderColor != null
                 ? Border.all(
@@ -211,8 +216,10 @@ class _AppReactiveDropdownFieldState<T>
               : _FieldTitle(
                   title: widget.title!.trim(),
                   isRequired: widget.isRequired,
-                  style: (widget.style.titleTextStyle ?? AppTextStyles.s12w500)
-                      .copyWith(color: titleColor),
+                  style:
+                      (widget.style.titleTextStyle ??
+                              AppFormFieldDefaults.titleTextStyle(context))
+                          .copyWith(color: titleColor),
                 );
 
           // Display text always comes from the selected option name.
@@ -342,21 +349,23 @@ class _AppReactiveDropdownFieldState<T>
 
     // Error state has the highest priority.
     if (shouldShowError) {
-      return colors?.error ?? AppColors.error;
+      return colors?.error ?? AppFormFieldDefaults.borderColorError(context);
     }
 
     // Disabled state has the next priority.
     if (!isEnabled) {
-      return colors?.disabled ?? context.grey.withValues(alpha: 0.6);
+      return colors?.disabled ??
+          AppFormFieldDefaults.borderColorDisabled(context);
     }
 
     // Focused state gives the “active” border.
     if (_focusNode.hasFocus) {
-      return colors?.focused ?? context.primary;
+      return colors?.focused ??
+          AppFormFieldDefaults.borderColorFocused(context);
     }
 
     // Default enabled border.
-    return colors?.enabled ?? context.grey;
+    return colors?.enabled ?? AppFormFieldDefaults.borderColorEnabled(context);
   }
 
   void _syncFromControl(AbstractControl<dynamic> control) {
