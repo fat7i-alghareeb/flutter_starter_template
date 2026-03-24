@@ -35,6 +35,7 @@ class App extends StatelessWidget {
         Widget buildMaterialApp({required bool devicePreviewEnabled}) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
+            title: F.title,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: themeController.themeMode,
