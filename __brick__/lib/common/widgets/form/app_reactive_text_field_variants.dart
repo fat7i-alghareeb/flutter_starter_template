@@ -86,15 +86,18 @@ class AppFieldBorderColors {
 
 class AppTextFieldDecoration {
   const AppTextFieldDecoration({
-    this.fillColor = Colors.transparent,
+    this.fillColor,
     this.noShadow = true,
     this.shadows,
     this.borderEnabled = true,
-    this.borderWidth = 1,
+    this.borderWidth = AppFormFieldDefaults.borderWidth,
     this.borderColors,
   });
 
-  final Color fillColor;
+  /// When `null`, the widget decides the default fill color.
+  ///
+  /// Set this to `Colors.transparent` explicitly to force a transparent field.
+  final Color? fillColor;
   final bool noShadow;
   final List<BoxShadow>? shadows;
   final bool borderEnabled;
