@@ -246,7 +246,8 @@ class _AppReactiveDropdownFieldState<T>
                 widget.titleSpacing.verticalSpace,
               Container(
                 key: _fieldKey,
-                height: effectiveHeight,
+                constraints: BoxConstraints(minHeight: effectiveHeight),
+                alignment: AlignmentDirectional.centerStart,
                 decoration: decoration,
                 padding: EdgeInsets.zero,
                 child: Stack(
@@ -429,16 +430,26 @@ class _AppReactiveDropdownFieldState<T>
     final showClear = widget.enabled && widget.allowClear && hasDisplayedValue;
 
     // When clear is shown we clear the value.
+    // When isFailed is true we show a retry button.
     // Otherwise, tapping the arrow opens the picker.
     final child = showClear
         ? _TapArea(
             onTap: canInteract ? () => _clear(control) : null,
             child: const _ClearIcon(),
           )
-        : _TapArea(
-            onTap: canInteract ? () => _open(control) : null,
-            child: const _ArrowIcon(),
-          );
+        : (widget.isFailed
+            ? _TapArea(
+                onTap: canInteract ? widget.onRetry : null,
+                child: Icon(
+                  Icons.refresh,
+                  size: 20.r,
+                  color: AppColors.error,
+                ),
+              )
+            : _TapArea(
+                onTap: canInteract ? () => _open(control) : null,
+                child: const _ArrowIcon(),
+              ));
 
     return AnimatedSwitcher(
       duration: AppDurations.fast,
@@ -479,6 +490,7 @@ class _AppReactiveDropdownFieldState<T>
       AppReactiveDropdownPresentation.menu => _openMenu(control),
       AppReactiveDropdownPresentation.dialog => _openDialog(control),
       AppReactiveDropdownPresentation.bottomSheet => _openBottomSheet(control),
+      AppReactiveDropdownPresentation.custom => widget.onTap?.call(),
     };
   }
 
@@ -499,6 +511,7 @@ class _AppReactiveDropdownFieldState<T>
           optionsTextStyle: widget.optionsTextStyle,
           onSelect: (option) => _handleSelect(control, option),
           onSelectDisabled: widget.onSelectUnEnabledItem,
+          isRefreshing: widget.isRefreshing,
         ),
       ),
       barrierDismissible: widget.dialogBarrierDismissible,
@@ -520,6 +533,7 @@ class _AppReactiveDropdownFieldState<T>
           optionsTextStyle: widget.optionsTextStyle,
           onSelect: (option) => _handleSelect(control, option),
           onSelectDisabled: widget.onSelectUnEnabledItem,
+          isRefreshing: widget.isRefreshing,
         ),
       ),
     );
@@ -604,6 +618,7 @@ class _AppReactiveDropdownFieldState<T>
                       optionsTextStyle: widget.optionsTextStyle,
                       onSelect: (option) => _handleSelect(control, option),
                       onSelectDisabled: widget.onSelectUnEnabledItem,
+                      isRefreshing: widget.isRefreshing,
                     ),
                   ),
                 ),

@@ -29,7 +29,7 @@ typedef AppReactiveDropdownSelectReturnCallback<T> =
     String? Function(AppDropdownOption<T> selected);
 
 /// Defines how the dropdown options are presented.
-enum AppReactiveDropdownPresentation { menu, dialog, bottomSheet }
+enum AppReactiveDropdownPresentation { menu, dialog, bottomSheet, custom }
 
 /// A base option entity used by [AppReactiveDropdownField].
 ///

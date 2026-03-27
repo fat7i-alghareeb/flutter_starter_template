@@ -124,6 +124,10 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     this.onSelected,
     this.onSelectUnEnabledItem,
     this.onSelectReturn,
+    this.isRefreshing = false,
+    this.isFailed = false,
+    this.onRetry,
+    this.onTap,
   });
 
   /// A fully-configurable dropdown field.
@@ -160,6 +164,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppReactiveDropdownSelectedCallback<T>? onSelected,
     AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
+    bool isRefreshing = false,
+    bool isFailed = false,
+    VoidCallback? onRetry,
   }) {
     return AppReactiveDropdownField<T>._(
       key: key,
@@ -186,6 +193,66 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       onSelected: onSelected,
       onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
+      isRefreshing: isRefreshing,
+      isFailed: isFailed,
+      onRetry: onRetry,
+    );
+  }
+
+  /// Custom-tappable dropdown field.
+  ///
+  /// Use this when you want to handle the picker opening yourself (e.g. showing
+  /// a bottom sheet that includes an "Add" button).
+  factory AppReactiveDropdownField.custom({
+    Key? key,
+    required String formControlName,
+    FormGroup? formGroup,
+    List<AppDropdownOption<T>> options = const [],
+    String? title,
+    bool isRequired = false,
+    double titleSpacing = AppSpacing.sm,
+    AppFieldLayout layout = const AppFieldLayout(),
+    bool enabled = true,
+    bool isLoading = false,
+    String? hintText,
+    AppTextFieldDecoration decoration = const AppTextFieldDecoration(),
+    AppTextFieldStyle style = const AppTextFieldStyle(),
+    AppTextFieldValidation validation = const AppTextFieldValidation(),
+    AppAffixes affixes = const AppAffixes(),
+    bool allowClear = true,
+    TextStyle? optionsTextStyle,
+    String Function(T id)? missingOptionNameBuilder,
+    AppReactiveDropdownSelectedCallback<T>? onSelected,
+    bool isRefreshing = false,
+    bool isFailed = false,
+    VoidCallback? onRetry,
+    required VoidCallback onTap,
+  }) {
+    return AppReactiveDropdownField<T>._(
+      key: key,
+      formControlName: formControlName,
+      options: options,
+      formGroup: formGroup,
+      title: title,
+      isRequired: isRequired,
+      titleSpacing: titleSpacing,
+      layout: layout,
+      enabled: enabled,
+      isLoading: isLoading,
+      hintText: hintText,
+      decoration: decoration,
+      style: style,
+      validation: validation,
+      affixes: affixes,
+      allowClear: allowClear,
+      presentation: AppReactiveDropdownPresentation.custom,
+      optionsTextStyle: optionsTextStyle,
+      missingOptionNameBuilder: missingOptionNameBuilder,
+      onSelected: onSelected,
+      isRefreshing: isRefreshing,
+      isFailed: isFailed,
+      onRetry: onRetry,
+      onTap: onTap,
     );
   }
 
@@ -214,6 +281,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppReactiveDropdownSelectedCallback<T>? onSelected,
     AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
+    bool isRefreshing = false,
+    bool isFailed = false,
+    VoidCallback? onRetry,
   }) {
     return AppReactiveDropdownField<T>._(
       key: key,
@@ -239,6 +309,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       onSelected: onSelected,
       onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
+      isRefreshing: isRefreshing,
+      isFailed: isFailed,
+      onRetry: onRetry,
     );
   }
 
@@ -267,6 +340,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppReactiveDropdownSelectedCallback<T>? onSelected,
     AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
+    bool isRefreshing = false,
+    bool isFailed = false,
+    VoidCallback? onRetry,
   }) {
     return AppReactiveDropdownField<T>._(
       key: key,
@@ -293,6 +369,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       onSelected: onSelected,
       onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
+      isRefreshing: isRefreshing,
+      isFailed: isFailed,
+      onRetry: onRetry,
     );
   }
 
@@ -321,6 +400,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     AppReactiveDropdownSelectedCallback<T>? onSelected,
     AppReactiveDropdownUnEnabledItemCallback<T>? onSelectUnEnabledItem,
     AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn,
+    bool isRefreshing = false,
+    bool isFailed = false,
+    VoidCallback? onRetry,
   }) {
     return AppReactiveDropdownField<T>._(
       key: key,
@@ -347,6 +429,9 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
       onSelected: onSelected,
       onSelectUnEnabledItem: onSelectUnEnabledItem,
       onSelectReturn: onSelectReturn,
+      isRefreshing: isRefreshing,
+      isFailed: isFailed,
+      onRetry: onRetry,
     );
   }
 
@@ -378,6 +463,15 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
   /// When `true`, the field shows a loading indicator and prevents opening the
   /// picker until options are ready.
   final bool isLoading;
+
+  /// When `true`, the field shows a background refreshing indicator.
+  final bool isRefreshing;
+
+  /// When `true`, the field shows a failed state (e.g. for retry).
+  final bool isFailed;
+
+  /// Called when the retry button is tapped. Only used when [isFailed] is `true`.
+  final VoidCallback? onRetry;
 
   /// Hint text shown when no option is selected.
   final String? hintText;
@@ -422,6 +516,10 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
 
   /// Called during selection to accept/reject the chosen option.
   final AppReactiveDropdownSelectReturnCallback<T>? onSelectReturn;
+
+  /// Called when the field is tapped. Only used when [presentation] is
+  /// [AppReactiveDropdownPresentation.custom].
+  final VoidCallback? onTap;
 
   @override
   State<AppReactiveDropdownField<T>> createState() =>

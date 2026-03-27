@@ -23,6 +23,14 @@ abstract class AppFormFieldDefaults {
     );
   }
 
+  static TextStyle errorTextStyle(BuildContext context) {
+    return AppTextStyles.s12w500.copyWith(color: AppColors.error);
+  }
+
+  static Color iconColor(BuildContext context) {
+    return context.onSurface.withValues(alpha: 0.45);
+  }
+
   static Color fillColor(BuildContext context) {
     return context.primary.withValues(alpha: 0.05);
   }

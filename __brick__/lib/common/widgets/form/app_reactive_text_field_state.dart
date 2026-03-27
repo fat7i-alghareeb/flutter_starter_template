@@ -379,6 +379,8 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
               textStyle: outer.baseTextStyle.copyWith(color: inputTextColor),
               invalidPhoneText: AppStrings.validationInvalidPhone,
               fieldHeight: effectiveFieldHeight,
+              direction:
+                  TextDirection.ltr, // forces LTR regardless of locale context
             ),
             _ => _buildReactiveTextField(
               context,

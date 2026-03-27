@@ -184,6 +184,8 @@ class StageToolsRegistry {
                         subtitle: const Text('Enable device simulation'),
                         value: enabled,
                         onChanged: (value) async {
+                          final navigator = Navigator.of(context);
+                          if (navigator.mounted) navigator.pop();
                           await controller.setEnabled(value);
                         },
                       ),

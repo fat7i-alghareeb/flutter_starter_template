@@ -176,6 +176,12 @@ Create channels in `AppNotificationConfig.androidChannels`.
 
 - Use the channel id in your payload (`android_channel_id` / `channelId`) to route notifications to the correct channel.
 
+### 🆔 Notification IDs (32-bit integer limit)
+
+Always ensure your notification IDs fit within a 32-bit signed integer `[-2147483648, 2147483647]`.
+Android throws an `ArgumentError` if you attempt to use larger values, like a 64-bit microsecond timestamp (`DateTime.now().microsecondsSinceEpoch`).
+The `NotificationLocalService._generateNotificationId()` in this brick is pre-configured to return a safe 31-bit random value natively to avoid crashes out of the box.
+
 ---
 
 ## 3) How the flow works (what happens behind the scenes)

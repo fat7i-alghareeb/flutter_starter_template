@@ -149,18 +149,20 @@ class AppColorSeeds {
     onPrimary: Colors.white,
     secondary: AppColors.secondaryLight,
     background: AppColors.backGroundLight,
-    surface: AppColors.backGroundLight,
+    surface: AppColors.surfaceLight,
     outline: AppColors.greyLight,
+    error: AppColors.error,
   );
 
   /// Seed colors for the dark theme.
   static const AppColorSeedSet dark = AppColorSeedSet(
     primary: AppColors.primaryDark,
-    onPrimary: Color(0xFF0D47A1),
+    onPrimary: Color(0xFF0A0A0F),
     secondary: AppColors.secondaryDark,
     background: AppColors.backGroundDark,
-    surface: AppColors.backGroundDark,
+    surface: AppColors.surfaceDark,
     outline: AppColors.greyDark,
+    error: AppColors.error,
   );
 }
 
