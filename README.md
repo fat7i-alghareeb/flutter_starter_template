@@ -168,10 +168,12 @@ Important:
 Place these **as direct children of `<manifest>`** (usually near the top, before `<application>`):
 
 ```xml
-<!-- Permissions -->
+<!-- Notification permissions -->
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 <uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.USE_EXACT_ALARM" /> <!-- Or SCHEDULE_EXACT_ALARM depending on Play Store policy -->
 ```
 
 #### 2) Add scheduled notification receivers (inside `<application>`)
@@ -196,7 +198,7 @@ Place these **as direct children of `<application>`**:
 </receiver>
 ```
 
-For a full checklist (exact alarms, icons, iOS notes), read:
+For a full checklist (exact alarms, icons, iOS notes, and the 32-bit strict notification ID limits), read:
 
 - `lib/core/notification/notification.md`
 

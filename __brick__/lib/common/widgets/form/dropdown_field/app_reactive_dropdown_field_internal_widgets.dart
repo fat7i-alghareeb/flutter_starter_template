@@ -100,7 +100,7 @@ class _DropdownValueText extends StatelessWidget {
     return Text(
       hasText ? text : (hintText ?? ''),
       style: hasText ? textStyle : (hintStyle ?? textStyle),
-      maxLines: 1,
+      maxLines: hasText ? 1 : 10, // Allow hint/error to wrap if needed
       overflow: TextOverflow.ellipsis,
     );
   }
@@ -114,6 +114,7 @@ class _DropdownPicker<T> extends StatefulWidget {
     required this.optionsTextStyle,
     required this.onSelect,
     this.onSelectDisabled,
+    this.isRefreshing = false,
   });
 
   final List<AppDropdownOption<T>> options;
@@ -122,6 +123,7 @@ class _DropdownPicker<T> extends StatefulWidget {
   final TextStyle? optionsTextStyle;
   final ValueChanged<AppDropdownOption<T>> onSelect;
   final ValueChanged<AppDropdownOption<T>>? onSelectDisabled;
+  final bool isRefreshing;
 
   @override
   State<_DropdownPicker<T>> createState() => _DropdownPickerState<T>();
@@ -158,6 +160,11 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        if (widget.isRefreshing)
+          Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
+            child: const LinearProgressIndicator(minHeight: 2),
+          ),
         if (widget.enableSearch)
           Padding(
             padding: EdgeInsets.only(bottom: AppSpacing.md.h),
