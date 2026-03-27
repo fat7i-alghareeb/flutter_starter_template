@@ -217,6 +217,6 @@ class NotificationLocalService {
 }
 
 int _generateNotificationId() {
-  final now = DateTime.now().microsecondsSinceEpoch;
-  return now ^ Random(now).nextInt(1 << 31);
+  // Ensure the ID fits within a 32-bit integer to avoid ArgumentError on Android
+  return Random().nextInt(2147483647);
 }

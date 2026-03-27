@@ -1,211 +1,232 @@
-# `common/` Folder Guide
+# `common/` Folder Guide: Technical Encyclopedia
 
-## Main idea / responsibility
+This document provides a granular, file-by-file breakdown of every shared component in the library. Use this to understand the internal logic and specific API of each utility.
 
-`common/` contains **shared presentation-layer code** that is reused across multiple features.
+---
 
-This typically includes:
+## 🏗️ 1. `imports/` (The Connectivity Layer)
 
-- Reusable UI widgets (buttons, dialogs, scaffolds, form fields)
-- Shared UI primitives (icon sources, loading widgets, empty/failed states)
-- Import “barrels” that reduce repetitive imports
+### `imports.dart`
 
-## What `common/` currently contains
+- **Path**: `lib/common/imports/imports.dart`
+- **Responsibility**: The project's main "barrel" export.
+- **Details**: Consolidates essential third-party packages (e.g., `flutter_screenutil`, `get_it`, `reactive_forms`) and our internal utility extensions (`theme_extensions.dart`, `app_spacing.dart`).
+- **Usage**: Should be imported by at least 90% of feature files to avoid long import blocks.
 
-### `imports/`
+---
 
-- **`imports.dart`**
-  - **Now**: A barrel file that re-exports frequently used Flutter/Dart packages and app-wide utilities/widgets.
-  - **Future**:
-    - Add more curated exports as the design system grows.
-    - Potentially split into multiple barrels (e.g., `imports_ui.dart`, `imports_domain.dart`) if it becomes too broad.
+## 🎨 2. `widgets/` (The Core UI Library)
 
-### `widgets/`
+### `app_affixes.dart`
 
-This is the main library of reusable UI widgets.
+- **Path**: `lib/common/widgets/app_affixes.dart`
+- **Responsibility**: Standardizing input decorations.
+- **Details**: Exports `AppTextFieldAffix` which handles the layout for prefix items (icons, labels) and suffix items (clear buttons, visibility toggles) with a standardized 20% alpha on colors.
 
-#### Top-level widget files
+### `app_bottom_sheet.dart`
 
-- **`app_affixes.dart`**
-  - **Now**: Shared “affix” UI pieces (typically prefix/suffix content used inside inputs/components).
-  - **Future**: More standardized affixes (clear buttons, counters, badges, status icons).
+- **Path**: `lib/common/widgets/app_bottom_sheet.dart`
+- **Responsibility**: Global entrance for modal overlays.
+- **Details**: Provides the `AppBottomSheet` class which wraps `showModalBottomSheet`. It manages height constraints, glassy blurs, and ensures the drag-handle is consistently styled with `context.grey`.
 
-- **`app_bottom_sheet.dart`**
-  - **Now**: A reusable bottom-sheet API (wrapping modal sheets with consistent styling/behavior).
-  - **Future**: Additional variants (full-screen sheets, nested navigation, advanced header layouts).
+### `app_dialog.dart`
 
-- **`app_dialog.dart`**
-  - **Now**: A standardized dialog widget API for consistent dialogs across the app.
-  - **Future**: More dialog types (confirmation, destructive, multi-step, custom animations).
+- **Path**: `lib/common/widgets/app_dialog.dart`
+- **Responsibility**: Standardized alert logic.
+- **Details**: Exports the `AppDialog` widget. It enforces a maximum width to prevent layout stretching on tablets and uses `AppRadii.lg` with a glassy background for a premium feel.
 
-- **`app_icon_source.dart`**
-  - **Now**: A unified way to represent icons (material icon / svg / asset) to keep widgets flexible.
-  - **Future**: Add support for remote icons, theming variants, caching, and accessibility metadata.
+### `app_icon_source.dart`
 
-- **`app_image_viewer.dart`**
-  - **Now**: Common image viewing widget(s) with app styling.
-  - **Future**: Support galleries, zoom/gestures, placeholders, error fallbacks, and caching integration.
+- **Path**: `lib/common/widgets/app_icon_source.dart`
+- **Responsibility**: Unified icon type system.
+- **Details**: Defines the `IconSource` class and `IconSourceWidget`. It allows passing `IconData`, SVG paths, or Asset paths as a single object, resolving them correctly at render time.
 
-- **`app_shimmer.dart`**
-  - **Now**: Shimmer loading presentation widget.
-  - **Future**: More shimmer presets (list, card, avatar), and performance tuning options.
+### `app_image_viewer.dart`
 
-- **`empty_state_widget.dart`**
-  - **Now**: A reusable empty-state widget for “no data” UIs.
-  - **Future**: More templates and actions (CTA button support, illustrations).
+- **Path**: `lib/common/widgets/app_image_viewer.dart`
+- **Responsibility**: High-performance image loading.
+- **Details**: Uses `CachedNetworkImage` internally and handles placeholders (`AppShimmer`) and fallback icons when an image fails to load.
 
-- **`failed_state_widget.dart`**
-  - **Now**: A reusable error/failed-state widget for “something went wrong” UIs.
-  - **Future**: Recovery presets (retry strategies), error reporting links, and contextual messaging.
+### `app_shimmer.dart`
 
-- **`full_screen_image_screen.dart`**
-  - **Now**: A shared full-screen image screen.
-  - **Future**: Add hero transitions, image carousels, and share/download actions.
+- **Path**: `lib/common/widgets/app_shimmer.dart`
+- **Responsibility**: Skeleton loading effect.
+- **Details**: A flexible `AppShimmer` widget that creates a moving linear gradient. It can be shaped as a circle or rectangle to mimic different UI components during loading.
 
-- **`loading_dots.dart`**
-  - **Now**: A small animated loading indicator.
-  - **Future**: More loading indicator styles and size/color presets.
+### `empty_state_widget.dart`
 
-- **`main_loading_progress.dart`**
-  - **Now**: A main progress/loading widget for blocking states.
-  - **Future**: Variants for overlay loading, skeleton-first loading, and branded animations.
+- **Path**: `lib/common/widgets/empty_state_widget.dart`
+- **Responsibility**: Informative UI for no-data scenarios.
+- **Details**: Exports `EmptyStateWidget`. Includes parameters for an icon, title, description, and an optional "Action" button.
 
-- **`show_error_overlay.dart`**
-  - **Now**: Toast-like overlay banners (success/error/loading/custom) with a glassy blur effect.
-  - **Future**: Add richer templates (actions, stacking rules, and accessibility presets).
+### `failed_state_widget.dart`
 
-#### `widgets/button/`
+- **Path**: `lib/common/widgets/failed_state_widget.dart`
+- **Responsibility**: User-friendly error recovery.
+- **Details**: Displays a centered error icon and message. Automatically includes a "Retry" button that connects to the parent's refresh logic.
 
-- **`app_button.dart`**
-  - **Now**: The primary reusable button widget with consistent behavior and styling.
-  - **Now**: Supports `onTapWhenInactive` for handling taps when `isActive` is false (without affecting normal `onTap`).
-  - **Future**: Add more presets (icon-only tool buttons, segmented buttons), and enhanced accessibility.
+### `full_screen_image_screen.dart`
 
-- **`app_button_child.dart`**
-  - **Now**: Abstractions for button content (label, icon, label+icon, etc.).
-  - **Future**: Richer children (badges, async progress, multi-line labels).
+- **Path**: `lib/common/widgets/full_screen_image_screen.dart`
+- **Responsibility**: Full-screen image inspection.
+- **Details**: A specialized screen that uses a `Hero` transition and a zoom-able image area for high-res viewing.
 
-- **`app_button_variants.dart`**
-  - **Now**: Button variants/fills/layout configuration and style resolution.
-  - **Future**: More theme-driven customization and additional brand variants.
+### `loading_dots.dart`
 
-#### `widgets/custom_scaffold/`
+- **Path**: `lib/common/widgets/loading_dots.dart`
+- **Responsibility**: Small inline loading feedback.
+- **Details**: An animated Row of three dots. Frequently used inside buttons during asynchronous submissions.
 
-- **`app_scaffold.dart`**
-  - **Now**: A reusable scaffold wrapper that standardizes app screen layout.
-  - **Future**: Add more configuration knobs (safe-area policies, background patterns, per-screen transitions).
+### `main_loading_progress.dart`
 
-- **`app_scaffold_app_bar.dart`**
-  - **Now**: App-wide app bar implementation used by `AppScaffold`.
-  - **Future**: More app bar variants (search mode, segmented titles, collapsing behavior).
+- **Path**: `lib/common/widgets/main_loading_progress.dart`
+- **Responsibility**: Primary progress indicator.
+- **Details**: A standard `CircularProgressIndicator` sized and colored to match the theme's primary accent.
 
-- **`app_scaffold_drawer.dart`**
-  - **Now**: Drawer widget integration for `AppScaffold`.
-  - **Future**: Multi-section navigation, dynamic menu, role-based entries.
+### `show_overlay.dart`
 
-- **`app_scaffold_search.dart`**
-  - **Now**: Search UI integration used by scaffold variants.
-  - **Future**: Advanced filtering UI, debounced search patterns, and search analytics hooks.
+- **Path**: `lib/common/widgets/show_overlay.dart`
+- **Responsibility**: Transient glassy notifications.
+- **Details**: The main API for toast-like feedback.
+  - `showSuccessOverlay(...)`: Standard success toast.
+  - `showErrorOverlay(...)`: Standard error toast.
+  - `showLoadingOverlay(...)`: Persistent loading toast.
+  - This file also manages the `OverlayEntry` stack to prevent overlay collision.
 
-- **`app_scaffold_tap_area.dart`**
-  - **Now**: Standardized tap area widget for consistent hit targets.
-  - **Future**: Richer semantics helpers and interaction feedback presets.
+---
 
-- **`app_scaffold_types.dart`**
-  - **Now**: Type definitions or shared scaffold contracts (currently empty, reserved).
-  - **Future**: Central place for scaffold enums, interfaces, and shared config models.
+## 🔘 3. `widgets/button/` (The Interaction System)
 
-- **`app_scaffold_variants.dart`**
-  - **Now**: Definitions for scaffold variants and presets.
-  - **Future**: Additional screen templates (wizard, tabbed, master-detail).
+### `app_button.dart`
 
-#### `widgets/form/`
+- **Path**: `lib/common/widgets/button/app_button.dart`
+- **Responsibility**: The project's "Workhorse" button.
+- **Details**: Implements `onTapWhenInactive` (allows clicking the button when disabled to trigger a validation toast) and `isLoading` (swaps text for dots).
 
-- **`app_reactive_text_field.dart`**
-  - **Now**: Reactive text field with app styling and validation behavior.
-  - **Future**: More input modes (OTP, currency), and richer formatting/masking support.
+### `app_button_child.dart`
 
-- **`app_reactive_text_field_internal_widgets.dart`**
-  - **Now**: Internal building blocks used by the reactive text field.
-  - **Future**: Extract reusable internal pieces into standalone widgets if needed.
+- **Path**: `lib/common/widgets/button/app_button_child.dart`
+- **Responsibility**: Atomic layout for button content.
+- **Details**: Handles the alignment and icon-text spacing logic within the `AppButton`.
 
-- **`app_reactive_text_field_mixins.dart`**
-  - **Now**: Mixins/helpers shared by reactive text field implementations.
-  - **Future**: Additional shared logic for new form field families.
+### `app_button_variants.dart`
 
-- **`app_reactive_text_field_phone.dart`**
-  - **Now**: Phone-specific reactive input behavior.
-  - **Future**: Country picker integration, stronger validation, and formatting strategies.
+- **Path**: `lib/common/widgets/button/app_button_variants.dart`
+- **Responsibility**: Style and color orchestration.
+- **Details**: Defines the `AppButtonVariant` enum and its associated theme colors, gradients, and elevation settings.
 
-- **`app_reactive_text_field_state.dart`**
-  - **Now**: State management/state helpers for the reactive text field.
-  - **Future**: Broader shared state patterns for complex form components.
+---
 
-- **`app_reactive_text_field_variants.dart`**
-  - **Now**: Configuration/variants for reactive text fields.
-  - **Future**: Expandable variant system aligned with design tokens.
+## 🏛️ 4. `widgets/custom_scaffold/` (The Application Shell)
 
-- **`app_reactive_validation_messages.dart`**
-  - **Now**: Centralized validation messages mapping.
-  - **Future**: Localization integration and app-specific validation rules.
+### `app_scaffold.dart`
 
-##### `widgets/form/date_time_field/`
+- **Path**: `lib/common/widgets/custom_scaffold/app_scaffold.dart`
+- **Responsibility**: Orchestrating the screen UI.
+- **Details**: Provides the root layout. It manages safe areas, the persistent search bar, and ensures the `EndDrawer` is accessible across all screens.
 
-- **`app_reactive_date_time.md`**
-  - **Now**: Documentation for the date/time field behavior and usage.
-  - **Future**: Expand with examples, edge cases, and integration guidance.
+### `app_scaffold_app_bar.dart`
 
-- **`app_reactive_date_time_field.dart`**
-  - **Now**: Date/time reactive field public widget API.
-  - **Future**: More variants (timezone selection, presets like “next business day”).
+- **Path**: `lib/common/widgets/custom_scaffold/app_scaffold_app_bar.dart`
+- **Responsibility**: Premium navigation header.
+- **Details**: Implements a glassy app bar with support for sub-titles, back buttons, and custom leading/trailing widgets.
 
-- **`app_reactive_date_time_field_internal_widgets.dart`**
-  - **Now**: Internal widgets used by the date/time field.
-  - **Future**: Extract reusable pickers into separate components.
+### `app_scaffold_drawer.dart`
 
-- **`app_reactive_date_time_field_pickers_mixin.dart`**
-  - **Now**: Picker orchestration logic.
-  - **Future**: Add more picker strategies and platform-specific behavior.
+- **Path**: `lib/common/widgets/custom_scaffold/app_scaffold_drawer.dart`
+- **Responsibility**: Side navigation menu.
+- **Details**: Builds the side-menu interface, integrating it with the app's global navigation routes and user profile logic.
 
-- **`app_reactive_date_time_field_state.dart`**
-  - **Now**: State layer for date/time field interaction.
-  - **Future**: Better caching and derived state for complex range inputs.
+### `app_scaffold_search.dart`
 
-- **`app_reactive_date_time_field_value_mixin.dart`**
-  - **Now**: Value parsing/formatting helpers.
-  - **Future**: Stronger type support and formatting configuration.
+- **Path**: `lib/common/widgets/custom_scaffold/app_scaffold_search.dart`
+- **Responsibility**: Global search overlay.
+- **Details**: Handles the UI and animation for searching within the scaffold. It provides debounced callbacks for real-time filtering.
 
-- **`app_reactive_date_time_field_variants.dart`**
-  - **Now**: Variants/config models.
-  - **Future**: Extended variant set aligned with app UX rules.
+### `app_scaffold_tap_area.dart`
 
-##### `widgets/form/dropdown_field/`
+- **Path**: `lib/common/widgets/custom_scaffold/app_scaffold_tap_area.dart`
+- **Responsibility**: Global click management.
+- **Details**: A special `GestureDetector` wrapper that automatically removes focus from any input when the user taps on non-interactive areas of the scaffold.
 
-- **`app_reactive_dropdown_field.dart`**
-  - **Now**: Dropdown reactive field public widget API.
-  - **Future**: Searchable dropdowns, async data sources, and pagination.
+### `app_scaffold_types.dart` & `app_scaffold_variants.dart`
 
-- **`app_reactive_dropdown_field_internal_widgets.dart`**
-  - **Now**: Internal dropdown rendering widgets.
-  - **Future**: More presentation styles (chips, multi-select).
+- **Path**: `lib/common/widgets/custom_scaffold/...`
+- **Responsibility**: Strategy and Configuration.
+- **Details**: Defines the various modes (e.g., `Standard`, `NoAppBar`, `SearchOnly`) and their respective visual configurations.
 
-- **`app_reactive_dropdown_field_state.dart`**
-  - **Now**: Dropdown state and interaction orchestration.
-  - **Future**: Better selection logic, keyboard navigation, and accessibility.
+---
 
-- **`app_reactive_dropdown_field_types.dart`**
-  - **Now**: Types/models used by the dropdown field.
-  - **Future**: More option representations (grouped options, remote options).
+## 📝 5. `widgets/form/` (Reactive Input Platform)
 
-#### `widgets/stage_tools/`
+### `app_form_field_defaults.dart`
 
-- **`stage_tools_overlay.dart`**
-  - **Now**: A developer/staging overlay for in-app tools (debug helpers, toggles, etc.).
-  - **Future**: Expand with diagnostics panels, network inspector hooks, and feature flag UI.
+- **Path**: `lib/common/widgets/form/app_form_field_defaults.dart`
+- **Responsibility**: **Central Visual Authority**.
+- **Details**: Static class providing all metric constants (padding, border radius, stroke width) and theme-colored decorations used by both text inputs and pickers.
 
-## What could be added to `common/` in the future
+### `app_reactive_text_field.dart`
 
-- More reusable UI components (cards, list tiles, chips, avatars)
-- Animation primitives and standard transitions
-- More form field types (multi-select, file picker, sliders)
-- Unified error/empty/loading UX presets for consistency across features
+- **Path**: `lib/common/widgets/form/app_reactive_text_field.dart`
+- **Responsibility**: Standardized reactive input.
+- **Details**: The main text input widget. It provides built-in support for localized validation messages, character counters, and suffix clear buttons.
+
+### `app_reactive_text_field_internal_widgets.dart`
+
+- **Path**: `lib/common/widgets/form/app_reactive_text_field_internal_widgets.dart`
+- **Responsibility**: Private UI logic.
+- **Details**: Contains internal layout pieces for labels and error messages that are not meant for external use.
+
+### `app_reactive_text_field_mixins.dart`
+
+- **Path**: `lib/common/widgets/form/app_reactive_text_field_mixins.dart`
+- **Responsibility**: Shared form logic.
+- **Details**: Defines the `ReactiveTextFieldMixin` which provides core focus and validation behaviors shared across multiple input types.
+
+### `app_reactive_text_field_phone.dart`
+
+- **Path**: `lib/common/widgets/form/app_reactive_text_field_phone.dart`
+- **Responsibility**: Mobile number handler.
+- **Details**: A customized input with a persistent country-prefix and numerical masking.
+
+### `app_reactive_text_field_state.dart` & `app_reactive_text_field_variants.dart`
+
+- **Path**: `lib/common/widgets/form/...`
+- **Responsibility**: Interaction configuration.
+- **Details**: Manages localized states (Loading, Error, Neutral) and visual variants (Filled, Outlined, Underlined) for text fields.
+
+### `app_reactive_validation_messages.dart`
+
+- **Path**: `lib/common/widgets/form/app_reactive_validation_messages.dart`
+- **Responsibility**: Localized error strings.
+- **Details**: A static mapping of `ValidationMessages` keys to their localized `AppStrings` values.
+
+### 🏗️ 5a. `date_time_field/` (Detailed Sub-Library)
+
+- **`app_reactive_date_time_field.dart`**: The main public widget for date/time selection.
+- **`app_reactive_date_time_field_internal_widgets.dart`**: Custom picker dialogs and day-selection grids.
+- **`app_reactive_date_time_field_pickers_mixin.dart`**: Logic for triggering system pickers vs custom glassy pickers.
+- **`app_reactive_date_time_field_state.dart`**: Live state for date selection ranges and formatting.
+- **`app_reactive_date_time_field_value_mixin.dart`**: Utility for parsing raw `DateTime` objects into localized string formats.
+- **`app_reactive_date_time_field_variants.dart`**: Visual modes (Date only, Time only, Range).
+
+### 🏗️ 5b. `dropdown_field/` (Detailed Sub-Library)
+
+- **`app_reactive_dropdown_field.dart`**: Public widget for reactive selection from a list.
+- **`app_reactive_dropdown_field_internal_widgets.dart`**: Custom scrollable menu logic with glassy backgrounds.
+- **`app_reactive_dropdown_field_state.dart`**: Manages the open/closed state of the menu and the current selection index.
+- **`app_reactive_dropdown_field_types.dart`**: Data models for dropdown choices (Label/Value pairs).
+
+---
+
+## 🛠️ 6. `widgets/stage_tools/`
+
+### `stage_tools_overlay.dart`
+
+- **Path**: `lib/common/widgets/stage_tools/stage_tools_overlay.dart`
+- **Responsibility**: In-app development suite.
+- **Details**: An overlay that provides a "performance hud", feature flag toggles, and environment switcher (Prod vs Staging). Only active in Non-Release builds.
+
+---
+
+_For help with styling, spacing, or colors, always consult `lib/utils/constants/`._

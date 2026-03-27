@@ -19,6 +19,10 @@ class AppColors {
   static const Color backGroundLight = Color(0xFFF9FAFB);
   static const Color backGroundDark = Color(0xFF111827);
 
+  /// backGround Color
+  static const Color surfaceLight = Color(0xFFF9FAFB);
+  static const Color surfaceDark = Color(0xFF111827);
+
   static const Color greyLight = Color(0xFFD1D5DB);
   static const Color greyDark = Color(0xFF374151);
 

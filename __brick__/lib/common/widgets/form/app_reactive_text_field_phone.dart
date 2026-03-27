@@ -123,6 +123,7 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
     required TextStyle textStyle,
     required String invalidPhoneText,
     required double? fieldHeight,
+    required TextDirection direction,
   }) {
     final isoCode = _phoneIsoCode ??= _defaultIsoCode(context);
 
@@ -153,10 +154,14 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
             ? PhoneNumber(isoCode: isoCode, phoneNumber: e164)
             : PhoneNumber(isoCode: isoCode);
 
-        return SizedBox(
-          height: fieldHeight,
-          child: Align(
-            alignment: Alignment.centerLeft,
+        return Directionality(
+          textDirection: direction,
+          child: SizedBox(
+            height: fieldHeight,
+            child: Align(
+              alignment: direction == TextDirection.ltr
+                  ? Alignment.centerLeft
+                  : Alignment.centerRight,
             child: InternationalPhoneNumberInput(
               key: ValueKey<String>('${widget.formControlName}_phone'),
               isEnabled: widget.enabled,
@@ -398,8 +403,9 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
               },
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 }

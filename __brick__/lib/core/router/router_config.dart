@@ -28,7 +28,7 @@ class RouterRefreshListenable extends ChangeNotifier {
   }) {
     // * Listen to all reactive sources that affect routing.
     authState.addListener(_onSourceChanged);
-    // onboardingService.addListener(_onSourceChanged);
+    onboardingService.addListener(_onSourceChanged);
 
     // * Ensure the splash is visible for at least [SplashConfig.initialDelay]
     //   even if auth/onboarding resolve instantly.
@@ -53,7 +53,7 @@ class RouterRefreshListenable extends ChangeNotifier {
   @override
   void dispose() {
     authState.removeListener(_onSourceChanged);
-    // onboardingService.removeListener(_onSourceChanged);
+    onboardingService.removeListener(_onSourceChanged);
     super.dispose();
   }
 }
@@ -177,12 +177,6 @@ class AppRouteGuard {
     final onboardingRedirect = await _handleOnboarding(currentPath);
     if (onboardingRedirect != null) return onboardingRedirect;
 
-    // allow auth redirects to push the user to login.
-    if (AppFlowConfig.onboardingEnabled && currentPath == onboardingPath) {
-      final finished = await onboardingService.isOnboardingFinished();
-      if (!finished) return null;
-    }
-
     // 3) Auth.
     final authRedirect = _handleAuth(
       currentPath: currentPath,
@@ -220,9 +214,8 @@ class AppRouteGuard {
       return null;
     }
 
-    if (currentPath == onboardingPath) {
-      printC('${RouterLogTags.redirect} onboarding finished → resolve next');
-    }
+    // Onboarding is finished but user is still on the onboarding page.
+    // Fall through to auth redirects so the router moves them forward.
     return null;
   }
 
