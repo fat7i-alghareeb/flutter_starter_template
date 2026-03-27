@@ -37,8 +37,55 @@ Dio createDioClient({
   required AuthManager authManager,
   required JwtTokenStorage tokenStorage,
 }) {
-  final baseUrl = ApiConfig.baseUrl;
+  return _initDio(
+    baseUrl: ApiConfig.baseUrl,
+    memoryAwareInterceptor: memoryAwareInterceptor,
+    localizationInterceptor: localizationInterceptor,
+    errorInterceptor: errorInterceptor,
+    logInterceptor: logInterceptor,
+    authManager: authManager,
+    tokenStorage: tokenStorage,
+    useRefresh: true,
+  );
+}
 
+/// Builds a [Dio] instance without automatic token refresh.
+///
+/// It still attaches the cached JWT token if it exists, but will not attempt
+/// to refresh it if it expires or if a 401 is received.
+///
+/// Unlike [createDioClient], this function requires a [baseUrl] to be passed
+/// explicitly.
+Dio createSimpleDioClient({
+  required String baseUrl,
+  required MemoryAwareInterceptor memoryAwareInterceptor,
+  required LocalizationInterceptor localizationInterceptor,
+  required ErrorInterceptor errorInterceptor,
+  required CustomDioInterceptor logInterceptor,
+  required JwtTokenStorage tokenStorage,
+}) {
+  return _initDio(
+    baseUrl: baseUrl,
+    memoryAwareInterceptor: memoryAwareInterceptor,
+    localizationInterceptor: localizationInterceptor,
+    errorInterceptor: errorInterceptor,
+    logInterceptor: logInterceptor,
+    tokenStorage: tokenStorage,
+    useRefresh: false,
+  );
+}
+
+/// Internal helper to assemble the [Dio] pipeline.
+Dio _initDio({
+  required String baseUrl,
+  required MemoryAwareInterceptor memoryAwareInterceptor,
+  required LocalizationInterceptor localizationInterceptor,
+  required ErrorInterceptor errorInterceptor,
+  required CustomDioInterceptor logInterceptor,
+  required JwtTokenStorage tokenStorage,
+  AuthManager? authManager,
+  required bool useRefresh,
+}) {
   final options = BaseOptions(
     baseUrl: baseUrl,
     connectTimeout: const Duration(seconds: 30),
@@ -57,22 +104,26 @@ Dio createDioClient({
   //! 1) Memory guard – always first
   dio.interceptors.add(memoryAwareInterceptor);
 
-  //! 2) JWT flow
-  _configureJwtFlow(
-    dio: dio,
-    authManager: authManager,
-    tokenStorage: tokenStorage,
-    logInterceptor: logInterceptor,
-  );
+  //! 2) Auth flow
+  if (useRefresh && authManager != null) {
+    _configureJwtFlow(
+      dio: dio,
+      authManager: authManager,
+      tokenStorage: tokenStorage,
+      logInterceptor: logInterceptor,
+    );
+  } else {
+    _configureTokenOnlyFlow(dio: dio, tokenStorage: tokenStorage);
+  }
 
-  //! 3) Cross-cutting interceptors (order matters)
+  //! 3) Cross-cutting interceptors
   dio.interceptors.addAll(<Interceptor>[
     localizationInterceptor,
     if (kDebugMode) logInterceptor,
     errorInterceptor,
   ]);
 
-  printC('[DioClient] Created Dio (JWT enabled), baseUrl: $baseUrl');
+  printC('[DioClient] Created Dio (refresh=$useRefresh), baseUrl: $baseUrl');
 
   return dio;
 }
@@ -148,7 +199,6 @@ void _configureJwtFlow({
         authManager.logout();
         return null;
       },
-      // Actual refresh call.
       refreshToken: (token, tokenDio) async {
         try {
           printC('[DioClient] Attempting token refresh');
@@ -195,6 +245,25 @@ void _configureJwtFlow({
           await authManager.logout();
           throw Exception('Token refresh failed: $e');
         }
+      },
+    ),
+  );
+}
+
+/// Attaches the Authorization header if a token exists, but does not refresh.
+void _configureTokenOnlyFlow({
+  required Dio dio,
+  required JwtTokenStorage tokenStorage,
+}) {
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final token = tokenStorage.read();
+        final raw = token?.accessToken;
+        if (raw != null && raw.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer $raw';
+        }
+        return handler.next(options);
       },
     ),
   );
