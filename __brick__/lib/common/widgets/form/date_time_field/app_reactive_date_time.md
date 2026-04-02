@@ -1,8 +1,15 @@
-# AppReactiveDateTimeField
+# 📅 Reactive DateTime Widget Guide (`lib/common/widgets/form/date_time_field/`)
 
-This folder contains `AppReactiveDateTimeField`, a high-performance reactive form field for selecting date/time values.
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
 
-## Storage types (important)
+This document is a **Hard Requirement** for any AI agent interacting with date/time pickers. You **MUST** ensure your internal state is synced with the following formatting anchors:
+
+- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
+- **DateTime Extensions**: [lib/utils/extensions/date_time_extensions.dart](lib/utils/extensions/date_time_extensions.dart)
+
+Failure to use the `.toLatinDigits()` normalization for displayed dates is a protocol violation.
+
+---
 
 `AppReactiveDateTimeField` infers the **control value type** from the `formControlName` at runtime.
 
@@ -21,7 +28,7 @@ Supported storage:
   - Stores a JSON string:
 
     ```json
-    {"from":"<iso>","to":"<iso>"}
+    { "from": "<iso>", "to": "<iso>" }
     ```
 
 If you use a different control type, the field will not be able to read/write values.
@@ -192,13 +199,13 @@ Examples:
 
 You have 2 options:
 
-1) **Inline** (recommended for one-off cases)
+1. **Inline** (recommended for one-off cases)
 
 ```dart
 formatter: (dt, {locale = 'en_US'}) => dt.formatDateTime('EEE, dd MMM', locale: locale)
 ```
 
-1) **Add a new DateTime extension** (recommended if reused)
+1. **Add a new DateTime extension** (recommended if reused)
 
 Add a method to `DateTimeFormattingExtensions` in `date_time_extensions.dart` and call it from your field `formatter`.
 
