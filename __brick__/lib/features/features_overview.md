@@ -1,4 +1,16 @@
-# `features/` Architecture & Implementation Guide
+# 🏗️ Features & State Architecture (`lib/features/`)
+
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+
+This document is a **Hard Requirement** for any AI agent interacting with feature logic, UI, or state management. You **MUST** ensure your internal state is synced with the following dependencies:
+
+- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
+- **Shared UI Blocks**: [lib/common/common_folder_guide.md](lib/common/common_folder_guide.md)
+- **Data Standards**: [lib/core/core_architecture_overview.md](lib/core/core_architecture_overview.md)
+
+Failure to follow the Hierarchical UI Decomposition (Screens -> Sections -> Widgets) or Clean Architecture Data Standards is a protocol violation.
+
+---
 
 This document defines the standardized architecture for all product features. Every new feature module must strictly adhere to this structure to ensure consistency, scalability, and predictable dependency flow across the Alsultan platform.
 
@@ -112,7 +124,7 @@ Each feature is organized into three primary layers following Clean Architecture
 
 ### 1. `constants/` (Static Domain)
 
-- Contains `forms/` (`FormGroup` helpers) and localized UI constants.
+- Contains `forms/`: Form definitions MUST use an `abstract class` with `static` constants for field names and a `static` method/variable for the `FormGroup`.
 
 ### 2. `data/` (Implementation)
 
@@ -162,6 +174,50 @@ To ensure maximum scalability and code clarity, all UI implementation must follo
 - **Atomic Widgets**: Each section should be composed of multiple smaller, focused **Widgets**.
 - **File Isolation**: Every single widget and section MUST be placed in its own **separate file**. In-line widget declarations within larger files are not permitted.
 - **Component Reusability**: All standard UI building blocks (spacers, buttons, typography) must be sourced from the global `DesignSystem` and never duplicated locally.
+
+### 🏛️ Hierarchical UI Decomposition (STRICT)
+
+To ensure maximum scalability and avoid massive build methods, all UI MUST follow this 3-tier hierarchy:
+
+1. **Screens**: Top-level entry points (in `ui/screens/`). Responsibilities:
+   - Handle routing arguments.
+   - Provide `BlocProvider` if needed.
+   - Wrap the body in `AppScaffold`.
+2. **Sections**: Logical blocks of the screen (in `ui/widgets/`). Responsibilities:
+   - Orchestrate multiple atomic widgets.
+   - Handle section-specific layout (e.g., a `Column` with specific spacing).
+   - Example: `SellGoldTotalsSection`.
+3. **Atomic Widgets**: The smallest reusable units (in `ui/widgets/`). Responsibilities:
+   - Render a single specific piece of data or an interactive element.
+   - Should be specialized for the feature but follow `DesignSystem` tokens.
+
+**RULE**: Every section and non-trivial widget **MUST** reside in its own separate file. Inlining is a protocol violation.
+
+### 🗺️ Typed Navigation Protocol
+
+Typed data passing is mandatory to prevent runtime errors and "string-ly typed" navigation.
+
+1. **Arguments Classes**: Every screen that receives data **MUST** have a corresponding `ScreenArguments` or `ScreenParam` class defined in the same file as the screen.
+2. **GoRouter `extra`**: Use the `extra` parameter in `GoRouter` to pass the typed argument object.
+3. **Explicit Casting**: The destination screen **MUST** cast the `extra` object back to the expected type.
+
+### 🧪 Clean Architecture Data Standards
+
+The separation between Domain and Data layers must be absolute.
+
+1. **Entities (Domain)**: Pure business objects. No JSON annotations, no API-specific fields.
+2. **Models/DTOs (Data)**: API-specific objects. Must include `fromJson` and `toJson`.
+3. **Request Modeling**: Every API call **MUST** have a dedicated `RequestModel` (e.g., `UpdateProfileRequest`) instead of passing raw Maps or multiple primitives.
+4. **Mappers**: You **MUST** implement mapper logic (often as `toEntity()` on the Model or a dedicated `Mapper` class) to convert between Data and Domain layers. Models must **NEVER** leak into the Domain or Presentation layers.
+
+**Gold Standard Feature Pattern**
+
+- `constants/forms/`: `abstract class` with static `FormGroup`.
+- `data/models/`: `xxx_model.dart` with `toJson`.
+- `domain/entities/`: `xxx_entity.dart` (clean).
+- `domain/facade/`: Orchestrates repository calls into business results.
+- `presentation/ui/screens/`: Scaffolding and routing.
+- `presentation/ui/widgets/`: Separated sections and widgets.
 
 ---
 

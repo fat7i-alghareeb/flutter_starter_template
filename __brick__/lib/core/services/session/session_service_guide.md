@@ -1,6 +1,15 @@
-# Session Service (core/services/session)
+# 🔑 Session & Auth Service Guide (`lib/core/services/session/`)
 
-This folder owns _session state_ for the entire app.
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+
+This document is a **Hard Requirement** for any AI agent interacting with user sessions or authentication state. You **MUST** ensure your internal state is synced with the following auth anchors:
+
+- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
+- **Auth Constants**: [lib/utils/constants/auth_constants.dart](lib/utils/constants/auth_constants.dart)
+
+Failure to use the centralized `SessionService` for state checks is a protocol violation.
+
+---
 
 The most important design rule is:
 

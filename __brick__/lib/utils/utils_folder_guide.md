@@ -1,117 +1,115 @@
-# `utils/` Folder Guide
+# 🧩 Utilities & Design Tokens Guide (`lib/utils/`)
 
-## Main idea / responsibility
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
 
-`utils/` contains **shared, lightweight helpers** used across the app. It is intentionally generic and typically includes:
+This document is an **Exhaustive Technical Encyclopedia** for the utilities layer. You **MUST** refer to this document before using any constant, extension, or helper in the application.
 
-- App-wide constants
-- Convenience extensions
-- Generated-code wrappers
-- Small helper functions (formatting, printing, input formatters)
+- **Global Protocol**: [.ai/project-rules.md](.ai/project-rules.md)
+- **Hierarchy Protocol**: [lib/features/features_overview.md](lib/features/features_overview.md)
 
-This folder should stay **framework-light** where possible, and avoid feature-specific logic.
+Failure to use the existing tools described here and instead duplicating logic is a protocol violation.
 
-## What `utils/` currently contains
+---
 
-### `constants/`
+## 🏛️ 1. Constants Encyclopedia (`lib/utils/constants/`)
 
-- **`app_flow_constants.dart`**
-  - **Now**: Constants related to app flows or flow-specific settings.
-  - **Future**: Expand with more flow identifiers, deep-link mappings, or onboarding step IDs.
+### `app_flow_constants.dart`
 
-- **`auth_constants.dart`**
-  - **Now**: Authentication-related constants (keys, constraints, etc.).
-  - **Future**: Add more shared auth keys (token keys, header names, error codes).
+Contains global switches and storage keys for application-level flows.
 
-- **`design_constants.dart`**
-  - **Now**: Design tokens/constants (spacing, radii, durations, standardized paddings).
-  - **Future**: Expand with more tokens (elevations, breakpoints, animation curves).
+- **`OnboardingStorageKeys`**: `finished` (tracks if onboarding is done).
+- **`SplashConfig`**: `initialDelay` (4s minimum splash).
+- **`AppFlowConfig`**: `onboardingEnabled`, `authEnabled` (toggle core flows).
+- **`RouterLogTags`**: Standardized tags for routing logs.
 
-- **`localization_constants.dart`**
-  - **Now**: Constants used by localization logic (e.g., keys or defaults).
-  - **Future**: Add more locale metadata, fallback policies, and supported locale lists.
+### `auth_constants.dart` (HARD PATH)
 
-### `extensions/`
+The single source of truth for Authentication infrastructure.
 
-- **`context_extensions.dart`**
-  - **Now**: Convenience extensions on `BuildContext` (commonly theme/colors/sizing helpers).
-  - **Future**: Add safe, well-scoped helpers for common patterns (navigation, media query access).
+- **`AuthStorageKeys`**: `user`, `guestFlag`, `jwtToken`.
+- **`OAuthConstants`**:
+  - `authBaseUrl`: `https://nsyuser.i-myapp.com`
+  - `clientId`: `PostmanLocal`
+  - `scope`: `openid profile offline_access local_app_api`
+- **`AuthLogTags`**: Use these for all `colored_print` calls in the auth layer.
 
-- **`date_time_extensions.dart`**
-  - **Now**: Date/time formatting and manipulation helpers.
-  - **Future**: Expand with timezone-aware helpers and localization-friendly formatting.
+### `design_constants.dart` (DESIGN SYSTEM)
 
-- **`enum_extensions.dart`**
-  - **Now**: Small helpers for enum display/serialization.
-  - **Future**: Add stronger mapping utilities and localization integration.
+Mandatory tokens for layout. No raw `double` literals allowed.
 
-- **`int_extensions.dart`**
-  - **Now**: Integer helpers (commonly formatting, durations, ranges).
-  - **Future**: Add more ergonomic helpers for time/distance formatting.
+- **`AppSpacing`**: `xs(4)`, `sm(8)`, `md(12)`, `lg(16)`, `xl(24)`, `xxl(32)`.
+- **`AppRadii`**: Standard corner rounding tokens. Use `.lg` (16) for cards.
+- **`AppDurations`**: `fast(150ms)`, `normal(250ms)`, `slow(350ms)`.
 
-- **`iterable_extensions.dart`**
-  - **Now**: Convenience methods on lists/iterables.
-  - **Future**: Add safe collection helpers (grouping, stable sorting, distinct-by).
+---
 
-- **`reactive_forms_extensions.dart`**
-  - **Now**: Extensions supporting `reactive_forms` usage patterns.
-  - **Future**: More validation helpers, control accessors, and standardized error mapping.
+## 🧩 2. Extensions Encyclopedia (`lib/utils/extensions/`)
 
-- **`string_extensions.dart`**
-  - **Now**: String helpers (formatting, parsing, validation utilities).
-  - **Future**: Localization-aware formatting and stronger validation presets.
+### `context_extensions.dart`
 
-- **`text_direction_extensions.dart`**
-  - **Now**: Helpers related to RTL/LTR handling.
-  - **Future**: Add layout mirroring helpers and bidi-safe formatting.
+Ergonomic shortcuts for `BuildContext`.
 
-- **`theme_extensions.dart`**
-  - **Now**: Theme-related convenience accessors (e.g., gradients/shadows via context).
-  - **Future**: Expand with more theme effect helpers and safer null-handling strategies.
+- **Theme**: `context.theme`, `context.colorScheme`.
+- **Colors**: `context.primary`, `context.surface`, `context.onSurfaceError`.
+- **Typography**: `context.displayLarge` through `context.bodyMedium`.
 
-- **`widget_extensions.dart`**
-  - **Now**: Widget convenience methods (padding, sizing, tap helpers).
-  - **Future**: Add more composition helpers while keeping readability in check.
+### `date_time_extensions.dart` (MANDATORY FORMATTING)
 
-### `gen/`
+Every date in the UI must use these extensions to ensure Arabic-to-English digit normalization via `toLatinDigits()`.
 
-- **`app_strings.g.dart`**
-  - **Now**: Generated localization strings.
-  - **Future**: Will grow as localization keys increase (keep it generated-only).
+- **Formatting**: `toYmd()`, `toTime24()`, `toTime12Compact()`, `toSmartDateTime()`.
+- **Calendar**: `isToday`, `startOfDay`, `copyWith()`.
+- **Parsing**: `String.toDateTimeOrNull()`.
 
-- **`assets.gen.dart`**
-  - **Now**: Generated asset accessors.
-  - **Future**: Will grow as assets and flavors expand.
+### `string_extensions.dart`
 
-### `helpers/`
+- **Nullable**: `isNullOrEmpty`, `isNullOrBlank`.
+- **Transform**: `capitalizeFirst()`, `capitalizeWords()`, `ellipsis(length)`.
+- **Color**: `toColor()` (Parses hex strings like `#FF0000` to Flutter `Color`).
 
-- **`app_strings.dart`**
-  - **Now**: Small wrapper/helpers around app strings usage.
-  - **Future**: Add convenience APIs for pluralization, interpolation, and fallback behavior.
+### `widget_extensions.dart`
 
-- **`build_svg_icon.dart`**
-  - **Now**: Helper to build SVG icons consistently.
-  - **Future**: Add caching, theming presets, and error fallbacks.
+- **Spacing**: `widget.paddingAll(8.w)`, `widget.paddingOnly(bottom: 12.h)`.
+- **Logic**: `.paddingSymmetric` using `.w` and `.h` responsive tokens.
 
-- **`colored_print.dart`**
-  - **Now**: Colored console logging helper.
-  - **Future**: Add log levels, tags, and integration with a logging service.
+### `reactive_forms_extensions.dart`
 
-- **`device_helper.dart`**
-  - **Now**: Device identifier and device info helpers (Android/iOS) using `device_info_plus` + platform-specific identifiers.
-  - **Future**: Expand with safer fallbacks and explicitly documented privacy considerations.
+- **Access**: `formGroup.valueOf<T>(key)` - The mandatory way to extract values from reactive forms.
 
-- **`input_formatters.dart`**
-  - **Now**: Shared `TextInputFormatter` implementations.
-  - **Future**: Expand with more formatters (currency, phone, OTP, ID formats).
+---
 
-- **`jwt_token_utils.dart`**
-  - **Now**: JWT parsing/inspection utilities.
-  - **Future**: Add safer validation helpers and refresh/expiry convenience methods.
+## 🏗️ 3. Generators Encyclopedia (`lib/utils/gen/`)
 
-## What could be added to `utils/` in the future
+- **`app_strings.g.dart`**: Contains all localized strings. Access via `AppStrings.xxx`.
+- **`assets.gen.dart`**: Type-safe asset access. Use `Assets.images.xxx` or `Assets.icons.xxx`.
 
-- More formatting helpers (numbers, currencies, file sizes)
-- More safe parsing utilities (URI parsing, JSON helpers)
-- A lightweight logging facade (wrapping console + optional remote logging)
-- Shared testing utilities (if you choose to place them in `utils/`)
+---
+
+## 🛠️ 4. Helpers Encyclopedia (`lib/utils/helpers/`)
+
+### `build_svg_icon.dart`
+
+Standard icon builder. Ensures consistent sizing and coloring for SVGs.
+
+### `colored_print.dart` (MANDATORY LOGGING)
+
+Never use `print()` or `debugPrint()` directly. Use the colored variants:
+
+- `printC(msg)`: Cyan (General Info)
+- `printM(msg)`: Magenta (State/Bloc)
+- `printY(msg)`: Yellow (Network/API)
+
+### `input_formatters.dart` (HARD REQUIREMENT)
+
+Mandatory for use in `AppReactiveTextField`.
+
+- **`ArabicToEnglishDigitsFormatter`**: Forces all numeric input to English digits.
+- **`AppNumericTextFormatter`**: Standard numeric mask.
+
+### `jwt_token_utils.dart`
+
+Helper to parse JWT payload without validating signature. Use to check token expiry or basic user fields.
+
+---
+
+_For architectural integration rules, see [.ai/project-rules.md](.ai/project-rules.md)._

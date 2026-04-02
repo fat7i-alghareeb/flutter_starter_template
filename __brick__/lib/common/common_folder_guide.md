@@ -1,8 +1,64 @@
-# `common/` Folder Guide: Technical Encyclopedia
+# 📚 Common UI & Animation Guide (`lib/common/`)
 
-This document provides a granular, file-by-file breakdown of every shared component in the library. Use this to understand the internal logic and specific API of each utility.
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+
+This document is a **Hard Requirement** for any AI agent interacting with shared components or animations. You **MUST** ensure your internal state is synced with the following dependencies:
+
+- **Global Rules**: [.ai/project-rules.md](file:///c:/Users/Fat7i/myProject/Alsultan/alsultan_sy/.ai/project-rules.md)
+- **Animation Constants**: [lib/utils/constants/design_constants.dart](file:///c:/Users/Fat7i/myProject/Alsultan/alsultan_sy/lib/utils/constants/design_constants.dart)
+- **Responsive Sizing**: [lib/core/core_architecture_overview.md](file:///c:/Users/Fat7i/myProject/Alsultan/alsultan_sy/lib/core/core_architecture_overview.md)
+
+Failure to apply the 3-Tier Animation Mandate or Responsive Sizing protocols is a protocol violation.
 
 ---
+
+## 🎬 Animation Mandate (STRICT)
+
+To maintain Alsultan's premium aesthetic, all UI transitions must follow this multi-tier animation protocol.
+
+### Tier 1 `flutter_animate` (Primary Choice)
+
+For 90% of UI effects (fade-ins, slide-ins, scale-up), you **MUST** use the `flutter_animate` package. It provides a declarative, performance-optimized syntax.
+
+- **Rule**: Every screen-level section and major internal widget **MUST** have a staggered entry animation (e.g., `.fadeIn() .slideY()`).
+- **Timing**: Use `200.ms` to `400.ms` for durations. Avoid excessively long animations that hinder user productivity.
+
+### Tier 2 Built-in Flutter Animations (Explicit Fallback)
+
+For simple, state-driven property transitions (e.g., changing a container's color, size, or opacity based on a boolean), use Flutter's implicit animations.
+
+- **Widgets**: `AnimatedContainer`, `AnimatedOpacity`, `AnimatedPadding`.
+- **Criteria**: Use when the animation is a direct result of a simple state toggle and doesn't require complex sequencing.
+
+### Tier 3 `AnimationController` (Advanced/Critical)
+
+For extremely complex, performance-critical, or low-level custom transitions where `flutter_animate` becomes unreadable or inefficient.
+
+- **Constraint**: This is the last resort. You **MUST** document why Tier 1 or 2 was insufficient in the code comments.
+
+---
+
+## 📐 Responsive Sizing Protocols
+
+This project uses `flutter_screenutil` for all layout dimensions. Using raw `double` literals for anything other than `0` is a **FAIL state**.
+
+### The .h / .w / .sp Trinity
+
+1. **.h (Height)**: Use for vertical spacing (`AppSpacing.md.verticalSpace`), fixed-height containers, and anything that must scale vertically relative to the screen height.
+2. **.w (Width)**: Use for horizontal margins, padding, and screen-relative horizontal dimensions.
+3. **.sp (Scalable Pixels)**: Use for **EVERYTHING** related to text (fontSize) and any box that must grow if the user scales their system font (like button heights).
+
+**Standard Padding Example**
+
+```dart
+Padding(
+  padding: EdgeInsets.symmetric(
+    horizontal: AppSpacing.xl.w,
+    vertical: AppSpacing.lg.h,
+  ),
+  child: Text('Hello', style: AppTextStyles.s16w600.copyWith(fontSize: 16.sp)),
+)
+```
 
 ## 🏗️ 1. `imports/` (The Connectivity Layer)
 
