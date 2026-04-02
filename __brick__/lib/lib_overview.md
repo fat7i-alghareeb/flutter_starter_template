@@ -1,58 +1,88 @@
-# `lib/` Overview
+# 🌍 Global Library Overview (`lib/`)
 
-## Why this folder exists
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
 
-`lib/` is the root of the Flutter application’s source code. Everything that ships with the app (UI, state management, infrastructure, routing, theming, and utilities) lives here.
+This document is the **Mandatory First Entry Point** for any AI agent interacting with the Alsultan codebase. It serves as the "Map of the Galaxy" that connects all specialized technical encyclopedias.
 
-The goal is to keep:
+- **Global Protocol**: [.ai/project-rules.md](.ai/project-rules.md)
+- **Hierarchy Protocol**: [lib/features/features_overview.md](lib/features/features_overview.md)
+
+Failure to synchronize your internal state with this map before proceeding to specialized layers is a protocol violation.
+
+---
+
+## 🚀 1. The Bootstrap Sequence (`lib/bootstrap.dart`)
+
+The initialization of the application is a strictly ordered async sequence. AI agents modifying startup logic **MUST** follow this order:
+
+1. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
+2. **Flavor Discovery**: Resolving `F.appFlavor` from the native environment.
+3. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable).
+4. **Localization Core**: `EasyLocalization.ensureInitialized()`.
+5. **Controller Initialization**: `ThemeController.initialize()`.
+6. **Auth & Network Warming**: `AuthManager.initialize()` (Loads JWT and Session state).
+7. **Data Prefetching (Silent)**: Warming up `CurrencyCatalog`, `VaultCatalog`, and `PartiesCatalog` facades.
+8. **Locale Resolution**: `LocaleService.resolveInitialLocale()`.
+9. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
+10. **Flavor Discovery**: Resolving `F.appFlavor` from the native environment.
+11. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable).
+12. **Localization Core**: `EasyLocalization.ensureInitialized()`.
+13. **Controller Initialization**: `ThemeController.initialize()`.
+14. **Auth & Network Warming**: `AuthManager.initialize()` (Loads JWT and Session state).
+15. **Data Prefetching (Silent)**: Warming up `CurrencyCatalog`, `VaultCatalog`, and `PartiesCatalog` facades.
+16. **Locale Resolution**: `LocaleService.resolveInitialLocale()`.
+17. **Guarded Run**: Launching `ScreenUtilInit` and the root `App`.
+
+---
+
+## 🏛️ 2. The Application Root (`lib/app.dart`)
+
+The `App` widget is the root of the Flutter tree. It manages:
 
 - **Feature code** isolated in `features/`.
 - **Cross-cutting foundations** centralized in `core/`.
 - **Reusable UI building blocks** in `common/`.
 - **Shared helpers and extensions** in `utils/`.
+- **Router Configuration**: Integration with `AppRouterConfig`.
+- **Theme Management**: Reactive switching via `ThemeController`.
+- **Global Overlays**: `StageToolsOverlay` and `AnnotatedRegion` for System UI.
+- **Localization**: Passing delegates and active locale to `MaterialApp.router`.
 
-## What `lib/` currently contains
+---
 
-- **`main.dart`**
-  - App entry point that calls `bootstrap()` and runs `App`.
-  - Likely to remain intentionally small.
-- **`bootstrap.dart`**
-  - Startup/initialization orchestration (DI setup, services init, error handling, etc.).
-  - May expand as new startup requirements are introduced.
-- **`app.dart`**
-  - The root widget (typically `MaterialApp`/router setup and app-level providers).
-  - May grow with app-wide wrappers (theme, localization, analytics, feature flags).
-- **`flavors.dart`**
-  - Flavor/environment toggles (dev/staging/prod style config).
-  - May expand with additional environment-specific switches and build-time flags.
+## 🏗️ 3. Layered Encyclopedia Map
 
-### Major folders
+Every subdirectory in `lib/` has a dedicated specialized encyclopedia. You **MUST** read the relevant guide before touching any file in these directories:
 
-- **`common/`**
-  - Reusable, app-wide UI widgets and shared presentation utilities.
-- **`core/`**
-  - Infrastructure and cross-cutting services (routing, networking, theming, DI, errors, notifications, storage, etc.).
-- **`features/`**
-  - User-facing features organized by domain (auth, root navigation, onboarding, splash, etc.).
-- **`utils/`**
-  - Constants, extensions, generated code wrappers, and small helper functions.
+### 🧩 [Utilities & Tokens](lib/utils/utils_folder_guide.md)
 
-## What could be added in the future
+**Path**: `lib/utils/`
+Contains constants, design tokens, extensions, and generated logic.
 
-- **Additional features**
-  - New feature folders under `features/` (e.g., profile, settings, home, search).
-- **More infrastructure modules**
-  - New subdirectories under `core/` (e.g., analytics, crash reporting, caching, logging).
-- **More shared UI components**
-  - More design-system widgets under `common/widgets/` (charts, advanced list items, skeleton loaders).
-- **Tooling and code generation integrations**
-  - More generated files under `utils/gen/`, and supporting wrappers in `utils/helpers/`.
+### 🎨 [UI & Styling](lib/ui_overview.md)
 
-## How this folder may evolve over time
+**Path**: `lib/core/theme/` | `lib/common/`
+Contains the design system implementation, typography, and shared widgets.
 
-As the project grows, `lib/` should remain a stable “map” of the app:
+### 🗺️ [Navigation & State](lib/core/router/router_guide.md)
 
-- New product areas go to `features/`.
-- Anything cross-feature and foundational belongs to `core/`.
-- Anything reusable UI belongs to `common/`.
-- Anything small, shared, and framework-agnostic belongs to `utils/`.
+**Path**: `lib/core/router/` | `lib/features/`
+Contains the routing logic and feature-specific state management (Bloc).
+
+### 📦 [Persistence & Services](lib/core/services/objectbox/objectbox_service_guide.md)
+
+**Path**: `lib/core/services/`
+Contains all infrastructure services (ObjectBox, Session, Auth, Notifications).
+
+---
+
+## 📜 4. Core Principles for AI Agents
+
+- **No Inlining**: Logic belongs in services/blocs, small helpers in utils, and complex UI in sections.
+- **Dependency Inversion**: Always use `getIt<T>()` or constructor injection for facades/services.
+- **Data Integrity**: Never expose Models/DTOs to the UI. Always map to Entities.
+- **Scaling Sovereignty**: All dimensions **MUST** use `.h`, `.w`, or `.sp` extensions.
+
+---
+
+_For architectural rules and protocol details, see [.ai/project-rules.md](.ai/project-rules.md)._

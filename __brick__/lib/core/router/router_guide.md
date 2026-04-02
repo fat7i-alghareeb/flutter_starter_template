@@ -1,6 +1,15 @@
-# Router (core/router)
+# 🗺️ Navigation & Router Guide (`lib/core/router/`)
 
-This folder owns *application navigation* (routes + guards) using `go_router`.
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+
+This document is a **Hard Requirement** for any AI agent interacting with routes, navigation, or deep links. You **MUST** ensure your internal state is synced with the following navigation anchors:
+
+- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
+- **Feature Structure**: [lib/features/features_overview.md](lib/features/features_overview.md)
+
+Failure to follow the Typed Navigation Protocol (using `Arguments` classes and `extra`) is a protocol violation.
+
+---
 
 The router is intentionally written so that **startup is driven by state**:
 
@@ -19,10 +28,8 @@ Owns the router instance and all redirect logic.
 Key parts:
 
 - **`RouterRefreshListenable`**
-
-  - Purpose: provide *one* `Listenable` for GoRouter to re-evaluate redirects.
+  - Purpose: provide _one_ `Listenable` for GoRouter to re-evaluate redirects.
   - It listens to:
-
     - `AuthStateNotifier`
     - `OnboardingService`
 
@@ -30,10 +37,8 @@ Key parts:
   - Any change triggers `notifyListeners()`, which causes `GoRouter.redirect` to run again.
 
 - **`AppRouterConfig`**
-
   - Purpose: composition root for routing.
   - Builds:
-
     - `RouterRefreshListenable`
     - `AppRouteGuard`
     - `GoRouter`
@@ -41,11 +46,9 @@ Key parts:
   - Sets `initialLocation` to `SplashScreen.pagePath`.
 
 - **`AppRouteGuard`**
-
-  - Purpose: keep *all* redirect rules in a single focused class.
+  - Purpose: keep _all_ redirect rules in a single focused class.
   - Exposes one method: `handleRedirect(...)`.
   - Internally uses:
-
     - `_handleSplash(...)`
     - `_handleOnboarding(...)`
     - `_handleAuth(...)`
@@ -87,8 +90,7 @@ This is the exact order enforced by `AppRouteGuard.handleRedirect`.
 ### Step 0: App starts on Splash
 
 - Router starts at `SplashScreen.pagePath`.
-- At this moment, one (or both) may still be *unresolved*:
-
+- At this moment, one (or both) may still be _unresolved_:
   - **Auth**: `AuthStateNotifier.authStatus.status` can still be `Status.initial`.
   - **Onboarding**: `OnboardingService.isOnboardingFinished()` needs to be checked.
 
@@ -101,7 +103,6 @@ Additionally:
 Guard logic (simplified):
 
 - If `splashDelayElapsed == false` **OR** `authStatus.status == Status.initial`:
-
   - Stay on splash (or redirect back to splash if you tried to navigate away).
 
 What this means:
@@ -114,18 +115,14 @@ What this means:
 After splash conditions are satisfied, the guard checks onboarding:
 
 - If `AppFlowConfig.onboardingEnabled == false`:
-
   - Skip onboarding completely.
 
 - Else, it calls `OnboardingService.isOnboardingFinished()`.
-
   - If onboarding is **not finished**:
-
     - Redirect to `OnboardingScreen.pagePath`.
     - While the user is on onboarding and it is still not finished, the guard allows staying there.
 
   - If onboarding is **finished**:
-
     - Continue to the auth step.
 
 Transition point:
@@ -137,21 +134,17 @@ Transition point:
 After onboarding (or if onboarding is disabled), the guard checks auth:
 
 - If `AppFlowConfig.authEnabled == false`:
-
   - Always redirect to `RootScreen.pagePath`.
 
 - Else, compute authenticated state:
-
   - `isAuthenticated = (authStatus.status == Status.authenticated) && !authState.isGuest`
 
 Then:
 
 - If **not authenticated**:
-
   - Redirect to `LoginScreen.pagePath`.
 
 - If **authenticated**:
-
   - If you are currently on splash/login/onboarding, redirect to `RootScreen.pagePath`.
   - Otherwise, allow the current route.
 

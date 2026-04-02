@@ -61,11 +61,18 @@ Flow:
 
 So: **Service provides the database connection; DAO provides the entity API.**
 
-## How to use `ObjectBoxService`
+## How to use# 📦 ObjectBox Persistence Guide (`lib/core/services/objectbox/`)
 
-### 1) Register it once in DI (already done)
+## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
 
-`ObjectBoxService` is intended to be a single app-wide instance.
+This document is a **Hard Requirement** for any AI agent interacting with local persistence or database entities. You **MUST** ensure your internal state is synced with the following data anchors:
+
+- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
+- **Data Standards**: [lib/features/features_overview.md](lib/features/features_overview.md)
+
+Failure to separate Entities from DTOs and strictly use Mappers is a protocol violation.
+
+---
 
 You register it using `injectable` as a pre-resolved singleton (because opening the store is async):
 
