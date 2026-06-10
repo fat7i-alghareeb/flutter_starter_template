@@ -14,6 +14,7 @@ class LocalizationInterceptor extends Interceptor {
   LocalizationInterceptor(this._localeService);
 
   final LocaleService _localeService;
+  String? _cachedTimeZone;
 
   @override
   Future onRequest(
@@ -22,7 +23,7 @@ class LocalizationInterceptor extends Interceptor {
   ) async {
     try {
       final langCode = await _localeService.currentLanguageCode();
-      final timeZone = await FlutterTimezone.getLocalTimezone();
+      final timeZone = await _currentTimeZone();
 
       options.headers.addAll(<String, Object?>{
         'lang': langCode,
@@ -37,5 +38,14 @@ class LocalizationInterceptor extends Interceptor {
     }
 
     handler.next(options);
+  }
+
+  Future<String> _currentTimeZone() async {
+    final cached = _cachedTimeZone;
+    if (cached != null && cached.isNotEmpty) return cached;
+
+    final timeZone = await FlutterTimezone.getLocalTimezone();
+    _cachedTimeZone = timeZone.identifier;
+    return timeZone.identifier;
   }
 }

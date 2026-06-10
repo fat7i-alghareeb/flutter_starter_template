@@ -32,8 +32,10 @@ class RootBloc extends Bloc<RootEvent, RootState> {
 
     final result = await _facade.getAllRoots();
     result.when(
-      success: (data) => emit(state.copyWith(getAllState: BlocStatus.success(data))),
-      failure: (message) => emit(state.copyWith(getAllState: BlocStatus.failure(message))),
+      success: (data) =>
+          emit(state.copyWith(getAllState: BlocStatus.success(data))),
+      failure: (message) =>
+          emit(state.copyWith(getAllState: BlocStatus.failure(message))),
     );
   }
 }

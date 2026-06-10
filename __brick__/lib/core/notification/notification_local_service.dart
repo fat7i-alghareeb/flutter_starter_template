@@ -140,6 +140,8 @@ class NotificationLocalService {
     required String body,
     required tz.TZDateTime scheduledAt,
     DateTimeComponents? matchDateTimeComponents,
+    AndroidScheduleMode androidScheduleMode =
+        AndroidScheduleMode.exactAllowWhileIdle,
     Map<String, dynamic> data = const <String, dynamic>{},
     String? androidChannelId,
   }) async {
@@ -173,8 +175,30 @@ class NotificationLocalService {
       notificationDetails: details,
       payload: payload.toJsonString(),
       matchDateTimeComponents: matchDateTimeComponents,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: androidScheduleMode,
     );
+  }
+
+  Future<bool?> canScheduleExactNotifications() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return null;
+
+    final android = _local
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    return android?.canScheduleExactNotifications();
+  }
+
+  Future<bool?> requestExactAlarmsPermission() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return null;
+
+    final android = _local
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    return android?.requestExactAlarmsPermission();
   }
 
   Future<void> cancel(int id) async {

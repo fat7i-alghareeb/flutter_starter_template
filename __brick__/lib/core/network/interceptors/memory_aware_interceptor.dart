@@ -14,9 +14,6 @@ class MemoryAwareInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers['Connection'] = 'close';
-    options.headers['Cache-Control'] = 'no-cache';
-
     final memoryManager = MemoryManager();
     if (memoryManager.isMemoryHigh) {
       printY(
@@ -45,17 +42,6 @@ class MemoryAwareInterceptor extends Interceptor {
           ),
         );
         return;
-      }
-    }
-
-    // Light heuristic: if textual representation is huge, clear image cache.
-    if (response.data != null) {
-      final approxSize = response.data.toString().length;
-      if (approxSize > 1024 * 1024) {
-        printY(
-          'MemoryAwareInterceptor: large response (~$approxSize chars), clearing image cache',
-        );
-        MemoryManager().clearImageCache();
       }
     }
 

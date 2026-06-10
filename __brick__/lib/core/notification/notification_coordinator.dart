@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show DateTimeComponents;
+    show AndroidScheduleMode, DateTimeComponents;
 import 'package:injectable/injectable.dart';
 
 import '../../utils/helpers/colored_print.dart';
@@ -109,7 +109,7 @@ class NotificationCoordinator {
       try {
         if (Firebase.apps.isEmpty && options.initializeFirebase) {
           try {
-            await Firebase.initializeApp();
+            await Firebase.initializeApp(options: options.firebaseOptions);
           } catch (e) {
             if (config.enableDebugLogs) {
               printY('[Notifications] Firebase initialize failed: $e');
@@ -263,6 +263,8 @@ class NotificationCoordinator {
     required String body,
     required DateTime date,
     DateTimeComponents? matchDateTimeComponents,
+    AndroidScheduleMode androidScheduleMode =
+        AndroidScheduleMode.exactAllowWhileIdle,
     Map<String, dynamic> data = const <String, dynamic>{},
     String? androidChannelId,
   }) async {
@@ -278,6 +280,7 @@ class NotificationCoordinator {
       body: body,
       scheduledAt: scheduled,
       matchDateTimeComponents: matchDateTimeComponents,
+      androidScheduleMode: androidScheduleMode,
       data: data,
       androidChannelId: androidChannelId,
     );
@@ -297,6 +300,21 @@ class NotificationCoordinator {
   Future<void> cancelAllLocal() async {
     if (!_initialized) return;
     await _localService.cancelAll();
+  }
+
+  /// Returns whether Android currently allows exact notification scheduling.
+  ///
+  /// Returns `null` on non-Android platforms.
+  Future<bool?> canScheduleExactNotifications() {
+    return _localService.canScheduleExactNotifications();
+  }
+
+  /// Opens the Android exact-alarm permission flow for apps that use
+  /// `SCHEDULE_EXACT_ALARM`.
+  ///
+  /// Returns `null` on non-Android platforms.
+  Future<bool?> requestExactAlarmsPermission() {
+    return _localService.requestExactAlarmsPermission();
   }
 
   /// Stops the coordinator and cleans up listeners.

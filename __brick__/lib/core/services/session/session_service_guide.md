@@ -127,16 +127,19 @@ Why it exists:
 ### App startup
 
 1. DI is configured.
-2. `AuthManager` is registered.
-3. `AuthManager.initialize()` runs:
+2. `StorageService`, `AuthManager`, and the global Dio client are registered synchronously.
+3. The app renders its first frame.
+4. Post-frame warmup calls `AuthManager.initialize()`:
    - Loads user/guest from `StorageService`.
    - Ensures status is not `Status.initial`.
    - Restores token in `JwtTokenStorage` and begins streaming `AuthStatus`.
 
-4. Router starts on splash and then decides the next route based on:
+5. Router starts on splash and then decides the next route based on:
    - `AuthStateNotifier.authStatus.status`
    - `AuthStateNotifier.isGuest`
    - onboarding state
+
+While auth status is still `Status.initial`, the route guard keeps the user on splash. This preserves correct navigation without making auth storage restore block the first Flutter frame.
 
 ### Login
 

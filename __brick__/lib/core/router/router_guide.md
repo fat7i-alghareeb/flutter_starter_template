@@ -33,6 +33,7 @@ Key parts:
     - `AuthStateNotifier`
     - `OnboardingService`
 
+  - It starts `OnboardingService.initialize()` without awaiting it so storage loading happens outside the redirect path.
   - It also starts a timer that waits `SplashConfig.initialDelay` before allowing the app to leave splash.
   - Any change triggers `notifyListeners()`, which causes `GoRouter.redirect` to run again.
 
@@ -92,7 +93,7 @@ This is the exact order enforced by `AppRouteGuard.handleRedirect`.
 - Router starts at `SplashScreen.pagePath`.
 - At this moment, one (or both) may still be _unresolved_:
   - **Auth**: `AuthStateNotifier.authStatus.status` can still be `Status.initial`.
-  - **Onboarding**: `OnboardingService.isOnboardingFinished()` needs to be checked.
+  - **Onboarding**: `OnboardingService.initialize()` may still be loading the cached flag.
 
 Additionally:
 
@@ -117,7 +118,11 @@ After splash conditions are satisfied, the guard checks onboarding:
 - If `AppFlowConfig.onboardingEnabled == false`:
   - Skip onboarding completely.
 
-- Else, it calls `OnboardingService.isOnboardingFinished()`.
+- Else, it reads the synchronous cached value from `OnboardingService`.
+  - If onboarding cache is not initialized yet:
+    - Stay on `SplashScreen.pagePath`.
+    - The service notifies the router when the value is loaded.
+
   - If onboarding is **not finished**:
     - Redirect to `OnboardingScreen.pagePath`.
     - While the user is on onboarding and it is still not finished, the guard allows staying there.
