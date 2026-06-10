@@ -2,7 +2,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../../common/imports/imports.dart';
 import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart';
-import '../../../../../core/injection/injectable.dart';
 import '../widgets/nav_bar/bottom_navigation.dart';
 import '../widgets/nav_bar/navigation_controller.dart';
 import '../widgets/nav_bar/navigation_scope.dart';
@@ -99,7 +98,7 @@ class _RootScreenState extends State<RootScreen> {
                   color: state.color,
                   size: state.iconSize,
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.xs.verticalSpace,
                 Text(
                   'Dialogs',
                   maxLines: 1,

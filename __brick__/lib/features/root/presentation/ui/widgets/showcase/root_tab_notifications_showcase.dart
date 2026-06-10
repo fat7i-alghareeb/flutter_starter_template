@@ -2,7 +2,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show DateTimeComponents;
 
 import '../../../../../../common/imports/imports.dart';
-import '../../../../../../core/injection/injectable.dart';
 import '../../../../../../core/notification/notification_coordinator.dart';
 
 class RootTabNotificationsShowcase extends StatefulWidget {

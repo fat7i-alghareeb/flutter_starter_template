@@ -105,6 +105,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => const _i112.AppRouteRegistry(),
     );
     gh.lazySingleton<_i949.AuthStateNotifier>(() => _i949.AuthStateNotifier());
+    gh.lazySingleton<_i847.AuthRemoteDataSource>(
+      () => _i847.AuthRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i544.RootRemoteDataSource>(
+      () => _i544.RootRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i870.LocaleService>(
       () => _i870.LocaleService(gh<_i841.StorageService>()),
     );
@@ -116,15 +122,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i247.ThemeController>(
       () => _i247.ThemeController(gh<_i841.StorageService>()),
-    );
-    gh.lazySingleton<_i847.AuthRemoteDataSource>(
-      () => _i847.AuthRemoteDataSource(gh<_i361.Dio>()),
-    );
-    gh.lazySingleton<_i544.RootRemoteDataSource>(
-      () => _i544.RootRemoteDataSource(gh<_i361.Dio>()),
-    );
-    gh.lazySingleton<_i217.AuthRepository>(
-      () => _i1058.AuthRepositoryImpl(gh<_i847.AuthRemoteDataSource>()),
     );
     gh.lazySingleton<_i112.AppRouterConfig>(
       () => _i112.AppRouterConfig(
@@ -144,17 +141,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i668.NotificationFcmService>(),
       ),
     );
-    gh.lazySingleton<_i890.AuthFacade>(
-      () => _i890.AuthFacade(gh<_i217.AuthRepository>()),
+    gh.lazySingleton<_i217.AuthRepository>(
+      () => _i1058.AuthRepositoryImpl(gh<_i847.AuthRemoteDataSource>()),
     );
     gh.lazySingleton<_i825.RootRepository>(
       () => _i943.RootRepositoryImpl(gh<_i544.RootRemoteDataSource>()),
     );
+    gh.lazySingleton<_i890.AuthFacade>(
+      () => _i890.AuthFacade(gh<_i217.AuthRepository>()),
+    );
     gh.lazySingleton<_i174.RootFacade>(
       () => _i174.RootFacade(gh<_i825.RootRepository>()),
     );
-    gh.factory<_i512.AuthBloc>(() => _i512.AuthBloc(gh<_i890.AuthFacade>()));
     gh.factory<_i244.RootBloc>(() => _i244.RootBloc(gh<_i174.RootFacade>()));
+    gh.factory<_i512.AuthBloc>(() => _i512.AuthBloc(gh<_i890.AuthFacade>()));
     return this;
   }
 }
