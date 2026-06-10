@@ -10,7 +10,6 @@ class AuthRemoteDataSource {
   final Dio _dio;
   Future<AuthLoginResponseModel> loginDummy() {
     return rethrowAsAppException(() async {
-  
       _dio.options;
       await Future<void>.delayed(const Duration(milliseconds: 900));
       return const AuthLoginResponseModel(

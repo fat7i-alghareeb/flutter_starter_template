@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -117,18 +118,14 @@ class FullScreenImageScreen extends StatelessWidget {
 
     try {
       return switch (sourceType) {
-        FullScreenImageSourceType.network => Image.network(
-          source,
-          headers: headers,
+        FullScreenImageSourceType.network => CachedNetworkImage(
+          imageUrl: source,
+          httpHeaders: headers,
           fit: fit,
           alignment: alignment,
           filterQuality: filterQuality,
-          errorBuilder: (context, error, stackTrace) => _buildError(context),
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            // Keep the loading UI consistent with the app's progress indicator.
-            return _buildLoading(context);
-          },
+          placeholder: (context, url) => _buildLoading(context),
+          errorWidget: (context, url, error) => _buildError(context),
         ),
         FullScreenImageSourceType.asset => Image.asset(
           source,

@@ -73,7 +73,6 @@ class ObjectBoxDao<T extends ObjectBoxEntity> {
   /// The entity-specific Box used by this DAO.
   Box<T> get box => objectBox.box<T>();
 
-
   T? getById(int objId) => box.get(objId);
 
   Future<T?> getByIdAsync(int objId) => box.getAsync(objId);

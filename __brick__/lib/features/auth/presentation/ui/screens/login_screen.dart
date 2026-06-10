@@ -12,7 +12,7 @@ import '../../states/auth_bloc.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-  static const String pagePath = '/login_screen';
+  static const String pagePath = '/login';
   static const String pageName = 'LoginScreen';
 
   @override

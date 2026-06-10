@@ -13,25 +13,19 @@ Failure to synchronize your internal state with this map before proceeding to sp
 
 ## 🚀 1. The Bootstrap Sequence (`lib/bootstrap.dart`)
 
-The initialization of the application is a strictly ordered async sequence. AI agents modifying startup logic **MUST** follow this order:
+The startup path is optimized for a fast first Flutter frame. AI agents modifying startup logic **MUST** keep blocking work before `runApp` minimal:
 
 1. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
-2. **Flavor Discovery**: Resolving `F.appFlavor` from the native environment.
+2. **Flavor Discovery**: Resolve `F.appFlavor` from the native environment.
 3. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable).
-4. **Localization Core**: `EasyLocalization.ensureInitialized()`.
-5. **Controller Initialization**: `ThemeController.initialize()`.
-6. **Auth & Network Warming**: `AuthManager.initialize()` (Loads JWT and Session state).
-7. **Data Prefetching (Silent)**: Warming up `CurrencyCatalog`, `VaultCatalog`, and `PartiesCatalog` facades.
-8. **Locale Resolution**: `LocaleService.resolveInitialLocale()`.
-9. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
-10. **Flavor Discovery**: Resolving `F.appFlavor` from the native environment.
-11. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable).
-12. **Localization Core**: `EasyLocalization.ensureInitialized()`.
-13. **Controller Initialization**: `ThemeController.initialize()`.
-14. **Auth & Network Warming**: `AuthManager.initialize()` (Loads JWT and Session state).
-15. **Data Prefetching (Silent)**: Warming up `CurrencyCatalog`, `VaultCatalog`, and `PartiesCatalog` facades.
-16. **Locale Resolution**: `LocaleService.resolveInitialLocale()`.
-17. **Guarded Run**: Launching `ScreenUtilInit` and the root `App`.
+4. **Runtime Registration**: Register `AuthManager`, Dio, and stage-only tooling singletons without loading stored state.
+5. **Localization Core**: `EasyLocalization.ensureInitialized()`.
+6. **Startup Locale**: `LocaleService.resolveStartupLocale()` using device/fallback only, with no storage read.
+7. **Guarded Run**: Launch `ScreenUtilInit` and the root `App`.
+8. **Post-Frame Warmup**: After the first frame, reconcile saved locale and load stage tooling, theme, onboarding cache, and auth/session state.
+9. **Post-Splash Notifications**: Initialize notifications after `SplashConfig.initialDelay` so permission prompts never appear before the custom splash duration finishes.
+
+Do not add storage reads, Firebase, ObjectBox opens, permission prompts, network calls, asset precaching, or heavy parsing before `runApp` unless the first visible route cannot render correctly without it.
 
 ---
 

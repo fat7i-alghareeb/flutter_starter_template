@@ -79,6 +79,14 @@ What to expect: how to use `AppReactiveDateTimeField` (supported types, modes, f
 
 ## Quickstart (from zero to running)
 
+### Prerequisites
+
+Make sure Flutter is installed, then install Mason once:
+
+```bash
+dart pub global activate mason_cli
+```
+
 ### 0) Create a Flutter project (you need `android/` and `ios/` folders)
 
 If you don't already have a Flutter project, create one first:
@@ -99,7 +107,9 @@ In your Flutter workspace (where you want to create the app):
 mason init
 ```
 
-### Step B: Add the brick from git
+### Step B: Add the brick
+
+Use the Git version when generating from a released/pinned template:
 
 Edit `mason.yaml`:
 
@@ -117,6 +127,12 @@ Notes:
 - `ref` is required so you pin a version (tag/commit). Choose what you want to generate.
 - The name (`flutter_app_template`) is the command you will run in the next step.
 
+Or, if you cloned this repository locally and want to use your local checkout:
+
+```bash
+mason add flutter_app_template --path <path_to_flutter_starter_template>
+```
+
 ### Step C: Fetch the brick
 
 ```bash
@@ -126,7 +142,24 @@ mason get
 ### Step D: Generate the app
 
 ```bash
-mason make flutter_app_template
+mason make flutter_app_template --on-conflict overwrite
+```
+
+During generation the brick asks for:
+
+- `project_name`: the Dart package name. Natural input is accepted and normalized to `snake_case`.
+- `project_title`: the visible app title used by flavors and `F.title`.
+- `package_name`: the Android application id / iOS bundle id base. It is normalized to lower-case dotted segments.
+- `project_description`: the `pubspec.yaml` description.
+
+For example, `My Cool App 2026` becomes the Dart package name `my_cool_app_2026`, while `COM.Acme.123Cool_App` becomes `com.acme.coolapp`.
+
+The `--on-conflict overwrite` flag is intentional for a fresh `flutter create` project because this brick replaces the default counter app files with the template files.
+
+For non-interactive generation, create a config file and run:
+
+```bash
+mason make flutter_app_template --config-path mason_vars.json --on-conflict overwrite
 ```
 
 ---
@@ -138,50 +171,73 @@ Inside the generated project root:
 ```bash
 flutter clean
 flutter pub get
-dart run flutter_flavorizr
-dart run build_runner build --delete-conflicting-outputs
+dart run flutter_flavorizr -f
+dart run build_runner build
+flutter analyze
 ```
 
 Notes:
 
-- `flutter_flavorizr` generates flavor files and IDE configs.
+- `flutter_flavorizr -f` generates flavor files and IDE configs without asking for confirmation, so it works in terminals, scripts, and AI agents.
 - `build_runner` generates/updates code for `injectable`, `freezed`, and `flutter_gen`.
 - If you see import errors referencing a placeholder package name, run the `build_runner` command above (it regenerates the config with the correct package).
 
 ---
 
-## 3) Android notifications setup (required if you use scheduling)
+## 3) Native notifications setup
 
-### A) AndroidManifest changes for notifications
+The generated project includes local notifications by default and optional FCM.
 
-Open (generated project):
+Notifications initialize after the first Flutter frame and after the configured splash delay, so permission prompts do not appear before the custom splash screen.
 
-- `android/app/src/main/AndroidManifest.xml`
+Read the full generated guide before shipping notifications:
 
-Important:
+- `lib/core/notification/notification.md`
 
-- If you ran `dart run flutter_flavorizr`, you may also get flavor manifests under `android/app/src/<flavor>/AndroidManifest.xml`.
-- Apply the changes below to the manifest(s) you actually build with.
+### Android essentials
 
-#### 1) Add permissions (inside `<manifest>`)
+For `flutter_local_notifications` 22 and `permission_handler` 12:
 
-Place these **as direct children of `<manifest>`** (usually near the top, before `<application>`):
+- Use Android `compileSdk` / `compileSdkVersion` 35 or newer.
+- Enable core library desugaring in `android/app/build.gradle`, including `desugar_jdk_libs:2.1.4`.
+- Keep Java/Kotlin compatibility aligned with the plugin docs, currently Java 17.
+
+Add notification permission under the root `<manifest>`:
 
 ```xml
-<!-- Notification permissions -->
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 <uses-permission android:name="android.permission.VIBRATE" />
-<uses-permission android:name="android.permission.WAKE_LOCK" />
-<uses-permission android:name="android.permission.USE_EXACT_ALARM" /> <!-- Or SCHEDULE_EXACT_ALARM depending on Play Store policy -->
 ```
 
-#### 2) Add scheduled notification receivers (inside `<application>`)
-
-Place these **as direct children of `<application>`**:
+If you use local scheduling, also add:
 
 ```xml
-<!-- Scheduled notifications -->
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+```
+
+The template default scheduler uses `AndroidScheduleMode.exactAllowWhileIdle`. For exact alarms, choose one:
+
+```xml
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+```
+
+or:
+
+```xml
+<uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+```
+
+Use `SCHEDULE_EXACT_ALARM` for most reminder-style apps and call the template helper:
+
+```dart
+await getIt<NotificationCoordinator>().requestExactAlarmsPermission();
+```
+
+Use `USE_EXACT_ALARM` only for apps whose core approved purpose is alarms/calendar-style exact alarms.
+
+For scheduled notifications, add receivers under `<application>`:
+
+```xml
 <receiver
     android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
     android:exported="false" />
@@ -198,9 +254,28 @@ Place these **as direct children of `<application>`**:
 </receiver>
 ```
 
-For a full checklist (exact alarms, icons, iOS notes, and the 32-bit strict notification ID limits), read:
+If you add Android notification actions, also add:
 
-- `lib/core/notification/notification.md`
+```xml
+<receiver
+    android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"
+    android:exported="false" />
+```
+
+Before release, replace the launcher-icon fallback with a real monochrome drawable notification icon and keep that resource from being removed by release shrinking.
+
+### iOS essentials
+
+For local notification actions, add the `flutter_local_notifications` plugin registrant callback in `ios/Runner/AppDelegate.swift` as described in the generated guide.
+
+For FCM on iOS:
+
+- Add `ios/Runner/GoogleService-Info.plist`.
+- Match the Firebase bundle id to the generated app bundle id.
+- Enable **Push Notifications**.
+- Enable **Background Modes** -> **Remote notifications**.
+- Upload an APNs authentication key or certificate in Firebase Console.
+- Test on a real device.
 
 ---
 
@@ -226,5 +301,16 @@ By default the project initializes notifications with FCM disabled.
 
 If you want FCM:
 
-- Add Firebase native configs (`google-services.json` / `GoogleService-Info.plist`).
-- Update `lib/bootstrap.dart` and enable it via `NotificationInitOptions(enableFcm: true, initializeFirebase: true)`.
+- Run `flutterfire configure` in the generated project.
+- Import `firebase_options.dart`.
+- Update `lib/bootstrap.dart` and enable:
+
+```dart
+options: NotificationInitOptions(
+  initializeFirebase: true,
+  firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+  enableFcm: true,
+),
+```
+
+If Firebase is initialized elsewhere, keep `initializeFirebase: false` and set `enableFcm: true`.

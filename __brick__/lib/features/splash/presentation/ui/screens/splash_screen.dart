@@ -10,7 +10,7 @@ import '../../../../../utils/extensions/theme_extensions.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-  static const String pagePath = '/splash_screen';
+  static const String pagePath = '/splash';
   static const String pageName = 'SplashScreen';
 
   @override

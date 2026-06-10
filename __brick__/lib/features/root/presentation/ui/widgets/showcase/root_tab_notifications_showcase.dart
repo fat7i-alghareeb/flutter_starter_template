@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 
 import '../../../../../../common/imports/imports.dart';
 import '../../../../../../core/notification/notification_coordinator.dart';
+import '../../../../constants/root_constants.dart';
 
 class RootTabNotificationsShowcase extends StatefulWidget {
   const RootTabNotificationsShowcase({super.key});
@@ -56,7 +57,10 @@ class _RootTabNotificationsShowcaseState
     await _coordinator.showLocal(
       title: 'Instant notification',
       body: 'This is shown immediately.',
-      data: <String, dynamic>{'route': '/root_screen', 'type': 'instant'},
+      data: <String, dynamic>{
+        'route': RootConstants.routePath,
+        'type': 'instant',
+      },
     );
     _toast('Instant notification requested');
   }
@@ -69,7 +73,7 @@ class _RootTabNotificationsShowcaseState
       body: 'Scheduled for ~5 seconds from now.',
       date: date,
       data: <String, dynamic>{
-        'route': '/root_screen',
+        'route': RootConstants.routePath,
         'type': 'scheduled_once',
       },
     );
@@ -92,7 +96,10 @@ class _RootTabNotificationsShowcaseState
       body: 'This repeats daily at the same time.',
       date: nextMinute,
       matchDateTimeComponents: DateTimeComponents.time,
-      data: <String, dynamic>{'route': '/root_screen', 'type': 'daily'},
+      data: <String, dynamic>{
+        'route': RootConstants.routePath,
+        'type': 'daily',
+      },
     );
 
     _toast('Daily schedule set (id=$_dailyId)');

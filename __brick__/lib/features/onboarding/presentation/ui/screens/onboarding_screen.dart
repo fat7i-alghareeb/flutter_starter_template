@@ -11,7 +11,7 @@ import '../../../../../utils/extensions/widget_extensions.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
-  static const String pagePath = '/onboarding_screen';
+  static const String pagePath = '/onboarding';
   static const String pageName = 'OnboardingScreen';
 
   @override

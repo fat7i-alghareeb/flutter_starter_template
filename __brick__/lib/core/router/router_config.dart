@@ -29,6 +29,7 @@ class RouterRefreshListenable extends ChangeNotifier {
     // * Listen to all reactive sources that affect routing.
     authState.addListener(_onSourceChanged);
     onboardingService.addListener(_onSourceChanged);
+    unawaited(onboardingService.initialize());
 
     // * Ensure the splash is visible for at least [SplashConfig.initialDelay]
     //   even if auth/onboarding resolve instantly.
@@ -142,10 +143,10 @@ class AppRouteGuard {
   ///     - unauthenticated → login
   ///     - authenticated → root
   ///   - If auth disabled → root
-  FutureOr<String?> handleRedirect({
+  String? handleRedirect({
     required GoRouterState state,
     required bool splashDelayElapsed,
-  }) async {
+  }) {
     final currentPath = state.matchedLocation;
     final status = authState.authStatus.status;
     final isGuest = authState.isGuest;
@@ -174,7 +175,7 @@ class AppRouteGuard {
     }
 
     // 2) Onboarding.
-    final onboardingRedirect = await _handleOnboarding(currentPath);
+    final onboardingRedirect = _handleOnboarding(currentPath);
     if (onboardingRedirect != null) return onboardingRedirect;
 
     // 3) Auth.
@@ -200,12 +201,20 @@ class AppRouteGuard {
     return null;
   }
 
-  Future<String?> _handleOnboarding(String currentPath) async {
+  String? _handleOnboarding(String currentPath) {
     if (!AppFlowConfig.onboardingEnabled) {
       return null;
     }
 
-    final finished = await onboardingService.isOnboardingFinished();
+    if (!onboardingService.isInitialized) {
+      if (currentPath != splashPath) {
+        printC('${RouterLogTags.redirect} → splash (onboarding loading)');
+        return splashPath;
+      }
+      return null;
+    }
+
+    final finished = onboardingService.isOnboardingFinishedSync;
     if (!finished) {
       if (currentPath != onboardingPath) {
         printC('${RouterLogTags.redirect} → onboarding (not finished)');

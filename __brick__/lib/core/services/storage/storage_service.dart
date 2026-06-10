@@ -44,6 +44,28 @@ class _SharedPreferencesStore implements KeyValueStore {
   }
 }
 
+class _SharedPreferencesAsyncStore implements KeyValueStore {
+  _SharedPreferencesAsyncStore(this._prefs);
+
+  final SharedPreferencesAsync _prefs;
+
+  @override
+  Future<String?> readString(String key) => _prefs.getString(key);
+
+  @override
+  Future<void> writeString(String key, String value) =>
+      _prefs.setString(key, value);
+
+  @override
+  Future<bool?> readBool(String key) => _prefs.getBool(key);
+
+  @override
+  Future<void> writeBool(String key, bool value) => _prefs.setBool(key, value);
+
+  @override
+  Future<void> remove(String key) => _prefs.remove(key);
+}
+
 class _SecureStorageStore implements KeyValueStore {
   _SecureStorageStore(this._storage);
 
@@ -86,6 +108,16 @@ class StorageService {
     );
   }
 
+  /// Creates a service that uses [SharedPreferencesAsync] for both areas.
+  factory StorageService.sharedAsyncOnly(
+    SharedPreferencesAsync sharedPreferences,
+  ) {
+    return StorageService._(
+      _SharedPreferencesAsyncStore(sharedPreferences),
+      _SharedPreferencesAsyncStore(sharedPreferences),
+    );
+  }
+
   /// Creates a service that uses [SharedPreferences] for persistent data and
   /// [FlutterSecureStorage] for secrets.
   factory StorageService.withSecure({
@@ -98,14 +130,27 @@ class StorageService {
     );
   }
 
-  /// Convenience factory for creating a production-ready instance using the
-  /// platform defaults for both shared preferences and secure storage.
-  static Future<StorageService> createDefault({
+  /// Creates a service that uses [SharedPreferencesAsync] for persistent data
+  /// and [FlutterSecureStorage] for secrets.
+  factory StorageService.withSecureAsync({
+    required SharedPreferencesAsync sharedPreferences,
+    required FlutterSecureStorage secureStorage,
+  }) {
+    return StorageService._(
+      _SharedPreferencesAsyncStore(sharedPreferences),
+      _SecureStorageStore(secureStorage),
+    );
+  }
+
+  /// Convenience factory for creating a production-ready instance without
+  /// awaiting plugin data before `runApp`.
+  static StorageService createDefault({
+    SharedPreferencesAsync? sharedPreferences,
     FlutterSecureStorage? secureStorage,
-  }) async {
-    final shared = await SharedPreferences.getInstance();
+  }) {
+    final shared = sharedPreferences ?? SharedPreferencesAsync();
     final secure = secureStorage ?? const FlutterSecureStorage();
-    return StorageService.withSecure(
+    return StorageService.withSecureAsync(
       sharedPreferences: shared,
       secureStorage: secure,
     );

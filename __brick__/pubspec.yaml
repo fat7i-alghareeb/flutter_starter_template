@@ -1,6 +1,5 @@
-# name: "{{project_name}}"
-name: "test_name_to_delete"
-description: "{{project_description}}"
+name: {{{project_name_yaml}}}
+description: {{{project_description_yaml}}}
 publish_to: "none"
 version: 1.0.0+1
 
@@ -104,16 +103,16 @@ flavorizr:
   flavors:
     stage:
       app:
-        name: "{{project_name}} Stage"
-        package_name: "{{package_name}}.stage"
+        name: {{{stage_project_title_yaml}}}
+        package_name: {{{stage_package_name_yaml}}}
       android:
-        applicationId: "{{package_name}}.stage"
+        applicationId: {{{stage_package_name_yaml}}}
     production:
       app:
-        name: "{{project_name}}"
-        package_name: "{{package_name}}"
+        name: {{{project_title_yaml}}}
+        package_name: {{{package_name_yaml}}}
       android:
-        applicationId: "{{package_name}}"
+        applicationId: {{{package_name_yaml}}}
   instructions:
     - android:androidManifest
     - android:flavorizrGradle

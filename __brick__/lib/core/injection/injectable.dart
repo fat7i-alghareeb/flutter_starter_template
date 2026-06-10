@@ -22,8 +22,8 @@ final GetIt getIt = GetIt.instance;
 /// manually, then delegates the rest of the wiring to the generated
 /// `GetItInjectableX.init()` extension.
 @InjectableInit(ignoreUnregisteredTypes: [Dio])
-Future<void> configureDependencies() async {
-  await getIt.init();
+void configureDependencies() {
+  getIt.init();
 }
 
 /// Registers a single [AuthManager] instance based on the desired [mode].

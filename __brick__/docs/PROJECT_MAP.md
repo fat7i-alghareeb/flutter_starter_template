@@ -10,6 +10,7 @@ This map helps agents find the right files without reading the entire project.
 - `.ai/`: agent-facing rule files.
 - `docs/`: concise project reference docs.
   - `AGENT_TASK_PROMPT_TEMPLATE.md`: copy/paste prompts for starting agent tasks.
+  - `PERFORMANCE_AUDIT.md`: startup, routing, RAM, and frame-rate audit notes.
 
 ## Core
 
@@ -87,5 +88,6 @@ Current template features include `auth`, `onboarding`, `root`, and `splash`.
 - Router: `lib/core/router/router_guide.md`
 - Session/auth: `lib/core/services/session/session_service_guide.md`
 - ObjectBox: `lib/core/services/objectbox/objectbox_service_guide.md`
+- Performance audit: `docs/PERFORMANCE_AUDIT.md`
 - Common UI: `lib/common/common_folder_guide.md`
 - Utilities: `lib/utils/utils_folder_guide.md`

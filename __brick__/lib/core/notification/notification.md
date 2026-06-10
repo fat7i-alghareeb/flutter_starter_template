@@ -1,264 +1,326 @@
-# 🔔 Notifications (FCM + Local)
+# Notifications
 
-This module provides a **unified notification system** for:
+This module wraps:
 
-- **Remote notifications** via `firebase_messaging` (FCM)
-- **Local notifications** via `flutter_local_notifications`
+- `flutter_local_notifications` for local display and scheduling.
+- `firebase_messaging` for optional FCM push notifications.
+- `permission_handler` for the user-facing notification permission prompt.
+- `timezone` + `flutter_timezone` for timezone-aware scheduling.
 
-It is built so you can initialize everything with **one call** and control whether Firebase/FCM is enabled using `NotificationInitOptions`.
+Notifications are initialized from `lib/bootstrap.dart` after the first Flutter frame and after `SplashConfig.initialDelay`. That keeps the custom splash visible before any notification permission prompt appears.
 
----
+Official references used for this checklist:
 
-## 1) What you MUST do in the generated project (Required setup)
+- `flutter_local_notifications`: https://pub.dev/packages/flutter_local_notifications
+- `firebase_messaging`: https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages
+- FCM on Apple platforms/APNs: https://firebase.google.com/docs/cloud-messaging/ios/get-started
+- `permission_handler`: https://pub.dev/packages/permission_handler
 
-This section is the checklist to make notifications work end-to-end.
+## Default Behavior
 
-### ✅ Flutter dependencies
+By default, `bootstrap.dart` initializes the local notification module only:
 
-Already included by this Brick:
+```dart
+options: const NotificationInitOptions(
+  initializeFirebase: false,
+  enableFcm: false,
+),
+```
 
-- `firebase_core`
-- `firebase_messaging`
-- `flutter_local_notifications`
-- `permission_handler`
-- `timezone`
-- `flutter_timezone`
+This means:
 
-### ✅ Initialize notifications (one call)
+- Firebase does not initialize during startup.
+- FCM listeners are not registered.
+- Permission requests are still delayed until after the splash duration.
+- Local notifications and scheduling are available once the native setup below is completed.
 
-In the generated project, notifications are initialized from `lib/bootstrap.dart`.
+## Android Setup
 
-You only call:
+### 1. Gradle Requirements
 
-- `getIt<NotificationCoordinator>().initialize(...)`
+`flutter_local_notifications` 22 requires Android desugaring setup even if your app does not currently schedule notifications.
 
-You can control behavior using:
+In `android/app/build.gradle`:
 
-- `NotificationInitOptions(initializeFirebase: ..., enableFcm: ...)`
+```gradle
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
 
-### ✅ Firebase setup (required ONLY if you enable FCM)
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 
-If you use `NotificationInitOptions(enableFcm: true)` you must configure Firebase:
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+}
 
-#### Android
-
-- Add `android/app/google-services.json`
-- Ensure the Firebase Gradle setup is correct for your FlutterFire version
-
-#### iOS
-
-- Add `ios/Runner/GoogleService-Info.plist`
-- Ensure your iOS bundle id matches Firebase project settings
-
-### ✅ Android folder changes
-
-#### 0) Ensure POST_NOTIFICATIONS exists (Android 13+)
-
-For Android 13 (API 33+) the runtime permission is:
-
-- `android.permission.POST_NOTIFICATIONS`
-
-Most projects get this through plugin manifest merging, but if you face issues
-requesting permission, add it explicitly in `android/app/src/main/AndroidManifest.xml`.
-
-#### 1) Android 13+ notification permission
-
-This Brick requests permission using `permission_handler`:
-
-- `Permission.notification.request()`
-
-Make sure your app targets Android 13+ correctly.
-
-#### 2) Notification icon (required)
-
-This Brick expects an Android drawable resource:
-
-- `@drawable/ic_notification`
-
-If the resource is missing, notifications may show without the correct icon.
-
-#### 3) Scheduled notifications (only if you use scheduling)
-
-If you schedule notifications, follow the `flutter_local_notifications` Android setup.
-
-Also note:
-
-- Some plugin versions require **core library desugaring** for scheduling.
-- The required `compileSdkVersion` / AGP version can change.
-
-Always cross-check the official `flutter_local_notifications` README.
-
-In `android/app/src/main/AndroidManifest.xml`:
-
-- Add permissions between `<manifest>` tags:
-  - `<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>`
-  - Exact alarms (choose one approach depending on your needs):
-    - `<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>` (prompt user)
-    - OR `<uses-permission android:name="android.permission.USE_EXACT_ALARM"/>` (store review may apply)
-
-- Add receivers between `<application>` tags:
-  - `<receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />`
-  - `<receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"> ... </receiver>`
-
-> Important: the exact configuration can change across plugin versions. Always cross-check with the official `flutter_local_notifications` README.
-
-### ✅ iOS folder changes
-
-#### 0) Enable iOS capabilities (FCM)
-
-If you enable FCM on iOS, make sure your iOS target has:
-
-- **Push Notifications** capability
-- **Background Modes** -> **Remote notifications**
-
-#### 1) Enable notifications in foreground
-
-iOS won’t show notifications while the app is open unless configured.
-
-This Brick controls foreground presentation via:
-
-- `AppNotificationConfig.iosPresentAlertInForeground`
-- `AppNotificationConfig.iosPresentBadgeInForeground`
-- `AppNotificationConfig.iosPresentSoundInForeground`
-
-#### 2) AppDelegate delegate configuration
-
-For iOS, the `flutter_local_notifications` documentation recommends setting the notification center delegate.
-
-Add in `ios/Runner/AppDelegate.swift`:
-
-```swift
-if #available(iOS 10.0, *) {
-  UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }
 ```
 
-> Exact code differs by template / Swift vs Objective-C. Check plugin docs.
+Use `compileSdk` / `compileSdkVersion` 35 or newer. The current plugin docs show `compileSdk 36`; `permission_handler` 12 requires at least 35.
 
-#### 3) Permission_handler notes
+If Android 12L+ devices crash with desugaring enabled, the `flutter_local_notifications` docs mention adding AndroidX WindowManager dependencies as a workaround:
 
-`permission_handler` requires adding Info.plist keys for permissions you request.
+```gradle
+dependencies {
+    implementation 'androidx.window:window:1.0.0'
+    implementation 'androidx.window:window-java:1.0.0'
+}
+```
 
-- For **notification permission**, iOS does not require a usage description key.
-- If you request other permissions later (camera, photos, etc.), add those keys.
+### 2. AndroidManifest Permissions
 
----
+Add these under the root `<manifest>` tag in `android/app/src/main/AndroidManifest.xml`:
 
-## 2) Native customization (icons, sounds, channels, behavior)
+```xml
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<uses-permission android:name="android.permission.VIBRATE" />
+```
 
-### 🎨 Change notification icon
+`flutter_local_notifications` also declares these, but keeping them explicit in the app manifest makes the runtime permission path clearer, especially because this template calls `Permission.notification.request()`.
 
-- Update `AppNotificationConfig.defaultAndroidSmallIcon`
-- Add the drawable under:
-  - `android/app/src/main/res/drawable/`
+If you schedule local notifications, add:
 
-### 🔊 Custom sounds
+```xml
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+```
 
-#### Android (custom sounds)
+If you use the template default scheduling mode, `AndroidScheduleMode.exactAllowWhileIdle`, choose one exact-alarm policy:
 
-- Add sound file under:
-  - `android/app/src/main/res/raw/`
-- Reference it in a channel:
-  - `AppAndroidNotificationChannelConfig(soundResource: 'my_sound')`
+```xml
+<!-- Recommended for most apps that need exact reminders. Requires runtime settings flow. -->
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+```
 
-Important Android rule:
+or:
 
-- On Android 8+, **sound/vibration are channel-level** and mostly immutable.
-- If you change sound/vibration, you typically must **change the channel id**.
+```xml
+<!-- Only for apps whose core approved purpose is alarms/calendar-style exact alarms. -->
+<uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+```
 
-#### iOS ()
+Important:
 
-- iOS sound restrictions apply (file format + bundling). Follow the official plugin docs.
+- `SCHEDULE_EXACT_ALARM` requires calling `requestExactAlarmsPermission()` before exact scheduling can work on affected Android versions.
+- `USE_EXACT_ALARM` does not show a permission prompt, but Google Play may review/audit this usage.
+- If exact timing is not required, call `scheduleLocal(..., androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle)` and skip exact-alarm permissions.
 
-### 🧩 Add new channels
+### 3. AndroidManifest Receivers
 
-Create channels in `AppNotificationConfig.androidChannels`.
+For scheduled notifications, add these under `<application>`:
 
-- Use the channel id in your payload (`android_channel_id` / `channelId`) to route notifications to the correct channel.
+```xml
+<receiver
+    android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+    android:exported="false" />
 
-### 🆔 Notification IDs (32-bit integer limit)
+<receiver
+    android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+    </intent-filter>
+</receiver>
+```
 
-Always ensure your notification IDs fit within a 32-bit signed integer `[-2147483648, 2147483647]`.
-Android throws an `ArgumentError` if you attempt to use larger values, like a 64-bit microsecond timestamp (`DateTime.now().microsecondsSinceEpoch`).
-The `NotificationLocalService._generateNotificationId()` in this brick is pre-configured to return a safe 31-bit random value natively to avoid crashes out of the box.
+If you add Android notification actions, also add:
 
----
+```xml
+<receiver
+    android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"
+    android:exported="false" />
+```
 
-## 3) How the flow works (what happens behind the scenes)
+Only add the full-screen intent permission if you actually implement full-screen notifications:
 
-### 🧱 Classes involved
+```xml
+<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+```
 
-- `NotificationCoordinator`
-  - Thin facade/orchestrator
+### 4. Android Notification Icon
 
-- `NotificationPermissionService`
-  - Requests permission using `permission_handler`
+The template defaults to the launcher icon as a development fallback:
 
-- `NotificationTimezoneService`
-  - Initializes TZ database (`timezone` + `flutter_timezone`)
+```dart
+AppNotificationConfig(defaultAndroidSmallIcon: '@mipmap/ic_launcher', ...)
+```
 
-- `NotificationLocalService`
-  - Initializes and displays local notifications
+Before shipping, create a proper monochrome notification icon drawable and update the config:
 
-- `NotificationFcmService`
-  - Configures FCM and listens to:
-    - foreground messages
-    - opened notifications
-    - token refresh
+```dart
+AppNotificationConfig.defaults().copyWith(
+  defaultAndroidSmallIcon: 'ic_notification',
+)
+```
 
-### ✅ Initialization sequence
+Add the icon under:
 
-Called from `bootstrap.dart`:
+```text
+android/app/src/main/res/drawable/ic_notification.xml
+```
 
-1. Resolve `NotificationCoordinator` from GetIt
-2. Call `NotificationCoordinator.initialize(config, options, ...)`
-3. Coordinator runs:
-   - Permission request first (`Permission.notification.request()`)
-   - Timezone initialization
-   - Local notifications plugin initialization
-   - If enabled:
-     - Firebase initialization (optional)
-     - FCM setup + listeners
+Release builds may remove unused resources. Add a keep file if needed:
 
-### Foreground message handling
+```xml
+<!-- android/app/src/main/res/raw/keep.xml -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification" />
+```
 
-When a message arrives while the app is open:
+### 5. Exact Alarm Helpers
 
-- `NotificationFcmService` receives it via `FirebaseMessaging.onMessage`
-- Converts it to `AppNotificationPayload`
-- Forwards it to `NotificationLocalService.showFromPayload(...)`
-
-This keeps **all presentation logic** in one place (local notifications).
-
-### Background / terminated handling
-
-- Background tap: `FirebaseMessaging.onMessageOpenedApp`
-- Terminated launch: `FirebaseMessaging.getInitialMessage()`
-
-Both are normalized into `AppNotificationPayload` and passed to the `onNotificationTap` callback.
-
----
-
-## 4) What you can do from Flutter code (features + how to use)
-
-All features are exposed through:
-
-- `getIt<NotificationCoordinator>()`
-
-### 🔑 Get device token from anywhere
+The coordinator exposes Android exact-alarm helpers:
 
 ```dart
 final coordinator = getIt<NotificationCoordinator>();
-final token = await coordinator.getDeviceToken();
+
+final canSchedule = await coordinator.canScheduleExactNotifications();
+if (canSchedule == false) {
+  await coordinator.requestExactAlarmsPermission();
+}
 ```
 
-You can also read a cached value:
+Use this before calling `scheduleLocal` with `AndroidScheduleMode.exact` or `AndroidScheduleMode.exactAllowWhileIdle`.
+
+## iOS / macOS Setup
+
+### 1. Local Notifications
+
+For basic local notifications, Flutter-side initialization is already handled by `NotificationLocalService`.
+
+For background notification actions, `flutter_local_notifications` requires plugin registration in the action isolate. In `ios/Runner/AppDelegate.swift`, add:
+
+```swift
+import UIKit
+import Flutter
+import flutter_local_notifications
+
+@UIApplicationMain
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
+      GeneratedPluginRegistrant.register(with: registry)
+    }
+
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+```
+
+If your app migrates to the newer `UIScene` lifecycle, move this setup to the method recommended by the official plugin docs.
+
+### 2. Permission Notes
+
+`Permission.notification` does not require an Info.plist usage description key and is enabled by default in `permission_handler`.
+
+If you later request other permissions, add their Info.plist keys before calling `permission_handler`.
+
+### 3. FCM on Apple Platforms
+
+If FCM is enabled on iOS/macOS:
+
+- Add `ios/Runner/GoogleService-Info.plist`.
+- Make sure the bundle id matches Firebase.
+- Enable **Push Notifications** in Xcode.
+- Enable **Background Modes** -> **Remote notifications**.
+- Upload an APNs authentication key or certificate in Firebase Console.
+- Test on a real device; FCM/APNs push notifications do not work on iOS simulators the same way real device push does.
+
+If you send notification images through FCM on Apple platforms, add a Notification Service Extension. This is optional and only needed for rich/image notifications.
+
+## Enabling FCM
+
+The template keeps FCM disabled until the generated app is configured.
+
+Recommended setup:
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+Then update `lib/bootstrap.dart`:
 
 ```dart
-final token = getIt<NotificationCoordinator>().cachedToken;
+import 'firebase_options.dart';
+
+await coordinator.initialize(
+  config: AppNotificationConfig.defaults(),
+  options: NotificationInitOptions(
+    initializeFirebase: true,
+    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+    enableFcm: true,
+  ),
+  onNotificationTap: (payload) async {
+    await _handleNotificationNavigation(payload);
+  },
+);
 ```
 
-### 🔔 Show a local notification
+If Firebase is initialized elsewhere in your app:
+
+```dart
+options: const NotificationInitOptions(
+  initializeFirebase: false,
+  enableFcm: true,
+),
+```
+
+For FCM background messages, this template already provides a top-level, annotated handler:
+
+```dart
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+```
+
+If your project uses `firebase_options.dart` and Firebase cannot initialize with the default native config, update this handler to call:
+
+```dart
+await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+```
+
+## Foreground, Background, and Terminated Flow
+
+Foreground FCM messages:
+
+- `NotificationFcmService` listens to `FirebaseMessaging.onMessage`.
+- The payload is normalized into `AppNotificationPayload`.
+- The module shows it through local notifications so presentation stays consistent.
+
+Background tap:
+
+- `FirebaseMessaging.onMessageOpenedApp` is mapped to the app-level tap handler.
+
+Terminated launch:
+
+- `FirebaseMessaging.getInitialMessage()` is checked after initialization.
+- The tap callback runs after a frame so router navigation has a mounted app.
+
+Local notification tap:
+
+- `NotificationLocalService` reads the JSON payload.
+- The same app-level tap handler receives `AppNotificationPayload`.
+
+## Usage
+
+Show a local notification:
 
 ```dart
 await getIt<NotificationCoordinator>().showLocal(
@@ -268,44 +330,53 @@ await getIt<NotificationCoordinator>().showLocal(
 );
 ```
 
-### ⏰ Schedule a local notification
+Schedule an exact local notification:
 
 ```dart
 await getIt<NotificationCoordinator>().scheduleLocal(
   id: 1,
   title: 'Reminder',
-  body: 'Don\'t forget',
+  body: 'Do not forget',
   date: DateTime.now().add(const Duration(minutes: 10)),
 );
 ```
 
-### 🧹 Cancel notifications
+Schedule an inexact notification without exact-alarm permission:
 
-- Cancel one:
+```dart
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show AndroidScheduleMode;
+
+await getIt<NotificationCoordinator>().scheduleLocal(
+  id: 2,
+  title: 'Reminder',
+  body: 'Battery-friendly reminder',
+  date: DateTime.now().add(const Duration(minutes: 10)),
+  androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+);
+```
+
+Cancel notifications:
 
 ```dart
 await getIt<NotificationCoordinator>().cancelLocal(1);
-```
-
-- Cancel all:
-
-```dart
 await getIt<NotificationCoordinator>().cancelAllLocal();
 ```
 
-### 🧵 Subscribe / unsubscribe to topics (FCM only)
+FCM token:
+
+```dart
+final token = await getIt<NotificationCoordinator>().getDeviceToken();
+```
+
+FCM topics:
 
 ```dart
 await getIt<NotificationCoordinator>().subscribeToTopics(['news']);
 await getIt<NotificationCoordinator>().unsubscribeFromTopics(['news']);
 ```
 
-Recommended usage:
-
-- Subscribe after login (user-specific topics)
-- Unsubscribe on logout
-
-### ✅ Permission checks
+Permission check:
 
 ```dart
 final granted = await getIt<NotificationCoordinator>()
@@ -316,40 +387,21 @@ if (!granted) {
 }
 ```
 
-### 🧨 Dispose (logout)
+Dispose on logout:
 
 ```dart
 await getIt<NotificationCoordinator>().dispose(deleteFcmToken: true);
 ```
 
----
+## Production Checklist
 
-## 5) Adding new features (extending the module)
-
-### 🧷 Notification action buttons
-
-This Brick is prepared for actions:
-
-- Background entry-point exists:
-  - `notificationTapBackground(NotificationResponse response)`
-
-To add actions:
-
-1. Define iOS categories in `AppNotificationConfig.iosNotificationCategories`
-2. Add Android actions in `AndroidNotificationDetails(actions: ...)`
-3. Handle `NotificationResponse.actionId` in your tap handler
-
-### 🧠 Advanced behaviors
-
-Common extensions:
-
-- **Show notifications from FCM background handler**
-  - Requires extra care (plugins in background isolate)
-
-- **Custom payload parsing**
-  - Extend `AppNotificationPayload` to support your backend contract
-
-- **Custom navigation**
-  - Keep `onNotificationTap` in bootstrap as the single navigation entry point
-
----
+- Android Gradle desugaring enabled.
+- Android `compileSdk` is 35+.
+- Android manifest has notification permission.
+- Android scheduling receivers are present if scheduling is used.
+- Exact alarm permission policy is chosen if exact scheduling is used.
+- `ActionBroadcastReceiver` is present if Android notification actions are used.
+- Android notification icon is a real drawable and kept in release builds.
+- iOS background-action plugin registrant callback is added if background actions are used.
+- FCM native files and APNs setup are complete before `enableFcm: true`.
+- Notification IDs fit in a signed 32-bit integer. The template generator already uses a safe random 31-bit id for non-scheduled local notifications.

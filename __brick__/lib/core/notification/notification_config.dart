@@ -170,8 +170,11 @@ class AppNotificationConfig {
 
   /// Default Android small icon resource name.
   ///
-  /// This should be a drawable resource.
-  /// Example: `ic_notification` refers to `@drawable/ic_notification`.
+  /// The template default uses the launcher icon as a development fallback.
+  /// Before release, prefer a monochrome drawable notification icon.
+  ///
+  /// Example: `ic_notification` refers to
+  /// `android/app/src/main/res/drawable/ic_notification.xml`.
   final String defaultAndroidSmallIcon;
 
   /// Enables logging using `coloredPrint` helpers.
@@ -240,7 +243,8 @@ class AppNotificationConfig {
   ///
   /// Important:
   /// - You should customize [initialTopics] in your generated project.
-  /// - You should ensure `defaultAndroidSmallIcon` exists as a drawable.
+  /// - You should replace the launcher-icon fallback with a release-ready
+  ///   drawable notification icon.
   factory AppNotificationConfig.defaults() {
     return const AppNotificationConfig(
       androidChannels: <AppAndroidNotificationChannelConfig>[
