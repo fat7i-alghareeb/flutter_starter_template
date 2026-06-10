@@ -49,9 +49,9 @@ extension AppContextExtensions on BuildContext {
 
   bool get isLtr => !isRtl;
 
-  IconData get chevronStart =>
+  FaIconData get chevronStart =>
       isRtl ? FontAwesomeIcons.chevronRight : FontAwesomeIcons.chevronLeft;
 
-  IconData get chevronEnd =>
+  FaIconData get chevronEnd =>
       isRtl ? FontAwesomeIcons.chevronLeft : FontAwesomeIcons.chevronRight;
 }

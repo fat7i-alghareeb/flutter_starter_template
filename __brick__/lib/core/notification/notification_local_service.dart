@@ -58,7 +58,7 @@ class NotificationLocalService {
       );
 
       await _local.initialize(
-        initSettings,
+        settings: initSettings,
         onDidReceiveNotificationResponse: (response) async {
           final payloadString = response.payload;
           if (payloadString == null || payloadString.isEmpty) return;
@@ -125,10 +125,10 @@ class NotificationLocalService {
     );
 
     await _local.show(
-      _generateNotificationId(),
-      title,
-      body,
-      details,
+      id: _generateNotificationId(),
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: payload.toJsonString(),
     );
   }
@@ -166,11 +166,11 @@ class NotificationLocalService {
     );
 
     await _local.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledAt,
-      details,
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledAt,
+      notificationDetails: details,
       payload: payload.toJsonString(),
       matchDateTimeComponents: matchDateTimeComponents,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -179,7 +179,7 @@ class NotificationLocalService {
 
   Future<void> cancel(int id) async {
     if (!_initialized) return;
-    await _local.cancel(id);
+    await _local.cancel(id: id);
   }
 
   Future<void> cancelAll() async {

@@ -1,33 +1,24 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/services.dart';
-import 'package:mobile_device_identifier/mobile_device_identifier.dart';
-import 'package:unique_identifier/unique_identifier.dart';
-
+import 'package:flutter_udid/flutter_udid.dart';
 
 class DeviceHelper {
   static Future<String?> getDeviceIdentifier() async {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
     if (Platform.isAndroid) {
+      final udid = await FlutterUdid.consistentUdid;
+      if (udid.isNotEmpty) return udid;
+
       final androidInfo = await deviceInfo.androidInfo;
       return androidInfo.id;
     } else if (Platform.isIOS) {
-      String? mobileDeviceIdentifier, identifier;
-      try {
-        mobileDeviceIdentifier = await MobileDeviceIdentifier().getDeviceId();
-      } catch (_) {}
-      try {
-        identifier = await UniqueIdentifier.serial;
-      } on PlatformException {
-        identifier = '';
-      }
-      final iosInfo = await deviceInfo.iosInfo;
+      final udid = await FlutterUdid.consistentUdid;
+      if (udid.isNotEmpty) return udid;
 
-      final String deviceId = (mobileDeviceIdentifier ?? identifier) ??
-          (iosInfo.identifierForVendor ?? "");
-      return deviceId;
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? '';
     }
 
     return null;
@@ -52,6 +43,4 @@ class DeviceHelper {
 
     return "Unknown Device";
   }
-
-
 }

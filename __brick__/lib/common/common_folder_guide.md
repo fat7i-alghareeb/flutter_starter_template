@@ -48,6 +48,9 @@ This project uses `flutter_screenutil` for all layout dimensions. Using raw `dou
 2. **.w (Width)**: Use for horizontal margins, padding, and screen-relative horizontal dimensions.
 3. **.sp (Scalable Pixels)**: Use for **EVERYTHING** related to text (fontSize) and any box that must grow if the user scales their system font (like button heights).
 
+For spacing-only gaps, prefer `x.verticalSpace` and `y.horizontalSpace`.
+Do not write `SizedBox(height: x)` or `SizedBox(width: y)` just to create empty space.
+
 **Standard Padding Example**
 
 ```dart
@@ -95,7 +98,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/app_icon_source.dart`
 - **Responsibility**: Unified icon type system.
-- **Details**: Defines the `IconSource` class and `IconSourceWidget`. It allows passing `IconData`, SVG paths, or Asset paths as a single object, resolving them correctly at render time.
+- **Details**: Defines the `IconSource` class and `IconSourceWidget`. It allows passing Material `IconData`, FontAwesome `FaIconData`, SVG paths, or Asset paths as a single object, resolving them correctly at render time.
 
 ### `app_image_viewer.dart`
 

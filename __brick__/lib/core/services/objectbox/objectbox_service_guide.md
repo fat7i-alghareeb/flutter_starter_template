@@ -175,7 +175,7 @@ ObjectBox relies on code generation.
 Run (project root):
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 If code generation fails, check:
@@ -298,7 +298,7 @@ After applying this, run build_runner again.
 After adding/changing `@Entity()` or `@Id()`, run:
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 ### 3) DAO options (two styles)

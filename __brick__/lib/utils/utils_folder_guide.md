@@ -106,6 +106,13 @@ Mandatory for use in `AppReactiveTextField`.
 - **`ArabicToEnglishDigitsFormatter`**: Forces all numeric input to English digits.
 - **`AppNumericTextFormatter`**: Standard numeric mask.
 
+### `device_helper.dart`
+
+Uses `device_info_plus` and `flutter_udid` to expose device details and a consistent device identifier.
+
+- Do not use deprecated identifier plugins such as `mobile_device_identifier`.
+- Prefer the centralized helper instead of calling identifier packages directly from features.
+
 ### `jwt_token_utils.dart`
 
 Helper to parse JWT payload without validating signature. Use to check token expiry or basic user fields.
