@@ -51,7 +51,7 @@ Key parts:
   - Exposes one method: `handleRedirect(...)`.
   - Internally uses:
     - `_handleSplash(...)`
-    - `_handleOnboarding(...)`
+    - inline onboarding gating before auth redirects
     - `_handleAuth(...)`
 
 ### `app_routes.dart`
@@ -125,7 +125,7 @@ After splash conditions are satisfied, the guard checks onboarding:
 
   - If onboarding is **not finished**:
     - Redirect to `OnboardingScreen.pagePath`.
-    - While the user is on onboarding and it is still not finished, the guard allows staying there.
+    - While the user is on onboarding and it is still not finished, the guard allows staying there and does not run auth redirects yet.
 
   - If onboarding is **finished**:
     - Continue to the auth step.
