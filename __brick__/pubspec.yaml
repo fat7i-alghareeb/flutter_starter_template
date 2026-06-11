@@ -1,5 +1,5 @@
-name: {{{project_name_yaml}}}
-description: {{{project_description_yaml}}}
+name: {{project_name}}
+description: "{{project_description}}"
 publish_to: "none"
 version: 1.0.0+1
 
@@ -103,16 +103,16 @@ flavorizr:
   flavors:
     stage:
       app:
-        name: {{{stage_project_title_yaml}}}
-        package_name: {{{stage_package_name_yaml}}}
+        name: "{{project_title}} Stage"
+        package_name: {{package_name}}.stage
       android:
-        applicationId: {{{stage_package_name_yaml}}}
+        applicationId: {{package_name}}.stage
     production:
       app:
-        name: {{{project_title_yaml}}}
-        package_name: {{{package_name_yaml}}}
+        name: "{{project_title}}"
+        package_name: {{package_name}}
       android:
-        applicationId: {{{package_name_yaml}}}
+        applicationId: {{package_name}}
   instructions:
     - android:androidManifest
     - android:flavorizrGradle

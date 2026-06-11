@@ -147,12 +147,12 @@ mason make flutter_app_template --on-conflict overwrite
 
 During generation the brick asks for:
 
-- `project_name`: the Dart package name. Natural input is accepted and normalized to `snake_case`.
+- `project_name`: the Dart package name. Use valid `snake_case`, for example `my_app`.
 - `project_title`: the visible app title used by flavors and `F.title`.
-- `package_name`: the Android application id / iOS bundle id base. It is normalized to lower-case dotted segments.
+- `package_name`: the Android application id / iOS bundle id base, for example `com.example.myapp`.
 - `project_description`: the `pubspec.yaml` description.
 
-For example, `My Cool App 2026` becomes the Dart package name `my_cool_app_2026`, while `COM.Acme.123Cool_App` becomes `com.acme.coolapp`.
+Use already-valid values when generating. For example, use `my_cool_app_2026` for the Dart package name and `com.acme.coolapp` for the bundle id.
 
 The `--on-conflict overwrite` flag is intentional for a fresh `flutter create` project because this brick replaces the default counter app files with the template files.
 

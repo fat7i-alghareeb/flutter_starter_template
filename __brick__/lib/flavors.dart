@@ -8,9 +8,9 @@ class F {
   static String get title {
     switch (appFlavor) {
       case Flavor.stage:
-        return {{{stage_project_title_dart_literal}}};
+        return '{{project_title}} Stage';
       case Flavor.production:
-        return {{{project_title_dart_literal}}};
+        return '{{project_title}}';
     }
   }
 }

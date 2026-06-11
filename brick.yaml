@@ -5,7 +5,7 @@ version: 0.1.1
 vars:
   project_name:
     type: string
-    description: "Dart package name. Natural names are accepted and sanitized to snake_case by the pre_gen hook."
+    description: "Dart package name. Use valid snake_case, for example my_app."
     prompt: "What is the Dart package name? (example: my_app)"
     default: my_app
   project_title:
@@ -16,7 +16,7 @@ vars:
 
   package_name:
     type: string
-    description: "Android applicationId / iOS bundle identifier base. It is sanitized to lower-case dotted segments."
+    description: "Android applicationId / iOS bundle identifier base, for example com.example.myapp."
     prompt: "What is the package/bundle id? (example: com.example.myapp)"
     default: com.example.myapp
 
