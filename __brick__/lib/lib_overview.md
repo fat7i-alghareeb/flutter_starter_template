@@ -17,8 +17,8 @@ The startup path is optimized for a fast first Flutter frame. AI agents modifyin
 
 1. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
 2. **Flavor Discovery**: Resolve `F.appFlavor` from the native environment.
-3. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable).
-4. **Runtime Registration**: Register `AuthManager`, Dio, and stage-only tooling singletons without loading stored state.
+3. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable), including JWT auth services and Dio without reading stored state.
+4. **Stage Tool Registration**: Register stage-only tooling when the stage flavor is active.
 5. **Localization Core**: `EasyLocalization.ensureInitialized()`.
 6. **Startup Locale**: `LocaleService.resolveStartupLocale()` using device/fallback only, with no storage read.
 7. **Guarded Run**: Launch `ScreenUtilInit` and the root `App`.

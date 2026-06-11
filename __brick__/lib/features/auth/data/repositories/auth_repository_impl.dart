@@ -2,7 +2,6 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/domain/user_entity.dart';
 import '../../../../core/error/global_error_handler.dart';
-import '../../../../core/injection/injectable.dart' show getIt;
 import '../../../../core/services/session/auth_manager.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -11,9 +10,10 @@ import '../mappers/auth_model_mapper.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  const AuthRepositoryImpl(this._remote);
+  const AuthRepositoryImpl(this._remote, this._authManager);
 
   final AuthRemoteDataSource _remote;
+  final AuthManager _authManager;
 
   @override
   Future<Result<UserEntity>> loginDummy() {
@@ -23,8 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = response.toUserEntity();
       final token = response.toAuthTokenModel();
 
-      final authManager = getIt<AuthManager>();
-      await authManager.login(user: user, token: token);
+      await _authManager.login(user: user, token: token);
       return user;
     });
   }

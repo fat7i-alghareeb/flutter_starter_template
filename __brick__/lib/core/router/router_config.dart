@@ -139,10 +139,8 @@ class AppRouteGuard {
   ///   splash.
   /// - If onboarding enabled and not finished → go to onboarding.
   /// - After onboarding:
-  ///   - If auth enabled:
-  ///     - unauthenticated → login
-  ///     - authenticated → root
-  ///   - If auth disabled → root
+  ///   - unauthenticated → login
+  ///   - authenticated or guest → root
   String? handleRedirect({
     required GoRouterState state,
     required bool splashDelayElapsed,
@@ -232,14 +230,6 @@ class AppRouteGuard {
     required String currentPath,
     required bool canEnterApp,
   }) {
-    if (!AppFlowConfig.authEnabled) {
-      if (currentPath != rootPath) {
-        printG('${RouterLogTags.redirect} auth disabled → root');
-        return rootPath;
-      }
-      return null;
-    }
-
     if (!canEnterApp) {
       if (currentPath != loginPath) {
         printY('${RouterLogTags.redirect} unauthenticated → login');

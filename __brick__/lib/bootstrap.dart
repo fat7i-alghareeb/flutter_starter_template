@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart'
     show SystemChrome, SystemUiMode, appFlavor;
-import 'app.dart' show appAuthMode;
 import 'core/config/localization_config.dart';
 import 'core/injection/injectable.dart';
 import 'core/notification/notification_config.dart';
@@ -44,8 +43,7 @@ const double _tabletFontScaleFactor = 1.1;
 /// - Ensures Flutter bindings are initialized.
 /// - Initializes EasyLocalization's core infrastructure.
 /// - Configures dependency injection via Injectable / GetIt.
-/// - Registers [AuthManager] and the global Dio client according to
-///   the selected [appAuthMode] without blocking the first frame.
+/// - Configures Injectable / GetIt without blocking the first frame.
 /// - Resolves the initial locale using [LocaleService].
 /// - Runs the provided widget tree inside a guarded zone with
 ///   EasyLocalization and the active [Flavor].
@@ -66,10 +64,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
         orElse: () => Flavor.stage,
       );
 
-      //    Configure the dependency injection container and register
-      //    low-level services and singletons.
+      //    Configure the dependency injection container.
       configureDependencies();
-      _registerRuntimeServices();
 
       if (F.appFlavor == Flavor.stage) {
         if (!getIt.isRegistered<StageDevicePreviewController>()) {
@@ -93,11 +89,6 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       log('Uncaught application error', error: error, stackTrace: stackTrace);
     },
   );
-}
-
-void _registerRuntimeServices() {
-  registerAuthManager(appAuthMode);
-  registerDioClient(appAuthMode);
 }
 
 double _resolveFontScaleFactor(double screenWidth) {
@@ -193,7 +184,7 @@ Future<void> _handleNotificationNavigation(
 /// Initializes persisted authentication state after the first frame.
 ///
 /// Responsibilities:
-/// - Loads user/guest and token state from storage.
+/// - Loads user/guest and JWT token state from storage.
 /// - Moves [AuthStateNotifier] out of `Status.initial` so the router can
 ///   leave splash once all startup guards are resolved.
 Future<void> _initializeAuthState() async {
