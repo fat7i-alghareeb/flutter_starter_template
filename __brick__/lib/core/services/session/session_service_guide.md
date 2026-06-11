@@ -28,8 +28,8 @@ It coordinates:
 
 - Persisting user/guest flag via `StorageService`
 - Updating the reactive state in `AuthStateNotifier`
-- (JWT mode) writing/deleting tokens through `JwtTokenStorage`
-- (JWT mode) listening to token status updates and forwarding them into `AuthStateNotifier`
+- Writing/deleting JWT tokens through `JwtTokenStorage`
+- Listening to JWT token status updates and forwarding them into `AuthStateNotifier`
 
 Key points:
 
@@ -45,12 +45,12 @@ Key points:
   - Persists user.
   - Clears guest.
   - Updates router-facing status: `AuthStatus.authenticated()`.
-  - (JWT mode) persists token into secure storage.
+  - Persists the required JWT token into secure storage.
 
 - During `logout()`:
   - Clears persisted user + guest.
   - Sets status to `AuthStatus.unauthenticated(message: ...)`.
-  - (JWT mode) deletes token and emits unauthenticated through dio_refresh_bot.
+  - Deletes the JWT token and emits unauthenticated through dio_refresh_bot.
 
 #### How it should be used in your architecture
 
@@ -127,7 +127,7 @@ Why it exists:
 ### App startup
 
 1. DI is configured.
-2. `StorageService`, `AuthManager`, and the global Dio client are registered synchronously.
+2. `StorageService`, `AuthManager`, and the global JWT Dio client are registered by Injectable without storage reads.
 3. The app renders its first frame.
 4. Post-frame warmup calls `AuthManager.initialize()`:
    - Loads user/guest from `StorageService`.

@@ -23,9 +23,6 @@ class AppFlowConfig {
 
   /// * Enable or disable the onboarding flow.
   static const bool onboardingEnabled = true;
-
-  /// * Enable or disable authentication-based routing.
-  static const bool authEnabled = true;
 }
 
 /// Log tags for routing / flow related components.

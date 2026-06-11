@@ -15,11 +15,11 @@ Failure to use the existing tools described here and instead duplicating logic i
 
 ### `app_flow_constants.dart`
 
-Contains global switches and storage keys for application-level flows.
+Contains global flow config and storage keys for application-level flows.
 
 - **`OnboardingStorageKeys`**: `finished` (tracks if onboarding is done).
-- **`SplashConfig`**: `initialDelay` (4s minimum splash).
-- **`AppFlowConfig`**: `onboardingEnabled`, `authEnabled` (toggle core flows).
+- **`SplashConfig`**: `initialDelay` (minimum splash duration).
+- **`AppFlowConfig`**: `onboardingEnabled` (toggle onboarding only; auth routing is always enabled).
 - **`RouterLogTags`**: Standardized tags for routing logs.
 
 ### `auth_constants.dart` (HARD PATH)
@@ -27,10 +27,7 @@ Contains global switches and storage keys for application-level flows.
 The single source of truth for Authentication infrastructure.
 
 - **`AuthStorageKeys`**: `user`, `guestFlag`, `jwtToken`.
-- **`OAuthConstants`**:
-  - `authBaseUrl`: `https://nsyuser.i-myapp.com`
-  - `clientId`: `PostmanLocal`
-  - `scope`: `openid profile offline_access local_app_api`
+- **`AuthReasons`**: Shared reasons for logout and guest transitions.
 - **`AuthLogTags`**: Use these for all `colored_print` calls in the auth layer.
 
 ### `design_constants.dart` (DESIGN SYSTEM)

@@ -134,22 +134,19 @@ Transition point:
 
 - When onboarding is completed, the service notifies listeners → `RouterRefreshListenable` notifies → redirect re-runs.
 
-### Step 3: Auth guard (only if enabled)
+### Step 3: Auth guard
 
 After onboarding (or if onboarding is disabled), the guard checks auth:
 
-- If `AppFlowConfig.authEnabled == false`:
-  - Always redirect to `RootScreen.pagePath`.
-
-- Else, compute authenticated state:
-  - `isAuthenticated = (authStatus.status == Status.authenticated) && !authState.isGuest`
+- `isAuthenticated = (authStatus.status == Status.authenticated) && !authState.isGuest`
+- `canEnterApp = isAuthenticated || authState.isGuest`
 
 Then:
 
-- If **not authenticated**:
+- If **not authenticated and not guest**:
   - Redirect to `LoginScreen.pagePath`.
 
-- If **authenticated**:
+- If **authenticated or guest**:
   - If you are currently on splash/login/onboarding, redirect to `RootScreen.pagePath`.
   - Otherwise, allow the current route.
 
@@ -161,7 +158,7 @@ Then:
 2. Wait for splash delay + auth status resolves.
 3. Onboarding not finished → go to Onboarding.
 4. User completes onboarding → redirect re-runs.
-5. Auth enabled → unauthenticated → go to Login.
+5. Unauthenticated → go to Login.
 
 ### Returning user (onboarding finished, already logged in)
 
@@ -170,7 +167,7 @@ Then:
 3. Onboarding finished → proceed.
 4. Authenticated → go to Root.
 
-### Token expired (JWT mode)
+### Token expired
 
 1. Requests may return 401 or token may be near expiry.
 2. `DioClient` refresh flow attempts refresh.
