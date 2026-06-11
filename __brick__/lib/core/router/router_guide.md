@@ -51,7 +51,7 @@ Key parts:
   - Exposes one method: `handleRedirect(...)`.
   - Internally uses:
     - `_handleSplash(...)`
-    - `_handleOnboarding(...)`
+    - inline onboarding gating before auth redirects
     - `_handleAuth(...)`
 
 ### `app_routes.dart`
