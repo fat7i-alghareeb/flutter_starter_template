@@ -175,8 +175,27 @@ class AppRouteGuard {
     }
 
     // 2) Onboarding.
-    final onboardingRedirect = _handleOnboarding(currentPath);
-    if (onboardingRedirect != null) return onboardingRedirect;
+    if (AppFlowConfig.onboardingEnabled) {
+      if (!onboardingService.isInitialized) {
+        if (currentPath != splashPath) {
+          printC('${RouterLogTags.redirect} → splash (onboarding loading)');
+          return splashPath;
+        }
+        return null;
+      }
+
+      final finished = onboardingService.isOnboardingFinishedSync;
+      if (!finished) {
+        if (currentPath != onboardingPath) {
+          printC('${RouterLogTags.redirect} → onboarding (not finished)');
+          return onboardingPath;
+        }
+
+        // Onboarding must complete before auth redirects are evaluated.
+        // Otherwise `/onboarding -> /login -> /onboarding` can loop forever.
+        return null;
+      }
+    }
 
     // 3) Auth.
     final authRedirect = _handleAuth(
@@ -198,33 +217,6 @@ class AppRouteGuard {
       }
       return null;
     }
-    return null;
-  }
-
-  String? _handleOnboarding(String currentPath) {
-    if (!AppFlowConfig.onboardingEnabled) {
-      return null;
-    }
-
-    if (!onboardingService.isInitialized) {
-      if (currentPath != splashPath) {
-        printC('${RouterLogTags.redirect} → splash (onboarding loading)');
-        return splashPath;
-      }
-      return null;
-    }
-
-    final finished = onboardingService.isOnboardingFinishedSync;
-    if (!finished) {
-      if (currentPath != onboardingPath) {
-        printC('${RouterLogTags.redirect} → onboarding (not finished)');
-        return onboardingPath;
-      }
-      return null;
-    }
-
-    // Onboarding is finished but user is still on the onboarding page.
-    // Fall through to auth redirects so the router moves them forward.
     return null;
   }
 
