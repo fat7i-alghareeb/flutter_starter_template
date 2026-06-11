@@ -58,7 +58,7 @@ class NotificationLocalService {
       );
 
       await _local.initialize(
-        initSettings,
+        settings: initSettings,
         onDidReceiveNotificationResponse: (response) async {
           final payloadString = response.payload;
           if (payloadString == null || payloadString.isEmpty) return;
@@ -125,10 +125,10 @@ class NotificationLocalService {
     );
 
     await _local.show(
-      _generateNotificationId(),
-      title,
-      body,
-      details,
+      id: _generateNotificationId(),
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: payload.toJsonString(),
     );
   }
@@ -140,6 +140,8 @@ class NotificationLocalService {
     required String body,
     required tz.TZDateTime scheduledAt,
     DateTimeComponents? matchDateTimeComponents,
+    AndroidScheduleMode androidScheduleMode =
+        AndroidScheduleMode.exactAllowWhileIdle,
     Map<String, dynamic> data = const <String, dynamic>{},
     String? androidChannelId,
   }) async {
@@ -166,20 +168,42 @@ class NotificationLocalService {
     );
 
     await _local.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledAt,
-      details,
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledAt,
+      notificationDetails: details,
       payload: payload.toJsonString(),
       matchDateTimeComponents: matchDateTimeComponents,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: androidScheduleMode,
     );
+  }
+
+  Future<bool?> canScheduleExactNotifications() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return null;
+
+    final android = _local
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    return android?.canScheduleExactNotifications();
+  }
+
+  Future<bool?> requestExactAlarmsPermission() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return null;
+
+    final android = _local
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    return android?.requestExactAlarmsPermission();
   }
 
   Future<void> cancel(int id) async {
     if (!_initialized) return;
-    await _local.cancel(id);
+    await _local.cancel(id: id);
   }
 
   Future<void> cancelAll() async {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,12 +15,26 @@ import 'core/notification/notification_init_options.dart';
 import 'core/notification/notification_payload.dart';
 import 'core/router/router_config.dart';
 import 'core/services/localization/locale_service.dart';
+import 'core/services/onboarding/onboarding_service.dart';
 import 'core/services/session/auth_manager.dart';
+import 'core/services/session/auth_state_notifier.dart';
 import 'core/theme/theme_controller.dart';
 import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
 import 'flavors.dart' show F, Flavor;
+import 'utils/constants/app_flow_constants.dart';
 import 'utils/constants/design_constants.dart';
 import 'utils/helpers/colored_print.dart';
+
+const double _tinyPhoneMaxWidth = 320;
+const double _smallPhoneMaxWidth = 360;
+const double _basePhoneMaxWidth = 400;
+const double _largePhoneMaxWidth = 480;
+
+const double _tinyPhoneFontScaleFactor = 0.9;
+const double _smallPhoneFontScaleFactor = 0.95;
+const double _basePhoneFontScaleFactor = 1;
+const double _largePhoneFontScaleFactor = 1.05;
+const double _tabletFontScaleFactor = 1.1;
 
 /// Common bootstrap entry point used by all flavors.
 ///
@@ -32,6 +47,7 @@ import 'utils/helpers/colored_print.dart';
 /// - Resolves the initial locale using [LocaleService].
 /// - Runs the provided widget tree inside a guarded zone with
 ///   EasyLocalization and the active [Flavor].
+/// - Starts non-critical service warmup after the first frame.
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   // Important: keep `ensureInitialized` and `runApp` inside the same zone.
   await runZonedGuarded<Future<void>>(
@@ -50,7 +66,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
       //    Configure the dependency injection container and register
       //    low-level services and singletons.
-      await configureDependencies();
+      configureDependencies();
+      _registerRuntimeServices();
 
       if (F.appFlavor == Flavor.stage) {
         if (!getIt.isRegistered<StageDevicePreviewController>()) {
@@ -58,21 +75,15 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
             StageDevicePreviewController(getIt()),
           );
         }
-        await getIt<StageDevicePreviewController>().load();
       }
 
-      await _initializeNotifications();
-
       await EasyLocalization.ensureInitialized();
-      await getIt<ThemeController>().initialize();
 
-      await _initializeAuthAndNetwork();
-
-      //    Resolve the locale that the app should start with using
-      //    the [LocaleService] abstraction.
-      final initialLocale = await getIt<LocaleService>().resolveInitialLocale();
+      // Resolve the locale for the first frame without touching storage.
+      final initialLocale = getIt<LocaleService>().resolveStartupLocale();
 
       await _runGuardedApp(builder, initialLocale);
+      _startPostLaunchWarmup();
     },
     (error, stackTrace) {
       // Last-resort safety net for any exceptions that happen outside
@@ -80,6 +91,57 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       log('Uncaught application error', error: error, stackTrace: stackTrace);
     },
   );
+}
+
+void _registerRuntimeServices() {
+  registerAuthManager(appAuthMode);
+  registerDioClient(appAuthMode);
+}
+
+double _resolveFontScaleFactor(double screenWidth) {
+  if (screenWidth <= _tinyPhoneMaxWidth) return _tinyPhoneFontScaleFactor;
+  if (screenWidth <= _smallPhoneMaxWidth) return _smallPhoneFontScaleFactor;
+  if (screenWidth <= _basePhoneMaxWidth) return _basePhoneFontScaleFactor;
+  if (screenWidth <= _largePhoneMaxWidth) return _largePhoneFontScaleFactor;
+  return _tabletFontScaleFactor;
+}
+
+void _startPostLaunchWarmup() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(_initializeStageTools());
+    unawaited(_initializeTheme());
+    unawaited(_initializeOnboarding());
+    unawaited(_initializeAuthState());
+    unawaited(
+      Future<void>.delayed(SplashConfig.initialDelay, _initializeNotifications),
+    );
+  });
+}
+
+Future<void> _initializeStageTools() async {
+  if (F.appFlavor != Flavor.stage) return;
+
+  try {
+    await getIt<StageDevicePreviewController>().load();
+  } catch (e) {
+    printY('[Bootstrap] Stage tools initialize failed: $e');
+  }
+}
+
+Future<void> _initializeTheme() async {
+  try {
+    await getIt<ThemeController>().initialize();
+  } catch (e) {
+    printY('[Bootstrap] Theme initialize failed: $e');
+  }
+}
+
+Future<void> _initializeOnboarding() async {
+  try {
+    await getIt<OnboardingService>().initialize();
+  } catch (e) {
+    printY('[Bootstrap] Onboarding initialize failed: $e');
+  }
 }
 
 /// Initializes notifications.
@@ -126,17 +188,22 @@ Future<void> _handleNotificationNavigation(
   }
 }
 
-/// Initializes the authentication layer and HTTP client.
+/// Initializes persisted authentication state after the first frame.
 ///
 /// Responsibilities:
-/// - Creates and registers a single [AuthManager] instance.
-/// - Awaits [AuthManager.initialize] so user/guest and token state are
-///   loaded before the UI starts.
-/// - Creates and registers a global Dio client so repositories can perform
-///   network calls immediately.
-Future<void> _initializeAuthAndNetwork() async {
-  final authManager = getIt<AuthManager>();
-  await authManager.initialize();
+/// - Loads user/guest and token state from storage.
+/// - Moves [AuthStateNotifier] out of `Status.initial` so the router can
+///   leave splash once all startup guards are resolved.
+Future<void> _initializeAuthState() async {
+  try {
+    final authManager = getIt<AuthManager>();
+    await authManager.initialize();
+  } catch (e) {
+    printY('[Bootstrap] Auth initialize failed: $e');
+    getIt<AuthStateNotifier>().setAuthStatus(
+      AuthStatus.unauthenticated(message: 'Startup auth failed'),
+    );
+  }
 }
 
 /// Runs the application inside a guarded zone and wraps it with
@@ -173,24 +240,8 @@ Future<void> _runGuardedApp(
       designSize: AppDesign.designSize,
       minTextAdapt: true,
       splitScreenMode: true,
-      ensureScreenSize: true,
       fontSizeResolver: (fontSize, instance) {
-        final width = instance.screenWidth;
-        //TODO make this logic const to be used in any other plce the width values i mean
-        double factor;
-        if (width <= 320) {
-          factor = 0.9;
-        } else if (width <= 360) {
-          factor = 0.95;
-        } else if (width <= 400) {
-          factor = 1.0;
-        } else if (width <= 480) {
-          factor = 1.05;
-        } else {
-          factor = 1.1;
-        }
-
-        return fontSize * factor;
+        return fontSize * _resolveFontScaleFactor(instance.screenWidth);
       },
       builder: (context, _) => app,
     ),

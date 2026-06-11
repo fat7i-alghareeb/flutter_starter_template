@@ -12,78 +12,73 @@
 import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
-import 'package:test_name_to_delete/core/injection/register_module.dart'
+import 'package:{{project_name}}/core/injection/register_module.dart'
     as _i937;
-import 'package:test_name_to_delete/core/network/interceptors/custom_dio_interceptor.dart'
+import 'package:{{project_name}}/core/network/interceptors/custom_dio_interceptor.dart'
     as _i763;
-import 'package:test_name_to_delete/core/network/interceptors/error_interceptor.dart'
+import 'package:{{project_name}}/core/network/interceptors/error_interceptor.dart'
     as _i129;
-import 'package:test_name_to_delete/core/network/interceptors/localization_interceptor.dart'
+import 'package:{{project_name}}/core/network/interceptors/localization_interceptor.dart'
     as _i1004;
-import 'package:test_name_to_delete/core/network/interceptors/memory_aware_interceptor.dart'
+import 'package:{{project_name}}/core/network/interceptors/memory_aware_interceptor.dart'
     as _i462;
-import 'package:test_name_to_delete/core/notification/notification_coordinator.dart'
+import 'package:{{project_name}}/core/notification/notification_coordinator.dart'
     as _i577;
-import 'package:test_name_to_delete/core/notification/notification_fcm_service.dart'
+import 'package:{{project_name}}/core/notification/notification_fcm_service.dart'
     as _i668;
-import 'package:test_name_to_delete/core/notification/notification_local_service.dart'
+import 'package:{{project_name}}/core/notification/notification_local_service.dart'
     as _i296;
-import 'package:test_name_to_delete/core/notification/notification_permission_service.dart'
+import 'package:{{project_name}}/core/notification/notification_permission_service.dart'
     as _i747;
-import 'package:test_name_to_delete/core/notification/notification_timezone_service.dart'
+import 'package:{{project_name}}/core/notification/notification_timezone_service.dart'
     as _i525;
-import 'package:test_name_to_delete/core/router/router_config.dart' as _i112;
-import 'package:test_name_to_delete/core/services/localization/locale_service.dart'
+import 'package:{{project_name}}/core/router/router_config.dart' as _i112;
+import 'package:{{project_name}}/core/services/localization/locale_service.dart'
     as _i870;
-import 'package:test_name_to_delete/core/services/onboarding/onboarding_service.dart'
+import 'package:{{project_name}}/core/services/onboarding/onboarding_service.dart'
     as _i175;
-import 'package:test_name_to_delete/core/services/session/auth_manager.dart'
-    as _i659;
-import 'package:test_name_to_delete/core/services/session/auth_state_notifier.dart'
+import 'package:{{project_name}}/core/services/session/auth_state_notifier.dart'
     as _i949;
-import 'package:test_name_to_delete/core/services/session/jwt_token_storage.dart'
+import 'package:{{project_name}}/core/services/session/jwt_token_storage.dart'
     as _i1051;
-import 'package:test_name_to_delete/core/services/storage/storage_service.dart'
+import 'package:{{project_name}}/core/services/storage/storage_service.dart'
     as _i841;
-import 'package:test_name_to_delete/core/theme/theme_controller.dart' as _i247;
-import 'package:test_name_to_delete/features/auth/data/datasources/auth_remote_datasource.dart'
+import 'package:{{project_name}}/core/theme/theme_controller.dart' as _i247;
+import 'package:{{project_name}}/features/auth/data/datasources/auth_remote_datasource.dart'
     as _i847;
-import 'package:test_name_to_delete/features/auth/data/repositories/auth_repository_impl.dart'
+import 'package:{{project_name}}/features/auth/data/repositories/auth_repository_impl.dart'
     as _i1058;
-import 'package:test_name_to_delete/features/auth/domain/facade/auth_facade.dart'
+import 'package:{{project_name}}/features/auth/domain/facade/auth_facade.dart'
     as _i890;
-import 'package:test_name_to_delete/features/auth/domain/repositories/auth_repository.dart'
+import 'package:{{project_name}}/features/auth/domain/repositories/auth_repository.dart'
     as _i217;
-import 'package:test_name_to_delete/features/auth/presentation/states/auth_bloc.dart'
+import 'package:{{project_name}}/features/auth/presentation/states/auth_bloc.dart'
     as _i512;
-import 'package:test_name_to_delete/features/root/data/datasources/root_remote_datasource.dart'
+import 'package:{{project_name}}/features/root/data/datasources/root_remote_datasource.dart'
     as _i544;
-import 'package:test_name_to_delete/features/root/data/repositories/root_repository_impl.dart'
+import 'package:{{project_name}}/features/root/data/repositories/root_repository_impl.dart'
     as _i943;
-import 'package:test_name_to_delete/features/root/domain/facade/root_facade.dart'
+import 'package:{{project_name}}/features/root/domain/facade/root_facade.dart'
     as _i174;
-import 'package:test_name_to_delete/features/root/domain/repositories/root_repository.dart'
+import 'package:{{project_name}}/features/root/domain/repositories/root_repository.dart'
     as _i825;
-import 'package:test_name_to_delete/features/root/presentation/states/root_bloc.dart'
+import 'package:{{project_name}}/features/root/presentation/states/root_bloc.dart'
     as _i244;
-import 'package:test_name_to_delete/features/root/presentation/ui/widgets/nav_bar/navigation_controller.dart'
+import 'package:{{project_name}}/features/root/presentation/ui/widgets/nav_bar/navigation_controller.dart'
     as _i1060;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
-  Future<_i174.GetIt> init({
+  _i174.GetIt init({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
-  }) async {
+  }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    await gh.factoryAsync<_i841.StorageService>(
-      () => registerModule.storageService,
-      preResolve: true,
-    );
     gh.factory<_i1060.NavigationController>(
       () => _i1060.NavigationController(),
     );
+    gh.lazySingleton<_i841.StorageService>(() => registerModule.storageService);
     gh.lazySingleton<_i763.CustomDioInterceptor>(
       () => _i763.CustomDioInterceptor(),
     );
@@ -107,6 +102,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => const _i112.AppRouteRegistry(),
     );
     gh.lazySingleton<_i949.AuthStateNotifier>(() => _i949.AuthStateNotifier());
+    gh.lazySingleton<_i847.AuthRemoteDataSource>(
+      () => _i847.AuthRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i544.RootRemoteDataSource>(
+      () => _i544.RootRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i870.LocaleService>(
       () => _i870.LocaleService(gh<_i841.StorageService>()),
     );
@@ -137,43 +138,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i668.NotificationFcmService>(),
       ),
     );
-    gh.lazySingleton<_i659.AuthManager>(
-      () => _i659.AuthManager(
-        storage: gh<_i841.StorageService>(),
-        state: gh<_i949.AuthStateNotifier>(),
-        tokenStorage: gh<_i1051.JwtTokenStorage>(),
-      ),
-    );
-    gh.singleton<_i361.Dio>(
-      () => registerModule.dio(
-        gh<_i462.MemoryAwareInterceptor>(),
-        gh<_i1004.LocalizationInterceptor>(),
-        gh<_i129.ErrorInterceptor>(),
-        gh<_i763.CustomDioInterceptor>(),
-        gh<_i659.AuthManager>(),
-        gh<_i1051.JwtTokenStorage>(),
-      ),
-    );
-    gh.lazySingleton<_i847.AuthRemoteDataSource>(
-      () => _i847.AuthRemoteDataSource(gh<_i361.Dio>()),
-    );
-    gh.lazySingleton<_i544.RootRemoteDataSource>(
-      () => _i544.RootRemoteDataSource(gh<_i361.Dio>()),
-    );
     gh.lazySingleton<_i217.AuthRepository>(
       () => _i1058.AuthRepositoryImpl(gh<_i847.AuthRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i890.AuthFacade>(
-      () => _i890.AuthFacade(gh<_i217.AuthRepository>()),
     );
     gh.lazySingleton<_i825.RootRepository>(
       () => _i943.RootRepositoryImpl(gh<_i544.RootRemoteDataSource>()),
     );
+    gh.lazySingleton<_i890.AuthFacade>(
+      () => _i890.AuthFacade(gh<_i217.AuthRepository>()),
+    );
     gh.lazySingleton<_i174.RootFacade>(
       () => _i174.RootFacade(gh<_i825.RootRepository>()),
     );
-    gh.factory<_i512.AuthBloc>(() => _i512.AuthBloc(gh<_i890.AuthFacade>()));
     gh.factory<_i244.RootBloc>(() => _i244.RootBloc(gh<_i174.RootFacade>()));
+    gh.factory<_i512.AuthBloc>(() => _i512.AuthBloc(gh<_i890.AuthFacade>()));
     return this;
   }
 }

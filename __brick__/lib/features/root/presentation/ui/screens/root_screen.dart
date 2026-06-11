@@ -2,7 +2,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../../common/imports/imports.dart';
 import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart';
-import '../../../../../core/injection/injectable.dart';
+import '../../../constants/root_constants.dart';
 import '../widgets/nav_bar/bottom_navigation.dart';
 import '../widgets/nav_bar/navigation_controller.dart';
 import '../widgets/nav_bar/navigation_scope.dart';
@@ -22,7 +22,7 @@ import '../widgets/showcase/root_tab_notifications_showcase.dart';
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});
 
-  static const String pagePath = '/root_screen';
+  static const String pagePath = RootConstants.routePath;
   static const String pageName = 'RootScreen';
 
   @override
@@ -99,7 +99,7 @@ class _RootScreenState extends State<RootScreen> {
                   color: state.color,
                   size: state.iconSize,
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.xs.verticalSpace,
                 Text(
                   'Dialogs',
                   maxLines: 1,
@@ -117,11 +117,11 @@ class _RootScreenState extends State<RootScreen> {
       ),
     ];
 
-    final pages = <Widget>[
-      const RootTabButtonsShowcase(),
-      const RootTabFormsShowcase(),
-      const RootTabDialogsSheetsShowcase(),
-      const RootTabNotificationsShowcase(),
+    final pageBuilders = <WidgetBuilder>[
+      (_) => const RootTabButtonsShowcase(),
+      (_) => const RootTabFormsShowcase(),
+      (_) => const RootTabDialogsSheetsShowcase(),
+      (_) => const RootTabNotificationsShowcase(),
     ];
 
     // Provide the controller to the subtree via a scope so any nested widget
@@ -133,14 +133,15 @@ class _RootScreenState extends State<RootScreen> {
           controller: _controller,
           items: items,
         ),
-        child: PageView(
+        child: PageView.builder(
           controller: _controller.pageController,
           physics: const NeverScrollableScrollPhysics(),
           onPageChanged: _controller.handlePageChanged,
-          children: List.generate(pages.length, (index) {
+          itemCount: pageBuilders.length,
+          itemBuilder: (context, index) {
             return AnimatedBuilder(
               animation: _controller,
-              child: pages[index],
+              child: pageBuilders[index](context),
               builder: (context, child) {
                 final isActive = index == _controller.currentIndex;
 
@@ -175,7 +176,7 @@ class _RootScreenState extends State<RootScreen> {
                 };
               },
             );
-          }),
+          },
         ),
       ),
     );

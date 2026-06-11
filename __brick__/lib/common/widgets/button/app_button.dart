@@ -364,6 +364,9 @@ class AppButton extends StatefulWidget {
 
 class _AppButtonState extends State<AppButton>
     with SingleTickerProviderStateMixin {
+  static bool? _cachedHasVibrator;
+  static Future<bool>? _hasVibratorFuture;
+
   late final AnimationController _pressController;
   late final Animation<double> _scale;
 
@@ -437,8 +440,7 @@ class _AppButtonState extends State<AppButton>
   void _vibratePress() {
     unawaited(() async {
       try {
-        final hasVibrator = await Vibration.hasVibrator();
-        if (hasVibrator != true) return;
+        if (!await _hasVibrator()) return;
         await Vibration.vibrate(duration: 10, amplitude: 40);
       } catch (_) {}
     }());
@@ -447,11 +449,28 @@ class _AppButtonState extends State<AppButton>
   void _vibrateTap() {
     unawaited(() async {
       try {
-        final hasVibrator = await Vibration.hasVibrator();
-        if (hasVibrator != true) return;
+        if (!await _hasVibrator()) return;
         await Vibration.vibrate(duration: 15, amplitude: 70);
       } catch (_) {}
     }());
+  }
+
+  Future<bool> _hasVibrator() {
+    final cached = _cachedHasVibrator;
+    if (cached != null) return Future<bool>.value(cached);
+
+    return _hasVibratorFuture ??= () async {
+      try {
+        final hasVibrator = await Vibration.hasVibrator();
+        _cachedHasVibrator = hasVibrator;
+        return hasVibrator;
+      } catch (_) {
+        _cachedHasVibrator = false;
+        return false;
+      } finally {
+        _hasVibratorFuture = null;
+      }
+    }();
   }
 
   //  simulate press when onTapDown is skipped

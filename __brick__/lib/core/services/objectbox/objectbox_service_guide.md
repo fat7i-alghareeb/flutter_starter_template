@@ -31,7 +31,7 @@ So the relationship is:
 
 Owns the single ObjectBox `Store` instance for the whole application.
 
-- Created once during startup via `@preResolve` in `RegisterModule`.
+- Created lazily by the feature/local datasource that actually needs local DB access.
 - Provides `box<T>()` for DAOs.
 - Provides transaction helpers (`runWriteTxAsync` / `runReadTxAsync`).
 
@@ -54,9 +54,9 @@ Think of it in 2 layers:
 
 Flow:
 
-1. `injectable` creates `ObjectBoxService` once (opens the Store).
-2. A DAO (or local datasource) receives `ObjectBoxService` via DI.
-3. The DAO calls `objectBox.box<T>()` to get the `Box<T>`.
+1. A local datasource or repository asks for `ObjectBoxService` only when it needs local DB access.
+2. The feature opens and caches the store once.
+3. A DAO receives or reads that service and calls `objectBox.box<T>()` to get the `Box<T>`.
 4. The DAO performs reads/writes/queries using that box.
 
 So: **Service provides the database connection; DAO provides the entity API.**
@@ -74,14 +74,18 @@ Failure to separate Entities from DTOs and strictly use Mappers is a protocol vi
 
 ---
 
-You register it using `injectable` as a pre-resolved singleton (because opening the store is async):
+Register it only in projects/features that need ObjectBox. Opening the store is async, so keep it out of startup DI and initialize it lazily from the feature-local datasource or repository that needs it:
 
 ```dart
-@module
-abstract class RegisterModule {
-  @preResolve
-  Future<ObjectBoxService> get objectBoxService =>
-      ObjectBoxService.createDefault();
+@lazySingleton
+class ProductLocalDataSource {
+  ProductLocalDataSource();
+
+  ObjectBoxService? _objectBox;
+
+  Future<ObjectBoxService> get _db async {
+    return _objectBox ??= await ObjectBoxService.createDefault();
+  }
 }
 ```
 
@@ -175,7 +179,7 @@ ObjectBox relies on code generation.
 Run (project root):
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 If code generation fails, check:
@@ -298,7 +302,7 @@ After applying this, run build_runner again.
 After adding/changing `@Entity()` or `@Id()`, run:
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 ### 3) DAO options (two styles)

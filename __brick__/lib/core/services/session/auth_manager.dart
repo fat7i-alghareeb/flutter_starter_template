@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:injectable/injectable.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../utils/constants/auth_constants.dart';
 import '../../../utils/helpers/colored_print.dart';
@@ -47,7 +48,8 @@ class AuthManager {
 
     await tokenStorage.initialize();
 
-    final shouldLogExpiry = state.user != null && !state.isGuest;
+    final shouldLogExpiry =
+          kDebugMode && state.user != null && !state.isGuest;
     if (shouldLogExpiry) {
       final expiry = await tokenStorage.loadExpiry();
       final remaining = await tokenStorage.remainingUntilExpiry();
@@ -114,7 +116,6 @@ class AuthManager {
     state.setAuthStatus(
       AuthStatus.unauthenticated(message: AuthReasons.logout),
     );
-
     await tokenStorage.delete(AuthReasons.logout);
   }
 

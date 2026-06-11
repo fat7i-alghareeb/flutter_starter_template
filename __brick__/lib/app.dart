@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:device_preview_plus/device_preview_plus.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,8 @@ import 'common/widgets/stage_tools/stage_tools_overlay.dart';
 import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
 import 'core/injection/injectable.dart';
 import 'core/router/router_config.dart';
+import 'core/services/localization/locale_service.dart';
+import 'core/services/session/auth_manager.dart';
 import 'core/theme/app_system_ui_overlay.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
@@ -14,8 +18,24 @@ import 'flavors.dart';
 import 'utils/constants/design_constants.dart';
 
 /// Root widget of the application.
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      unawaited(getIt<LocaleService>().reconcilePersistedLocale(context));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +67,6 @@ class App extends StatelessWidget {
             builder: (context, child) {
               final theme = Theme.of(context);
               final overlayStyle = AppSystemUiOverlay.forTheme(theme);
-              SystemChrome.setSystemUIOverlayStyle(overlayStyle);
 
               final builtChild = devicePreviewEnabled
                   ? DevicePreview.appBuilder(context, child)

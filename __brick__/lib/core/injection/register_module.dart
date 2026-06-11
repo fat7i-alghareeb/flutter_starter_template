@@ -12,23 +12,6 @@ import '../services/storage/storage_service.dart';
 
 @module
 abstract class RegisterModule {
-  @preResolve
-  Future<StorageService> get storageService => StorageService.createDefault();
-
-  @singleton
-  Dio dio(
-    MemoryAwareInterceptor memoryAwareInterceptor,
-    LocalizationInterceptor localizationInterceptor,
-    ErrorInterceptor errorInterceptor,
-    CustomDioInterceptor logInterceptor,
-    AuthManager authManager,
-    JwtTokenStorage tokenStorage,
-  ) => createDioClient(
-    memoryAwareInterceptor: memoryAwareInterceptor,
-    localizationInterceptor: localizationInterceptor,
-    errorInterceptor: errorInterceptor,
-    logInterceptor: logInterceptor,
-    authManager: authManager,
-    tokenStorage: tokenStorage,
-  );
+  @lazySingleton
+  StorageService get storageService => StorageService.createDefault();
 }

@@ -1,27 +1,27 @@
 name: flutter_app_template
-description: A Flutter Clean Architecture starter template with optional localization, CI, Firebase, login flows, and flavors.
-version: 0.1.0
+description: A Flutter Clean Architecture starter template with routing, localization, notifications, flavors, and code generation.
+version: 0.1.1
 
 vars:
   project_name:
     type: string
-    description: The Dart package name for the generated app
-    prompt: What is the project name?
+    description: "Dart package name. Natural names are accepted and sanitized to snake_case by the pre_gen hook."
+    prompt: "What is the Dart package name? (example: my_app)"
     default: my_app
   project_title:
     type: string
-    description: The project title for the generated app
-    prompt: What is the title?
-    default: my_app
+    description: "Human-readable app title used for flavor display names and F.title."
+    prompt: "What is the app title? (example: My App)"
+    default: My App
 
   package_name:
     type: string
-    description: Android/iOS package identifier
-    prompt: What is the package name? (example => com.example.my_app)
-    default: com.example.my_app
+    description: "Android applicationId / iOS bundle identifier base. It is sanitized to lower-case dotted segments."
+    prompt: "What is the package/bundle id? (example: com.example.myapp)"
+    default: com.example.myapp
 
   project_description:
     type: string
     description: Description written into pubspec.yaml
-    prompt: Write a short project description =>
+    prompt: Write a short project description.
     default: A Flutter Clean Architecture project.

@@ -16,15 +16,35 @@ class OnboardingService extends ChangeNotifier {
   final StorageService _storage;
 
   bool? _finishedCache;
+  bool _initialized = false;
+  Future<void>? _initializing;
+
+  bool get isInitialized => _initialized;
+
+  bool get isOnboardingFinishedSync => _finishedCache ?? false;
+
+  Future<void> initialize() {
+    if (_initialized) return Future<void>.value();
+
+    return _initializing ??= _loadInitialState();
+  }
+
+  Future<void> _loadInitialState() async {
+    try {
+      final flag = await _storage.readBool(OnboardingStorageKeys.finished);
+      _finishedCache = flag ?? false;
+      _initialized = true;
+
+      printC('[OnboardingService] initialized => $_finishedCache');
+      notifyListeners();
+    } finally {
+      _initializing = null;
+    }
+  }
 
   /// * Returns true when onboarding was completed at least once.
   Future<bool> isOnboardingFinished() async {
-    if (_finishedCache != null) return _finishedCache!;
-
-    final flag = await _storage.readBool(OnboardingStorageKeys.finished);
-
-    _finishedCache = flag ?? false;
-    printC('[OnboardingService] isOnboardingFinished => $_finishedCache');
+    await initialize();
     return _finishedCache!;
   }
 
@@ -34,6 +54,7 @@ class OnboardingService extends ChangeNotifier {
     await _storage.writeBool(OnboardingStorageKeys.finished, true);
 
     _finishedCache = true;
+    _initialized = true;
     printG('[OnboardingService] setOnboardingFinished => true');
     notifyListeners();
   }

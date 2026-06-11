@@ -438,18 +438,18 @@ class _AppReactiveDropdownFieldState<T>
             child: const _ClearIcon(),
           )
         : (widget.isFailed
-            ? _TapArea(
-                onTap: canInteract ? widget.onRetry : null,
-                child: Icon(
-                  Icons.refresh,
-                  size: 20.r,
-                  color: AppColors.error,
-                ),
-              )
-            : _TapArea(
-                onTap: canInteract ? () => _open(control) : null,
-                child: const _ArrowIcon(),
-              ));
+              ? _TapArea(
+                  onTap: canInteract ? widget.onRetry : null,
+                  child: Icon(
+                    Icons.refresh,
+                    size: 20.r,
+                    color: AppColors.error,
+                  ),
+                )
+              : _TapArea(
+                  onTap: canInteract ? () => _open(control) : null,
+                  child: const _ArrowIcon(),
+                ));
 
     return AnimatedSwitcher(
       duration: AppDurations.fast,
