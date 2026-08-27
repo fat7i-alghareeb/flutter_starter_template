@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/injection/injectable.dart';
 import '../../../core/services/storage/storage_service.dart';
-import '../../../flavors.dart';
 
 class StageDevicePreviewController {
   StageDevicePreviewController(this._storage);
@@ -13,7 +13,7 @@ class StageDevicePreviewController {
 
   final ValueNotifier<bool> enabled = ValueNotifier<bool>(false);
 
-  bool get isSupported => F.appFlavor == Flavor.stage;
+  bool get isSupported => AppConfig.stageToolsEnabled;
 
   Future<void> load() async {
     if (!isSupported) {

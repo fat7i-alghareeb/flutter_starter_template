@@ -1,5 +1,5 @@
 name: flutter_app_template
-description: A Flutter Clean Architecture starter template with routing, localization, notifications, flavors, and code generation.
+description: A Flutter Clean Architecture starter template with routing, localization, notifications, in-app stage tools, and code generation.
 version: 0.1.1
 
 vars:
@@ -10,7 +10,7 @@ vars:
     default: my_app
   project_title:
     type: string
-    description: "Human-readable app title used for flavor display names and F.title."
+    description: "Human-readable app title exposed as AppConfig.appTitle."
     prompt: "What is the app title? (example: My App)"
     default: My App
 

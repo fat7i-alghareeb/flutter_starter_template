@@ -7,9 +7,9 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../core/injection/injectable.dart';
 import '../../../core/router/router_config.dart';
 import '../../../core/services/localization/locale_service.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/config/localization_config.dart';
 import '../../../core/theme/theme_controller.dart';
-import '../../../flavors.dart';
 import 'stage_device_preview_controller.dart';
 import '../button/app_button.dart';
 import '../button/app_button_child.dart';
@@ -18,10 +18,11 @@ import '../app_icon_source.dart';
 /// StageToolsOverlay
 /// ----------------
 ///
-/// Floating developer tools overlay intended for the `stage` flavor only.
+/// Floating developer tools overlay, enabled only when the app is run or
+/// built with `--dart-define=STAGE_TOOLS=true`.
 ///
-/// It renders draggable buttons that can open helpful bottom sheets (locale,
-/// theme, etc.) while testing.
+/// It renders draggable buttons that can open helpful bottom sheets (device
+/// preview, locale, theme) while testing.
 ///
 /// Usage:
 /// ```dart
@@ -304,8 +305,8 @@ class _StageToolsOverlayState extends State<StageToolsOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    // Hard gate: stage tools must never appear in production flavors.
-    if (F.appFlavor != Flavor.stage) return widget.child;
+    // Hard gate: stage tools only exist when STAGE_TOOLS is defined.
+    if (!AppConfig.stageToolsEnabled) return widget.child;
 
     final tools = StageToolsRegistry.tools();
 

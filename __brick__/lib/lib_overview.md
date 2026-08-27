@@ -16,14 +16,13 @@ Failure to synchronize your internal state with this map before proceeding to sp
 The startup path is optimized for a fast first Flutter frame. AI agents modifying startup logic **MUST** keep blocking work before `runApp` minimal:
 
 1. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
-2. **Flavor Discovery**: Resolve `F.appFlavor` from the native environment.
-3. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable), including JWT auth services and Dio without reading stored state.
-4. **Stage Tool Registration**: Register stage-only tooling when the stage flavor is active.
-5. **Localization Core**: `EasyLocalization.ensureInitialized()`.
-6. **Startup Locale**: `LocaleService.resolveStartupLocale()` using device/fallback only, with no storage read.
-7. **Guarded Run**: Launch `ScreenUtilInit` and the root `App`.
-8. **Post-Frame Warmup**: After the first frame, reconcile saved locale and load stage tooling, theme, onboarding cache, and auth/session state.
-9. **Post-Splash Notifications**: Initialize notifications after `SplashConfig.initialDelay` so permission prompts never appear before the custom splash duration finishes.
+2. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable), including JWT auth services and Dio without reading stored state.
+3. **Stage Tool Registration**: Register stage-only tooling when `AppConfig.stageToolsEnabled` is set (`--dart-define=STAGE_TOOLS=true`).
+4. **Localization Core**: `EasyLocalization.ensureInitialized()`.
+5. **Startup Locale**: `LocaleService.resolveStartupLocale()` using device/fallback only, with no storage read.
+6. **Guarded Run**: Launch `ScreenUtilInit` and the root `App`.
+7. **Post-Frame Warmup**: After the first frame, reconcile saved locale and load stage tooling, theme, onboarding cache, and auth/session state.
+8. **Post-Splash Notifications**: Initialize notifications after `SplashConfig.initialDelay` so permission prompts never appear before the custom splash duration finishes.
 
 Do not add storage reads, Firebase, ObjectBox opens, permission prompts, network calls, asset precaching, or heavy parsing before `runApp` unless the first visible route cannot render correctly without it.
 
@@ -39,7 +38,7 @@ The `App` widget is the root of the Flutter tree. It manages:
 - **Shared helpers and extensions** in `utils/`.
 - **Router Configuration**: Integration with `AppRouterConfig`.
 - **Theme Management**: Reactive switching via `ThemeController`.
-- **Global Overlays**: `StageToolsOverlay` and `AnnotatedRegion` for System UI.
+- **Global Overlays**: `AnnotatedRegion` for System UI, plus `StageToolsOverlay` when `AppConfig.stageToolsEnabled` is set.
 - **Localization**: Passing delegates and active locale to `MaterialApp.router`.
 
 ---

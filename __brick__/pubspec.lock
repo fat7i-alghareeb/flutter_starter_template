@@ -494,14 +494,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
-  flutter_flavorizr:
-    dependency: "direct dev"
-    description:
-      name: flutter_flavorizr
-      sha256: eae954ce8f8678b5ae6899ad6b61731a336bc9b93578f277f119ca23c8e1128a
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.0"
   flutter_gen_core:
     dependency: transitive
     description:

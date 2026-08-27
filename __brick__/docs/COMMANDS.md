@@ -46,14 +46,23 @@ flutter test
 
 Run targeted tests when available for the touched area.
 
-## Flavor Generation
+## Run the App
 
-The template includes Flutter Flavorizr configuration in `pubspec.yaml`.
-Run only when intentionally regenerating flavor files:
+This project has no flavors. Run it normally:
 
 ```bash
-dart run flutter_flavorizr
+flutter run
 ```
+
+Run with the in-app stage tools overlay (device preview, locale, theme):
+
+```bash
+flutter run --dart-define=STAGE_TOOLS=true
+```
+
+`STAGE_TOOLS` is read as a compile-time constant by `AppConfig.stageToolsEnabled`
+(`lib/core/config/app_config.dart`). Builds that omit it drop the stage tools
+code during tree shaking. The same flag works for `flutter build`.
 
 ## Prohibited Commands
 

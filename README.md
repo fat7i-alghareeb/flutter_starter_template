@@ -10,7 +10,7 @@ You get a production-ready starting point with:
 
 - Clean architecture folder structure (`core/`, `features/`, `common/`, `utils/`)
 - Routing with `go_router` (splash/onboarding/auth flow ready)
-- Flavors (Stage/Production) via `flutter_flavorizr`
+- In-app stage tools overlay (device preview, locale, theme) toggled with `--dart-define=STAGE_TOOLS=true`
 - Localization via `easy_localization`
 - Notifications module (local + optional FCM)
 - Code generation setup (`build_runner`, `injectable`, `freezed`, `flutter_gen`)
@@ -148,7 +148,7 @@ mason make flutter_app_template --on-conflict overwrite
 During generation the brick asks for:
 
 - `project_name`: the Dart package name. Use valid `snake_case`, for example `my_app`.
-- `project_title`: the visible app title used by flavors and `F.title`.
+- `project_title`: the visible app title, exposed as `AppConfig.appTitle`.
 - `package_name`: the Android application id / iOS bundle id base, for example `com.example.myapp`.
 - `project_description`: the `pubspec.yaml` description.
 
@@ -164,21 +164,19 @@ mason make flutter_app_template --config-path mason_vars.json --on-conflict over
 
 ---
 
-## 2) Install deps + generate flavors + codegen (required)
+## 2) Install deps + codegen (required)
 
 Inside the generated project root:
 
 ```bash
 flutter clean
 flutter pub get
-dart run flutter_flavorizr -f
 dart run build_runner build
 flutter analyze
 ```
 
 Notes:
 
-- `flutter_flavorizr -f` generates flavor files and IDE configs without asking for confirmation, so it works in terminals, scripts, and AI agents.
 - `build_runner` generates/updates code for `injectable`, `freezed`, and `flutter_gen`.
 - If you see import errors referencing a placeholder package name, run the `build_runner` command above (it regenerates the config with the correct package).
 
@@ -281,19 +279,32 @@ For FCM on iOS:
 
 ## 4) Run the app
 
-After flavor generation, you can run a flavor:
+There are no flavors. Run the app normally:
 
 ```bash
-flutter run --flavor stage
+flutter run
 ```
 
-Production:
+To run with the in-app stage tools overlay (device preview, locale switcher, theme switcher):
 
 ```bash
-flutter run --flavor production
+flutter run --dart-define=STAGE_TOOLS=true
 ```
 
-If you use VS Code, `.vscode/launch.json` is provided with Stage/Production launch configurations.
+`STAGE_TOOLS` is a compile-time constant, so builds that omit it drop the stage tools code entirely during tree shaking. The same flag works for builds, which is useful for internal QA builds:
+
+```bash
+flutter build apk --release --dart-define=STAGE_TOOLS=true
+```
+
+If you use VS Code, `.vscode/launch.json` ships four configurations:
+
+| Configuration | Mode | Stage tools |
+| --- | --- | --- |
+| `Stage Tools (Debug)` | debug | on |
+| `App (Debug)` | debug | off |
+| `App (Profile)` | profile | off |
+| `App (Release)` | release | off |
 
 ## Optional: enable FCM (Firebase Cloud Messaging)
 
