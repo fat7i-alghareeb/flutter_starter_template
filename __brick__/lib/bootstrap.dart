@@ -5,8 +5,8 @@ import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter/services.dart'
-    show SystemChrome, SystemUiMode, appFlavor;
+import 'package:flutter/services.dart' show SystemChrome, SystemUiMode;
+import 'core/config/app_config.dart';
 import 'core/config/localization_config.dart';
 import 'core/injection/injectable.dart';
 import 'core/notification/notification_config.dart';
@@ -20,7 +20,6 @@ import 'core/services/session/auth_manager.dart';
 import 'core/services/session/auth_state_notifier.dart';
 import 'core/theme/theme_controller.dart';
 import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
-import 'flavors.dart' show F, Flavor;
 import 'utils/constants/app_flow_constants.dart';
 import 'utils/constants/design_constants.dart';
 import 'utils/helpers/colored_print.dart';
@@ -36,7 +35,7 @@ const double _basePhoneFontScaleFactor = 1;
 const double _largePhoneFontScaleFactor = 1.05;
 const double _tabletFontScaleFactor = 1.1;
 
-/// Common bootstrap entry point used by all flavors.
+/// Common bootstrap entry point for the application.
 ///
 /// This function wires together all low-level initialization steps:
 ///
@@ -44,9 +43,10 @@ const double _tabletFontScaleFactor = 1.1;
 /// - Initializes EasyLocalization's core infrastructure.
 /// - Configures dependency injection via Injectable / GetIt.
 /// - Configures Injectable / GetIt without blocking the first frame.
+/// - Registers stage-only tooling when [AppConfig.stageToolsEnabled] is set.
 /// - Resolves the initial locale using [LocaleService].
 /// - Runs the provided widget tree inside a guarded zone with
-///   EasyLocalization and the active [Flavor].
+///   EasyLocalization.
 /// - Starts non-critical service warmup after the first frame.
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   // Important: keep `ensureInitialized` and `runApp` inside the same zone.
@@ -57,17 +57,10 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       WidgetsFlutterBinding.ensureInitialized();
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-      // Select the active flavor (stage / production) based on the
-      // compile-time value provided by the native layer.
-      F.appFlavor = Flavor.values.firstWhere(
-        (element) => element.name == appFlavor,
-        orElse: () => Flavor.stage,
-      );
-
       //    Configure the dependency injection container.
       configureDependencies();
 
-      if (F.appFlavor == Flavor.stage) {
+      if (AppConfig.stageToolsEnabled) {
         if (!getIt.isRegistered<StageDevicePreviewController>()) {
           getIt.registerSingleton<StageDevicePreviewController>(
             StageDevicePreviewController(getIt()),
@@ -112,7 +105,7 @@ void _startPostLaunchWarmup() {
 }
 
 Future<void> _initializeStageTools() async {
-  if (F.appFlavor != Flavor.stage) return;
+  if (!AppConfig.stageToolsEnabled) return;
 
   try {
     await getIt<StageDevicePreviewController>().load();
@@ -207,8 +200,7 @@ Future<void> _initializeAuthState() async {
 /// - [initialLocale]: Locale that should be used as the starting
 ///   locale for the app.
 ///
-/// This function also assigns the current [Flavor] based on the
-/// native `appFlavor` and logs any uncaught errors via [log].
+/// Any uncaught errors are logged via [log].
 Future<void> _runGuardedApp(
   FutureOr<Widget> Function() builder,
   Locale initialLocale,

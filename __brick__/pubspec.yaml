@@ -79,7 +79,6 @@ dev_dependencies:
   vector_graphics_compiler: ^1.2.5
 
   # Tooling
-  flutter_flavorizr: ^2.5.0
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.8
   objectbox_generator: ^5.3.2
@@ -97,25 +96,3 @@ flutter:
 
 flutter_gen:
   output: lib/utils/gen/
-
-# dart run flutter_flavorizr
-flavorizr:
-  flavors:
-    stage:
-      app:
-        name: "{{project_title}} Stage"
-        package_name: {{package_name}}.stage
-      android:
-        applicationId: {{package_name}}.stage
-    production:
-      app:
-        name: "{{project_title}}"
-        package_name: {{package_name}}
-      android:
-        applicationId: {{package_name}}
-  instructions:
-    - android:androidManifest
-    - android:flavorizrGradle
-    - android:buildGradle
-    - flutter:flavors
-    - ide:config

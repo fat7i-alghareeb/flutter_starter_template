@@ -8,15 +8,17 @@ This map helps agents find the right files without reading the entire project.
 - `lib/app.dart`: root Flutter app, router, theme, localization delegates, global overlays.
 - `assets/l10n/`: Arabic and English localization JSON files.
 - `.ai/`: agent-facing rule files.
+- `.vscode/launch.json`: four launch configs; only `Stage Tools (Debug)` passes `--dart-define=STAGE_TOOLS=true`.
 - `docs/`: concise project reference docs.
   - `AGENT_TASK_PROMPT_TEMPLATE.md`: copy/paste prompts for starting agent tasks.
+  - `COMMANDS.md`: the canonical command list, including how to run the app.
   - `PERFORMANCE_AUDIT.md`: startup, routing, RAM, and frame-rate audit notes.
 
 ## Core
 
 `lib/core/` contains cross-cutting foundations:
 
-- `config/`: app and localization configuration.
+- `config/`: app and localization configuration. `app_config.dart` holds `stageToolsEnabled` (`--dart-define=STAGE_TOOLS=true`) and `appTitle`.
 - `domain/`: shared domain entities such as user data.
 - `error/`: global exceptions and error conversion helpers.
 - `injection/`: GetIt and Injectable setup.
@@ -39,6 +41,7 @@ This map helps agents find the right files without reading the entire project.
 - `widgets/failed_state_widget.dart`: standard error state.
 - `widgets/empty_state_widget.dart`: standard empty state.
 - `widgets/main_loading_progress.dart` and `widgets/loading_dots.dart`: standard loaders.
+- `widgets/stage_tools/`: dev-only overlay (device preview, locale, theme), gated by `AppConfig.stageToolsEnabled`.
 
 Read `lib/common/common_folder_guide.md` before creating reusable widgets.
 

@@ -7,13 +7,13 @@ import 'package:flutter/services.dart';
 
 import 'common/widgets/stage_tools/stage_tools_overlay.dart';
 import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
+import 'core/config/app_config.dart';
 import 'core/injection/injectable.dart';
 import 'core/router/router_config.dart';
 import 'core/services/localization/locale_service.dart';
 import 'core/theme/app_system_ui_overlay.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
-import 'flavors.dart';
 import 'utils/constants/design_constants.dart';
 
 /// Root widget of the application.
@@ -48,7 +48,7 @@ class _AppState extends State<App> {
         Widget buildMaterialApp({required bool devicePreviewEnabled}) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
-            title: F.title,
+            title: AppConfig.appTitle,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
             themeMode: themeController.themeMode,
@@ -71,17 +71,21 @@ class _AppState extends State<App> {
                   ? DevicePreview.appBuilder(context, child)
                   : child;
 
+              final content = builtChild ?? const SizedBox.shrink();
+
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: overlayStyle,
-                child: StageToolsOverlay(
-                  child: builtChild ?? const SizedBox.shrink(),
-                ),
+                // Only wrap when stage tools are compiled in, so regular
+                // builds do not pay for an extra widget in the tree.
+                child: AppConfig.stageToolsEnabled
+                    ? StageToolsOverlay(child: content)
+                    : content,
               );
             },
           );
         }
 
-        if (F.appFlavor != Flavor.stage || stageDevicePreview == null) {
+        if (!AppConfig.stageToolsEnabled || stageDevicePreview == null) {
           return buildMaterialApp(devicePreviewEnabled: false);
         }
 

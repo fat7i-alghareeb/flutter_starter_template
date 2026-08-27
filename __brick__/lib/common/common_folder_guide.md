@@ -284,7 +284,14 @@ Padding(
 
 - **Path**: `lib/common/widgets/stage_tools/stage_tools_overlay.dart`
 - **Responsibility**: In-app development suite.
-- **Details**: An overlay that provides a "performance hud", feature flag toggles, and environment switcher (Prod vs Staging). Only active in Non-Release builds.
+- **Details**: An overlay that renders three draggable buttons opening bottom sheets for device preview, locale switching, and theme switching. Only one sheet can be open at a time.
+- **Gate**: Rendered only when `AppConfig.stageToolsEnabled` is `true`, which comes from `--dart-define=STAGE_TOOLS=true`. Because that is a compile-time constant, builds without the flag drop this code during tree shaking.
+
+### `stage_device_preview_controller.dart`
+
+- **Path**: `lib/common/widgets/stage_tools/stage_device_preview_controller.dart`
+- **Responsibility**: Persisted on/off toggle for the `device_preview_plus` wrapper.
+- **Details**: Hand-registered in `bootstrap.dart` (not `@injectable`) and only when stage tools are enabled. Use `StageDevicePreviewController.tryGet()` to read it safely.
 
 ---
 

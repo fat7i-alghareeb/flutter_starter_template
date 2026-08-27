@@ -2,37 +2,36 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Stage",
+      "name": "Stage Tools (Debug)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "program": "lib/main.dart",
       "args": [
-        "--flavor",
-        "stage"
+        "--dart-define",
+        "STAGE_TOOLS=true"
       ]
     },
     {
-      "name": "Stage (Profile)",
+      "name": "App (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "App (Profile)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
-      "program": "lib/main.dart",
-      "args": [
-        "--flavor",
-        "stage"
-      ]
+      "program": "lib/main.dart"
     },
     {
-      "name": "Production",
+      "name": "App (Release)",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "debug",
-      "program": "lib/main.dart",
-      "args": [
-        "--flavor",
-        "production"
-      ]
+      "flutterMode": "release",
+      "program": "lib/main.dart"
     }
   ]
 }

@@ -11,7 +11,7 @@ This audit records the startup, routing, memory, and frame-rate review for the F
 
 ## Inventory Coverage
 
-- Startup/config: `pubspec.yaml`, `analysis_options.yaml`, flavor config, native splash/icons config, `main.dart`, `bootstrap.dart`, `app.dart`.
+- Startup/config: `pubspec.yaml`, `analysis_options.yaml`, `core/config/app_config.dart`, native splash/icons config, `main.dart`, `bootstrap.dart`, `app.dart`.
 - Agent/docs: `.ai/`, `docs/`, folder guides, architecture guides.
 - Assets/config-only: localization JSON, SVG/icon/image placeholders.
 - Core startup/runtime: config, injection, router, storage, localization, session/auth, theme, error handling, network, notifications, ObjectBox, memory services.
@@ -136,12 +136,11 @@ Current behavior:
 Keep this order when editing startup code:
 
 1. Initialize Flutter binding and system UI.
-2. Resolve flavor.
-3. Configure DI and register runtime singletons.
-4. Initialize localization core.
-5. Resolve first-frame locale synchronously from device/fallback.
-6. Call `runApp`.
-7. After the first frame, reconcile saved locale and warm non-critical services.
-8. Ask notification permission only after the splash duration or after a user action.
+2. Configure DI and register runtime singletons.
+3. Initialize localization core.
+4. Resolve first-frame locale synchronously from device/fallback.
+5. Call `runApp`.
+6. After the first frame, reconcile saved locale and warm non-critical services.
+7. Ask notification permission only after the splash duration or after a user action.
 
 Do not add storage reads, Firebase, ObjectBox, network calls, permission requests, asset precaching, or heavy JSON parsing before `runApp` unless the app cannot render a correct first screen without it.
