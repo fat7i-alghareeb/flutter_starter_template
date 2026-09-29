@@ -22,7 +22,7 @@ This map helps agents find the right files without reading the entire project.
   - `ANDROID_RELEASE_SETUP.md` / `IOS_SETUP.md`: native release setup, file by file.
   - `CODEMAGIC.md` / `SHOREBIRD.md`: CI and optional over-the-air patches.
   - `PERFORMANCE_AUDIT.md`: startup, frame-rate and APK-size notes.
-  - `AGENT_TASK_PROMPT_TEMPLATE.md`: prompts for agent tasks.
+  - `AGENT_TASK_PROMPT_TEMPLATE.md`: copy-paste agent prompts (implementation, planning, new feature, screen from a design, bug fix, small task).
 
 ## Core
 
