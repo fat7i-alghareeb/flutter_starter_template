@@ -7,6 +7,8 @@ import '../network/interceptors/error_interceptor.dart';
 import '../network/interceptors/localization_interceptor.dart';
 import '../network/interceptors/memory_aware_interceptor.dart';
 import '../services/session/auth_manager.dart';
+import '../network/interceptors/mock_interceptor.dart';
+import '../network/offline/response_cache.dart';
 import '../services/session/jwt_token_storage.dart';
 import '../services/storage/storage_service.dart';
 
@@ -17,6 +19,8 @@ abstract class RegisterModule {
 
   @lazySingleton
   Dio dioClient(
+    MockInterceptor mockInterceptor,
+    OfflineCacheInterceptor offlineCacheInterceptor,
     MemoryAwareInterceptor memoryAwareInterceptor,
     LocalizationInterceptor localizationInterceptor,
     ErrorInterceptor errorInterceptor,
@@ -25,6 +29,8 @@ abstract class RegisterModule {
     JwtTokenStorage tokenStorage,
   ) {
     return createDioClient(
+      mockInterceptor: mockInterceptor,
+      offlineCacheInterceptor: offlineCacheInterceptor,
       memoryAwareInterceptor: memoryAwareInterceptor,
       localizationInterceptor: localizationInterceptor,
       errorInterceptor: errorInterceptor,

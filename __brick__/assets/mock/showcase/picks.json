@@ -1,0 +1,90 @@
+{
+  "status": true,
+  "message": "ok",
+  "data": [
+    {
+      "id": "item_001",
+      "title": "Community garden opens its doors this weekend",
+      "subtitle": "Free seedlings for the first hundred visitors.",
+      "body": "Free seedlings for the first hundred visitors.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "news",
+      "categoryName": "News",
+      "author": "Omar Haddad",
+      "publishedAt": "-20m",
+      "imageUrl": "https://picsum.photos/seed/starter001/800/450",
+      "isFeatured": true,
+      "rating": 4.3,
+      "readMinutes": 3
+    },
+    {
+      "id": "item_003",
+      "title": "Why rounded corners feel friendlier",
+      "subtitle": "A short tour of shape, perception and trust.",
+      "body": "A short tour of shape, perception and trust.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "design",
+      "categoryName": "Design",
+      "author": "Sam Rivera",
+      "publishedAt": "-5h",
+      "imageUrl": "https://picsum.photos/seed/starter003/800/450",
+      "isFeatured": false,
+      "rating": 4.3,
+      "readMinutes": 5
+    },
+    {
+      "id": "item_005",
+      "title": "Five quiet corners to read in the city",
+      "subtitle": "Libraries, courtyards and one very small café.",
+      "body": "Libraries, courtyards and one very small café.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "places",
+      "categoryName": "Places",
+      "author": "Alex Kim",
+      "publishedAt": "-1d",
+      "imageUrl": "https://picsum.photos/seed/starter005/800/450",
+      "isFeatured": false,
+      "rating": 4.3,
+      "readMinutes": 7
+    },
+    {
+      "id": "item_009",
+      "title": "Designing loading states people trust",
+      "subtitle": "Skeletons that match the content they stand for.",
+      "body": "Skeletons that match the content they stand for.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "design",
+      "categoryName": "Design",
+      "author": "Sam Rivera",
+      "publishedAt": "-3d",
+      "imageUrl": "https://picsum.photos/seed/starter009/800/450",
+      "isFeatured": true,
+      "rating": 4.3,
+      "readMinutes": 5
+    },
+    {
+      "id": "item_011",
+      "title": "A rooftop garden hidden above the station",
+      "subtitle": "Open to the public every Saturday morning.",
+      "body": "Open to the public every Saturday morning.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "places",
+      "categoryName": "Places",
+      "author": "Alex Kim",
+      "publishedAt": "-5d",
+      "imageUrl": "https://picsum.photos/seed/starter011/800/450",
+      "isFeatured": false,
+      "rating": 4.3,
+      "readMinutes": 7
+    },
+    {
+      "id": "item_013",
+      "title": "Library extends opening hours for exams",
+      "subtitle": "Study rooms stay open until midnight all month.",
+      "body": "Study rooms stay open until midnight all month.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "news",
+      "categoryName": "News",
+      "author": "Omar Haddad",
+      "publishedAt": "-1w",
+      "imageUrl": "https://picsum.photos/seed/starter013/800/450",
+      "isFeatured": false,
+      "rating": 4.3,
+      "readMinutes": 3
+    }
+  ]
+}

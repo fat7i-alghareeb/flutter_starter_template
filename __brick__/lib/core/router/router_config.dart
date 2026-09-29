@@ -9,18 +9,21 @@ import '../../core/router/app_page_transitions.dart';
 import '../../features/auth/presentation/ui/screens/login_screen.dart';
 import '../../features/onboarding/presentation/ui/screens/onboarding_screen.dart';
 import '../../features/root/presentation/ui/screens/root_screen.dart';
+import '../../features/settings/presentation/ui/screens/settings_screen.dart';
+import '../../features/showcase_feed/presentation/ui/screens/feed_item_screen.dart';
 import '../../features/splash/presentation/ui/screens/splash_screen.dart';
 import '../../utils/constants/app_flow_constants.dart';
 import '../../utils/helpers/colored_print.dart';
 import '../services/onboarding/onboarding_service.dart';
 import '../services/session/auth_state_notifier.dart';
+import 'app_links.dart';
 
 part 'app_routes.dart';
 
 /// * RouterRefreshListenable
 ///
-/// Bridges authentication status, onboarding state, and an internal
-/// splash delay into a single [Listenable] used by GoRouter.
+/// Bridges authentication status, onboarding state, and the splash timers
+/// into a single [Listenable] used by GoRouter.
 class RouterRefreshListenable extends ChangeNotifier {
   RouterRefreshListenable({
     required this.authState,
@@ -31,14 +34,40 @@ class RouterRefreshListenable extends ChangeNotifier {
     onboardingService.addListener(_onSourceChanged);
     unawaited(onboardingService.initialize());
 
-    // * Ensure the splash is visible for at least [SplashConfig.initialDelay]
-    //   even if auth/onboarding resolve instantly.
-    Future<void>.delayed(SplashConfig.initialDelay, () {
+    // * Hold the splash for at least [SplashConfig.initialDelay], so a fast
+    //   device never cuts its entrance off mid-flight.
+    _minimumTimer = Timer(SplashConfig.initialDelay, () {
       _splashDelayElapsed = true;
-      printC('${RouterLogTags.router} splash delay elapsed ⏱');
+      printC('${RouterLogTags.router} splash minimum elapsed ⏱');
+      notifyListeners();
+    });
+
+    // * And never hold it longer than [SplashConfig.maxWait]. If bootstrap has
+    //   not resolved by then the app moves on instead of stranding the user
+    //   on a screen with no end — a stalled token refresh would otherwise
+    //   hang here forever.
+    _timeoutTimer = Timer(SplashConfig.maxWait, () {
+      if (authState.authStatus.status != Status.initial) return;
+      printY('${RouterLogTags.router} splash timed out → moving on ⚠');
+      _bootstrapTimedOut = true;
+      if (AppFlowConfig.authMode == AuthMode.guestFirst) {
+        authState.setGuest(true);
+      }
+      authState.setAuthStatus(
+        AuthStatus.unauthenticated(message: 'Startup timed out'),
+      );
       notifyListeners();
     });
   }
+
+  Timer? _minimumTimer;
+  Timer? _timeoutTimer;
+
+  bool _bootstrapTimedOut = false;
+
+  /// True when bootstrap exceeded [SplashConfig.maxWait]. The shell uses it
+  /// to explain why, once ([SplashConfig.timeoutMessage]).
+  bool get bootstrapTimedOut => _bootstrapTimedOut;
 
   final AuthStateNotifier authState;
   final OnboardingService onboardingService;
@@ -53,6 +82,8 @@ class RouterRefreshListenable extends ChangeNotifier {
 
   @override
   void dispose() {
+    _minimumTimer?.cancel();
+    _timeoutTimer?.cancel();
     authState.removeListener(_onSourceChanged);
     onboardingService.removeListener(_onSourceChanged);
     super.dispose();
@@ -66,12 +97,14 @@ class RouterRefreshListenable extends ChangeNotifier {
 /// - [RouterRefreshListenable]
 /// - [AppRouteRegistry]
 /// - [AppRouteGuard]
+/// - [LinkDispatcher]
 @lazySingleton
 class AppRouterConfig {
   AppRouterConfig(
     this._authState,
     this._onboardingService,
     this._routeRegistry,
+    this._links,
   ) {
     _refresh = RouterRefreshListenable(
       authState: _authState,
@@ -83,8 +116,9 @@ class AppRouterConfig {
       onboardingService: _onboardingService,
       splashPath: SplashScreen.pagePath,
       onboardingPath: OnboardingScreen.pagePath,
-      loginPath: LoginScreen.pagePath,
+      loginPath: LoginScreen.wallPath,
       rootPath: RootScreen.pagePath,
+      links: _links,
     );
 
     _router = GoRouter(
@@ -97,17 +131,22 @@ class AppRouterConfig {
         splashDelayElapsed: _refresh.splashDelayElapsed,
       ),
     );
+    _links.attach(_router);
   }
 
   final AuthStateNotifier _authState;
   final OnboardingService _onboardingService;
   final AppRouteRegistry _routeRegistry;
+  final LinkDispatcher _links;
 
   late final RouterRefreshListenable _refresh;
   late final AppRouteGuard _guard;
   late final GoRouter _router;
 
   GoRouter get router => _router;
+
+  /// See [RouterRefreshListenable.bootstrapTimedOut].
+  bool get bootstrapTimedOut => _refresh.bootstrapTimedOut;
 }
 
 /// * AppRouteGuard
@@ -123,6 +162,9 @@ class AppRouteGuard {
     required this.onboardingPath,
     required this.loginPath,
     required this.rootPath,
+    this.authMode = AppFlowConfig.authMode,
+    this.onboardingEnabled = AppFlowConfig.onboardingEnabled,
+    this.links,
   });
 
   final AuthStateNotifier authState;
@@ -132,15 +174,26 @@ class AppRouteGuard {
   final String loginPath;
   final String rootPath;
 
+  /// From [AppFlowConfig]; a test passes its own.
+  final AuthMode authMode;
+  final bool onboardingEnabled;
+
+  /// Where a link that arrives before the shell is up waits for it. Null in
+  /// a test that is not about links.
+  final LinkDispatcher? links;
+
   /// * Central route-guard / redirect logic.
   ///
   /// Rules:
   /// - While status is [Status.initial] OR splash delay not elapsed → stay on
   ///   splash.
   /// - If onboarding enabled and not finished → go to onboarding.
-  /// - After onboarding:
-  ///   - unauthenticated → login
-  ///   - authenticated or guest → root
+  /// - [AuthMode.loginRequired]: neither signed in nor a guest → the login
+  ///   wall; signed in on the wall → root.
+  /// - [AuthMode.guestFirst]: every reader enters the app; `/login` is a page
+  ///   pushed on request, never a redirect target.
+  /// - A share path that reaches the router is held and the reader sent to
+  ///   the shell, which pushes it over the first tab (`LinkDispatcher`).
   String? handleRedirect({
     required GoRouterState state,
     required bool splashDelayElapsed,
@@ -148,95 +201,100 @@ class AppRouteGuard {
     final currentPath = state.matchedLocation;
     final status = authState.authStatus.status;
     final isGuest = authState.isGuest;
-    final isAuthenticated = status == Status.authenticated && !isGuest;
-    final canEnterApp = isAuthenticated || isGuest;
 
     printM(
       '${RouterLogTags.redirect} currentPath="$currentPath" '
       'status=$status isGuest=$isGuest',
     );
 
-    // 1) Splash / initial state.
-    final splashRedirect = _handleSplash(
-      currentPath: currentPath,
-      status: status,
-      splashDelayElapsed: splashDelayElapsed,
-    );
-    if (splashRedirect != null) return splashRedirect;
+    // A link that opened the app lands here first, and the redirects below
+    // send it to the splash, onboarding or the wall. Keep it: once the shell
+    // is up it is pushed OVER the first tab, so back from it lands in the
+    // app (`LinkDispatcher`).
+    void holdLink() {
+      final link = AppLinks.locationOf(state.uri);
+      if (link != null) links?.hold(link);
+    }
 
-    // Important: while splash is still active (delay not elapsed OR auth status
-    // still bootstrapping), we must NOT run onboarding/auth redirects.
-    // Otherwise GoRouter can immediately redirect away from the splash route
-    // before the first frame is painted, making the splash appear to never show.
+    // 1) Splash / initial state.
+    //
+    // While the splash is still active (delay not elapsed OR auth status
+    // still bootstrapping), nothing else may redirect — otherwise GoRouter
+    // leaves the splash before its first frame is even painted.
     if (!splashDelayElapsed || status == Status.initial) {
+      if (currentPath != splashPath) {
+        printC('${RouterLogTags.redirect} → splash (bootstrapping)');
+        holdLink();
+        return splashPath;
+      }
       return null;
     }
 
-    // 2) Onboarding.
-    if (AppFlowConfig.onboardingEnabled) {
+    // 2) Onboarding — before any auth rule, or `/onboarding → /login →
+    //    /onboarding` could loop.
+    if (onboardingEnabled) {
       if (!onboardingService.isInitialized) {
         if (currentPath != splashPath) {
           printC('${RouterLogTags.redirect} → splash (onboarding loading)');
+          holdLink();
           return splashPath;
         }
         return null;
       }
 
-      final finished = onboardingService.isOnboardingFinishedSync;
-      if (!finished) {
+      if (!onboardingService.isOnboardingFinishedSync) {
         if (currentPath != onboardingPath) {
           printC('${RouterLogTags.redirect} → onboarding (not finished)');
+          holdLink();
           return onboardingPath;
         }
-
-        // Onboarding must complete before auth redirects are evaluated.
-        // Otherwise `/onboarding -> /login -> /onboarding` can loop forever.
         return null;
       }
     }
 
-    // 3) Auth.
-    final authRedirect = _handleAuth(
-      currentPath: currentPath,
-      canEnterApp: canEnterApp,
-    );
-    return authRedirect;
-  }
-
-  String? _handleSplash({
-    required String currentPath,
-    required Status status,
-    required bool splashDelayElapsed,
-  }) {
-    if (!splashDelayElapsed || status == Status.initial) {
-      if (currentPath != splashPath) {
-        printC('${RouterLogTags.redirect} → splash (bootstrapping)');
-        return splashPath;
+    // 3) The login wall.
+    if (authMode == AuthMode.loginRequired) {
+      final canEnter = authState.isAuthenticated || isGuest;
+      if (!canEnter) {
+        if (currentPath != loginPath) {
+          printY('${RouterLogTags.redirect} → login (not signed in)');
+          holdLink();
+          return loginPath;
+        }
+        return null;
       }
-      return null;
-    }
-    return null;
-  }
-
-  String? _handleAuth({
-    required String currentPath,
-    required bool canEnterApp,
-  }) {
-    if (!canEnterApp) {
-      if (currentPath != loginPath) {
-        printY('${RouterLogTags.redirect} unauthenticated → login');
-        return loginPath;
+      if (currentPath == loginPath) {
+        printG('${RouterLogTags.redirect} signed in → root');
+        return rootPath;
       }
-      return null;
     }
 
-    if (currentPath == splashPath ||
-        currentPath == loginPath ||
-        currentPath == onboardingPath) {
-      printG('${RouterLogTags.redirect} authenticated → root');
+    // 4) Into the app.
+    //
+    // A share path (`/items/42`) is a page's public address, not a route:
+    // pages live under the shell. One that reaches the router instead of
+    // `LinkDispatcher` waits for the shell and is pushed over it.
+    if (!currentPath.startsWith(rootPath) &&
+        AppLinks.locationOf(state.uri) != null) {
+      holdLink();
+      printC('${RouterLogTags.redirect} → root (link held for the shell)');
       return rootPath;
     }
+    return _handleEntry(currentPath: currentPath);
+  }
 
+  /// Leaves the startup screens for the shell, and nothing else.
+  ///
+  /// A pushed sign-in page is not on the list: it closes itself, so the
+  /// stack under it is still there when it does. Redirecting it would `go`
+  /// to root and throw that stack away.
+  String? _handleEntry({required String currentPath}) {
+    if (currentPath == splashPath ||
+        currentPath == onboardingPath ||
+        currentPath == loginPath) {
+      printG('${RouterLogTags.redirect} → root');
+      return rootPath;
+    }
     return null;
   }
 }

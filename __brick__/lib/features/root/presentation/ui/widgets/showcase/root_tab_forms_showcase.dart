@@ -1,6 +1,8 @@
 import 'package:reactive_forms/reactive_forms.dart';
 
 import '../../../../../../common/imports/imports.dart';
+import '../../../../../../common/widgets/scroll_reveal.dart';
+import '../nav_bar/app_bottom_nav.dart';
 import '../../../../../../common/widgets/form/date_time_field/app_reactive_date_time_field.dart';
 import '../../../../../../common/widgets/form/dropdown_field/app_reactive_dropdown_field.dart';
 
@@ -38,7 +40,8 @@ class _RootTabFormsShowcaseState extends State<RootTabFormsShowcase> {
   }
 
   Widget _section(BuildContext context, String title, List<Widget> children) {
-    return Column(
+    return ScrollReveal(
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: AppTextStyles.s16w600),
@@ -48,6 +51,7 @@ class _RootTabFormsShowcaseState extends State<RootTabFormsShowcase> {
         const Divider(height: 1),
         AppSpacing.lg.verticalSpace,
       ],
+    ),
     );
   }
 
@@ -66,7 +70,9 @@ class _RootTabFormsShowcaseState extends State<RootTabFormsShowcase> {
     ];
 
     return SingleChildScrollView(
-      padding: AppSpacing.standardPadding,
+      padding: AppSpacing.standardPadding.copyWith(
+        bottom: AppBottomNav.listBottomPadding(context),
+      ),
       child: ReactiveForm(
         formGroup: _form,
         child: Column(

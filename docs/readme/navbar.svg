@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" role="img" aria-label="The floating navigation bar tucks into a dock while scrolling down and comes back on scroll up">
+  <style>
+    svg{--bg:#F5F6F8;--card:#FFFFFF;--fg:#1B1F27;--mu:#5B6272;--line:#E3E6EC;--pill:#E3E8FB;--ac:#3B5BDB;--row:#E3E6EC}
+    @media (prefers-color-scheme:dark){svg{--bg:#0F1115;--card:#171A21;--fg:#E8EAF0;--mu:#A0A7B6;--line:#2A2F3A;--pill:#28366E;--ac:#9DB0FF;--row:#2A2F3A}}
+    .l{font:600 12px system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;fill:var(--mu)} .la{font:700 12px system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;fill:var(--ac)}
+    .cap{font:600 14px system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;fill:var(--mu)}
+    .list{animation:scroll 6s ease-in-out infinite}
+    @keyframes scroll{0%,15%{transform:translateY(0)}45%,70%{transform:translateY(-150px)}90%,100%{transform:translateY(0)}}
+    .bar{transform-origin:380px 246px;animation:bar 6s cubic-bezier(.2,1,.36,1) infinite}
+    @keyframes bar{0%,22%{transform:scaleX(1)}34%,74%{transform:scaleX(.36)}86%,100%{transform:scaleX(1)}}
+    .words{animation:words 6s ease infinite}
+    @keyframes words{0%,20%{opacity:1}28%,78%{opacity:0}86%,100%{opacity:1}}
+    .dots{animation:dots 6s ease infinite}
+    @keyframes dots{0%,28%{opacity:0}36%,72%{opacity:1}80%,100%{opacity:0}}
+    .c1{animation:c1 6s ease infinite} .c2{animation:c2 6s ease infinite}
+    @keyframes c1{0%,24%{opacity:1}30%,82%{opacity:0}88%,100%{opacity:1}}
+    @keyframes c2{0%,26%{opacity:0}32%,78%{opacity:1}84%,100%{opacity:0}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important}.dots{opacity:0}}
+  </style>
+  <rect width="760" height="300" rx="24" fill="var(--bg)"/>
+  <clipPath id="screen"><rect x="30" y="20" width="700" height="260" rx="18"/></clipPath>
+  <g clip-path="url(#screen)">
+    <g class="list">
+      <rect x="60" y="36" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="44" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="50" width="260" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="66" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="98" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="106" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="112" width="220" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="128" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="160" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="168" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="174" width="180" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="190" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="222" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="230" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="236" width="260" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="252" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="284" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="292" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="298" width="220" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="314" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="346" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="354" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="360" width="180" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="376" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="408" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="416" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="422" width="260" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="438" width="150" height="8" rx="4" fill="var(--row)"/><rect x="60" y="470" width="640" height="50" rx="14" fill="var(--card)" stroke="var(--line)"/><rect x="72" y="478" width="34" height="34" rx="9" fill="var(--row)"/><rect x="118" y="484" width="220" height="9" rx="4.5" fill="var(--row)"/><rect x="118" y="500" width="150" height="8" rx="4" fill="var(--row)"/>
+    </g>
+  </g>
+  <g class="bar">
+    <rect x="170" y="218" width="420" height="56" rx="28" fill="var(--card)" stroke="var(--line)"/>
+  </g>
+  <g class="words">
+    <rect x="186" y="226" width="78" height="40" rx="20" fill="var(--pill)"/>
+    <g transform="translate(213 229)" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><g transform="scale(.9)"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+  <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></g></g>
+    <text x="225" y="262" text-anchor="middle" class="la">Feed</text>
+    <g transform="translate(295 229)" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><g transform="scale(.9)"><rect width="7" height="7" x="3" y="3" rx="1" />
+  <rect width="7" height="7" x="14" y="3" rx="1" />
+  <rect width="7" height="7" x="14" y="14" rx="1" />
+  <rect width="7" height="7" x="3" y="14" rx="1" /></g></g><text x="306" y="262" text-anchor="middle" class="l">Buttons</text><g transform="translate(375 229)" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><g transform="scale(.9)"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+  <path d="m15 5 4 4" /></g></g><text x="386" y="262" text-anchor="middle" class="l">Forms</text><g transform="translate(455 229)" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><g transform="scale(.9)"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /></g></g><text x="466" y="262" text-anchor="middle" class="l">Dialogs</text><g transform="translate(535 229)" fill="none" stroke="var(--mu)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><g transform="scale(.9)"><path d="M10.268 21a2 2 0 0 0 3.464 0" />
+  <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></g></g><text x="546" y="262" text-anchor="middle" class="l">Alerts</text>
+  </g>
+  <g class="dots">
+    <circle cx="336" cy="246" r="16" fill="var(--pill)"/>
+    <g transform="translate(325.5 235.5) scale(.875)" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+  <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></g>
+    <circle cx="372" cy="246" r="3.5" fill="var(--mu)"/><circle cx="390" cy="246" r="3.5" fill="var(--mu)"/><circle cx="408" cy="246" r="3.5" fill="var(--mu)"/><circle cx="426" cy="246" r="3.5" fill="var(--mu)"/>
+  </g>
+  <rect x="330" y="26" width="100" height="30" rx="15" fill="var(--card)" stroke="var(--line)" class="c1"/>
+  <rect x="180" y="26" width="400" height="30" rx="15" fill="var(--card)" stroke="var(--line)" class="c2"/>
+  <text x="380" y="46" text-anchor="middle" class="cap c1">scroll down …</text>
+  <text x="380" y="46" text-anchor="middle" class="cap c2">… the bar tucks into a dock · scroll up and it's back</text>
+</svg>

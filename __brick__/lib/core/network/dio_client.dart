@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +12,8 @@ import '../network/interceptors/custom_dio_interceptor.dart';
 import '../network/interceptors/error_interceptor.dart';
 import '../network/interceptors/localization_interceptor.dart';
 import '../network/interceptors/memory_aware_interceptor.dart';
+import '../network/interceptors/mock_interceptor.dart';
+import '../network/offline/response_cache.dart';
 import '../services/session/auth_manager.dart';
 import '../services/session/auth_token_model.dart';
 import '../services/session/jwt_token_storage.dart';
@@ -22,6 +26,8 @@ import '../services/session/jwt_token_storage.dart';
 /// HTTP configuration.
 ///
 /// High-level pipeline:
+/// //! 0) Attach [MockInterceptor] so `--dart-define=USE_MOCK=true` serves
+///     everything from `assets/mock/` without the rest of the stack knowing.
 /// //! 1) Create [BaseOptions] (baseUrl, timeouts, default headers).
 /// //! 2) Attach [MemoryAwareInterceptor] to guard against huge responses.
 /// //! 3) Wire JWT token injection + refresh flow.
@@ -30,6 +36,8 @@ import '../services/session/jwt_token_storage.dart';
 ///     - [CustomDioInterceptor] → pretty colored logging (debug only).
 ///     - [ErrorInterceptor] → map all errors to [AppException].
 Dio createDioClient({
+  required MockInterceptor mockInterceptor,
+  required OfflineCacheInterceptor offlineCacheInterceptor,
   required MemoryAwareInterceptor memoryAwareInterceptor,
   required LocalizationInterceptor localizationInterceptor,
   required ErrorInterceptor errorInterceptor,
@@ -54,7 +62,20 @@ Dio createDioClient({
 
   final dio = Dio(options);
 
-  //! 1) Memory guard – always first
+  //! 0) Mock layer – FIRST, ahead of everything.
+  //
+  // It has to sit before the JWT flow: a fixture request must not trigger a
+  // token refresh against a server that is not there. It resolves the request
+  // outright when USE_MOCK is on, and is a no-op otherwise.
+  dio.interceptors.add(mockInterceptor);
+
+  //! 0b) Offline cache – right after the mock, and before the error mapper:
+  //  errors pass every interceptor's `onError` in order, so this one can
+  //  still answer a request the network could not, with the last good copy
+  //  of a list, before `ErrorInterceptor` turns it into a failure.
+  dio.interceptors.add(offlineCacheInterceptor);
+
+  //! 1) Memory guard
   dio.interceptors.add(memoryAwareInterceptor);
 
   //! 2) JWT flow
@@ -140,12 +161,15 @@ void _configureJwtFlow({
         return <String, String>{'Authorization': 'Bearer $raw'};
       },
       // Handle revoked/invalid refresh token.
+      //
+      // Not `logout()`: the reader did not ask to leave. The session ends,
+      // they keep browsing as a guest, and a banner says why
       onRevoked: (dioError) {
         printR(
-          '[DioClient] Token revoked, logging out user. '
+          '[DioClient] Token revoked, ending the session. '
           'reason=${dioError.message}',
         );
-        authManager.logout();
+        unawaited(authManager.expireSession());
         return null;
       },
       // Actual refresh call.
@@ -158,7 +182,7 @@ void _configureJwtFlow({
             printY(
               '[DioClient] No user ID or not authenticated for token refresh',
             );
-            await authManager.logout();
+            await authManager.expireSession();
             throw Exception('Not authenticated for token refresh');
           }
 
@@ -192,7 +216,7 @@ void _configureJwtFlow({
           return newToken;
         } catch (e) {
           printR('[DioClient] Token refresh failed: $e');
-          await authManager.logout();
+          await authManager.expireSession();
           throw Exception('Token refresh failed: $e');
         }
       },

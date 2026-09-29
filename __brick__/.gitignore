@@ -1,0 +1,223 @@
+# =============================================================================
+# Flutter / Dart
+# =============================================================================
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+/build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+pubspec_overrides.yaml
+**/doc/api/
+doc/api/
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# Test output
+/coverage/
+coverage/
+lcov.info
+.test_coverage.dart
+**/failures/
+**/test/**/failures/
+
+# Dart/Flutter tool logs
+*.log
+flutter_*.log
+dart_test.log
+
+# =============================================================================
+# Generated code
+# -----------------------------------------------------------------------------
+# This project COMMITS generated Dart (*.g.dart, *.freezed.dart,
+# injectable.config.dart, app_strings.g.dart, assets.gen.dart) so a fresh clone
+# builds without running build_runner first. Uncomment below only if the team
+# decides to generate on every checkout instead.
+#
+# **/*.g.dart
+# **/*.freezed.dart
+# lib/core/injection/injectable.config.dart
+#
+# NEVER ignore objectbox-model.json: it stores entity/property UIDs and losing
+# it corrupts existing on-device databases.
+# =============================================================================
+lib/objectbox.g.dart.bak
+
+# =============================================================================
+# Secrets / environment
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.key
+*.jks
+*.keystore
+*.mobileprovision
+secrets.json
+secrets.dart
+
+# Firebase config. Uncomment if these must stay out of the repo.
+# **/android/app/google-services.json
+# **/ios/Runner/GoogleService-Info.plist
+# **/macos/Runner/GoogleService-Info.plist
+# lib/firebase_options.dart
+
+# =============================================================================
+# Android
+# =============================================================================
+**/android/key.properties
+**/android/**/*.jks
+**/android/**/*.keystore
+**/android/local.properties
+**/android/.gradle/
+**/android/.kotlin/
+**/android/captures/
+**/android/gradlew.log
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/.cxx/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/**/*.iml
+/android/app/debug
+/android/app/profile
+/android/app/release
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+output-metadata.json
+
+# =============================================================================
+# iOS
+# =============================================================================
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Podfile.lock
+**/ios/Pods/
+**/ios/.symlinks/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode
+**/*.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/
+**/xcuserdata/
+**/DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# =============================================================================
+# macOS (desktop target)
+# =============================================================================
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/Flutter-Debug.xcconfig
+**/macos/Flutter/Flutter-Release.xcconfig
+**/macos/Flutter/Flutter-Profile.xcconfig
+**/macos/Flutter/ephemeral/
+**/macos/Podfile.lock
+**/macos/Pods/
+
+# =============================================================================
+# Linux (desktop target)
+# =============================================================================
+**/linux/flutter/ephemeral/
+**/linux/flutter/generated_plugin_registrant.*
+**/linux/flutter/generated_plugins.cmake
+
+# =============================================================================
+# Windows (desktop target)
+# =============================================================================
+**/windows/flutter/ephemeral/
+**/windows/flutter/generated_plugin_registrant.*
+**/windows/flutter/generated_plugins.cmake
+**/windows/x64/
+**/windows/Win32/
+*.user
+*.suo
+*.pdb
+
+# =============================================================================
+# Web
+# =============================================================================
+/web/build/
+
+# =============================================================================
+# Mason (template tooling)
+# =============================================================================
+.mason/
+mason-lock.json
+
+# =============================================================================
+# IDE / editors
+# =============================================================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.fleet/
+.vscode/*.local
+.history/
+.atom/
+.buildlog/
+.build/
+*.swp
+*.swo
+*~
+
+# The .vscode folder holds this project's shared launch configurations
+# (Stage Tools / App debug, profile, release) and IS committed on purpose.
+# Uncomment to keep it local instead.
+#.vscode/
+
+# =============================================================================
+# OS junk
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# =============================================================================
+# Misc
+# =============================================================================
+*.pyc
+.svn/
+.swiftpm/
+migrate_working_dir/
+*.tmp
+*.bak
+*.orig
+*.rej

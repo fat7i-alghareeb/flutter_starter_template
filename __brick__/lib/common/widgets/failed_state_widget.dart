@@ -38,7 +38,8 @@ class FailedStateWidget extends StatelessWidget {
     this.onRetrying,
     this.retryLabel,
     this.retryIcon,
-    this.iconSize = 86,
+    // DESIGN_SYSTEM.md: the state icon is 28, not a hero graphic.
+    this.iconSize = AppIconSizes.emptyState,
     this.padding,
     this.maxWidth,
     this.titleStyle,
@@ -73,7 +74,7 @@ class FailedStateWidget extends StatelessWidget {
     final colors = context.colorScheme;
 
     final effectiveIcon =
-        icon ?? IconSource.icon(Icons.error_outline_rounded, size: iconSize);
+        icon ?? IconSource.svg(AppIcons.alert, size: iconSize);
 
     final effectiveTitle = title?.trim().isNotEmpty == true
         ? title!
@@ -82,9 +83,6 @@ class FailedStateWidget extends StatelessWidget {
     final effectiveMessage = message?.trim().isNotEmpty == true
         ? message!
         : AppStrings.unknownError;
-
-    final effectiveIconColor =
-        iconColor ?? colors.onSurface.withValues(alpha: 0.55);
 
     // Enable pull-to-refresh even when the error UI doesn't overflow.
     final physics = onRefresh != null
@@ -107,20 +105,24 @@ class FailedStateWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      effectiveIcon.build(
-                        context,
-                        color: effectiveIconColor,
-                        size: iconSize,
+                      // A large icon disc, a bold title, one line, one pill.
+                      AppStateDisc(
+                        isError: true,
+                        child: effectiveIcon.build(
+                          context,
+                          color:
+                              iconColor ??
+                              AppStateDisc.iconColor(context, isError: true),
+                          size: 34,
+                        ),
                       ),
                       AppSpacing.lg.verticalSpace,
                       Text(
                         effectiveTitle,
                         textAlign: TextAlign.center,
                         style:
-                            titleStyle ??
-                            AppTextStyles.s20w700.copyWith(
-                              color: colors.onSurface,
-                            ),
+                            // titleSmall — not a display heading.
+                            titleStyle ?? context.titleSmall,
                       ),
                       AppSpacing.sm.verticalSpace,
                       Text(
@@ -128,8 +130,8 @@ class FailedStateWidget extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style:
                             messageStyle ??
-                            AppTextStyles.s16w400.copyWith(
-                              color: colors.onSurface.withValues(alpha: 0.82),
+                            context.bodySmall.copyWith(
+                              color: colors.onSurfaceVariant,
                             ),
                       ),
                       if (details?.trim().isNotEmpty == true) ...[
@@ -146,14 +148,15 @@ class FailedStateWidget extends StatelessWidget {
                       ],
                       if (onRetrying != null) ...[
                         AppSpacing.xl.verticalSpace,
-                        AppButton.primaryGradient(
+                        AppActionPill(
                           onTap: onRetrying,
-                          child: AppButtonChild.labelIcon(
-                            label: retryLabel ?? AppStrings.retry,
-                            icon:
-                                retryIcon ??
-                                IconSource.icon(Icons.refresh_rounded),
-                          ),
+                          label: retryLabel ?? AppStrings.retry,
+                          icon: (retryIcon ?? IconSource.svg(AppIcons.refresh))
+                              .build(
+                                context,
+                                color: context.colorScheme.onPrimary,
+                                size: 18,
+                              ),
                         ),
                       ],
                     ],
@@ -169,14 +172,15 @@ class FailedStateWidget extends StatelessWidget {
     if (onRefresh == null) return content;
 
     // Wrap with RefreshIndicator only when refresh is enabled.
-    return RefreshIndicator(onRefresh: onRefresh!, child: content);
+    return AppRefresh(onRefresh: onRefresh!, child: content);
   }
 
   @override
   Widget build(BuildContext context) {
     return _buildBody(context)
         .animate()
-        .fadeIn(duration: 200.ms, curve: Curves.easeOutCubic)
-        .slideY(begin: 0.04, end: 0, duration: 240.ms, curve: Curves.easeOut);
+        .fadeIn(duration: 260.ms, curve: Curves.easeOutCubic)
+        .scaleXY(begin: 0.94, end: 1, duration: 420.ms, curve: AppCurves.reveal)
+        .slideY(begin: 0.06, end: 0, duration: 420.ms, curve: AppCurves.reveal);
   }
 }

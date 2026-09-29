@@ -73,8 +73,8 @@ class _LoadingDotsState extends State<LoadingDots>
           children: List.generate(widget.dots, (i) {
             final s = _dotScale(i);
             return Padding(
-              padding: EdgeInsets.only(
-                right: i == widget.dots - 1 ? 0 : widget.spacing.w,
+              padding: EdgeInsetsDirectional.only(
+                end: i == widget.dots - 1 ? 0 : widget.spacing.w,
               ),
               child: Transform.scale(
                 scale: s,

@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'ds/app_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../utils/extensions/context_extensions.dart';
 import '../../utils/extensions/theme_extensions.dart';
 
 import 'app_icon_source.dart';
@@ -103,7 +105,8 @@ class FullScreenImageScreen extends StatelessWidget {
     final iconColor = context.colorScheme.onSurface.withValues(alpha: 0.7);
 
     return Center(
-      child: Icon(Icons.broken_image_outlined, size: 40.sp, color: iconColor),
+      // The app's own line glyph.
+      child: AppIcon(AppIcons.image, size: 40.sp, color: iconColor),
     );
   }
 
@@ -157,8 +160,8 @@ class FullScreenImageScreen extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               Center(child: _buildImage(context)),
-              Positioned(
-                left: 12.w,
+              PositionedDirectional(
+                start: 12.w,
                 top: 12.h,
                 child: AppButton.grey(
                   noShadow: true,
@@ -167,7 +170,7 @@ class FullScreenImageScreen extends StatelessWidget {
                     height: 42,
                   ),
                   child: AppButtonChild.icon(
-                    IconSource.icon(Icons.arrow_back),
+                    IconSource.svg(context.chevronStart),
                     size: 18,
                   ),
                   onTap: () => _pop(context),

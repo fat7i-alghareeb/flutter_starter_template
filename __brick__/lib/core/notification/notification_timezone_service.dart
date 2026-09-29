@@ -1,6 +1,10 @@
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:injectable/injectable.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
+// `latest_10y`, not `latest`: a notification is scheduled days ahead, never
+// decades, and the 10-year window (5 years back, 5 ahead of the package
+// release) is ~1/4 of the full database — ~190 KB less in the binary and less
+// to parse at startup. It moves forward whenever `timezone` is upgraded.
+import 'package:timezone/data/latest_10y.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../utils/helpers/colored_print.dart';

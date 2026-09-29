@@ -519,7 +519,8 @@ class _AppButtonState extends State<AppButton>
     final borderRadiusValue = switch (widget.layout.shape) {
       AppButtonShape.circle => circleSize / 2,
       AppButtonShape.pill => 999,
-      AppButtonShape.rounded => widget.layout.borderRadius ?? AppRadii.sm,
+      // DESIGN_SYSTEM.md: buttons use radius.md (14), not the icon radius.
+      AppButtonShape.rounded => widget.layout.borderRadius ?? AppRadii.md,
     };
 
     final borderRadius = BorderRadius.circular(borderRadiusValue.r);

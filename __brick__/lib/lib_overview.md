@@ -2,7 +2,7 @@
 
 ## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
 
-This document is the **Mandatory First Entry Point** for any AI agent interacting with the Alsultan codebase. It serves as the "Map of the Galaxy" that connects all specialized technical encyclopedias.
+This document is the **Mandatory First Entry Point** for any AI agent interacting with the {{project_title}} codebase. It serves as the "Map of the Galaxy" that connects all specialized technical encyclopedias.
 
 - **Global Protocol**: [.ai/project-rules.md](.ai/project-rules.md)
 - **Hierarchy Protocol**: [lib/features/features_overview.md](lib/features/features_overview.md)

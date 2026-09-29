@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import '../router/app_links.dart';
+
 /// Normalized notification payload representation.
 ///
 /// This model is used as the single Dart-level representation regardless of
@@ -123,40 +125,32 @@ class AppNotificationPayload {
   /// 2) [deepLink]
   String? get navigationTarget => route ?? deepLink;
 
-  /// Converts [route] / [deepLink] into a GoRouter-compatible location.
+  /// The page this notification opens, as a router location — or `null`
+  /// when it names none the app has.
   ///
-  /// This helper is intended to be used by the bootstrap navigation handler.
+  /// Read in this order:
+  /// 1. [route] or [deepLink] — a location (`/items/42`), a share link
+  ///    (`https://example.com/items/42`) or a custom-scheme link
+  ///    (`myapp://items/42`);
+  /// 2. the target fields `targetType` · `targetId` in [data], so a push and
+  ///    its row in an in-app notifications list open the same page.
   ///
-  /// Supported patterns:
-  /// - `route`: `/orders/123`
-  /// - `deepLink`: `myapp://orders/123?tab=items` -> `/orders/123?tab=items`
-  ///
-  /// Important notes:
-  /// - This method only normalizes the location string.
-  /// - Your router must have a matching route definition.
+  /// A web link must NOT keep its host as the first segment:
+  /// `https://example.com/items/42` → `/example.com/items/42` matches no
+  /// route, and the tap goes nowhere. [AppLinks.locationOf] drops it.
   String? get toGoRouterLocation {
-    final direct = route;
-    if (direct != null && direct.trim().isNotEmpty) {
-      return direct;
+    for (final raw in <String?>[route, deepLink]) {
+      if (raw == null || raw.trim().isEmpty) continue;
+      final uri = Uri.tryParse(raw.trim());
+      if (uri == null) continue;
+      final location = AppLinks.locationOf(uri);
+      if (location != null) return location;
     }
 
-    final link = deepLink;
-    if (link == null || link.trim().isEmpty) return null;
-
-    try {
-      final uri = Uri.parse(link);
-
-      final host = uri.host;
-      final path = uri.path;
-
-      final basePath = host.isEmpty ? path : '/$host$path';
-      if (basePath.isEmpty) return null;
-
-      final query = uri.hasQuery ? '?${uri.query}' : '';
-      return '$basePath$query';
-    } catch (_) {
-      return link;
-    }
+    return AppLinks.locationOfTarget(
+      type: _readString(data, 'targetType'),
+      id: _readString(data, 'targetId'),
+    );
   }
 }
 

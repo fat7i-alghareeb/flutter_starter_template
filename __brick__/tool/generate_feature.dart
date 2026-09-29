@@ -10,6 +10,26 @@ import 'dart:io';
 //
 // Flags:
 //   --force / -f  Deletes the existing feature folder (if any) and recreates it.
+//   --mock        Also writes assets/mock/<name>/list.json and prints the
+//                 MockRoutes line and the pubspec asset line to add.
+//
+// What you get (lib/features/<name>/):
+//   data/     model · remote data source · mapper · repository impl · params
+//   domain/   entity · repository contract · facade
+//   presentation/
+//     states/ bloc + freezed event/state, one BlocStatus per operation
+//     ui/screens/<name>_screen.dart   BlocProvider + body
+//     ui/widgets/<name>_body.dart     skeleton list → rows revealed on
+//                                     scroll · empty · failed with retry ·
+//                                     pull to refresh (AppRefresh)
+//     ui/widgets/<name>_card.dart     a SkeletonWidget: .success / .loading
+//                                     over ONE layout
+//   constants/
+//
+// Then: register the route (`AppPage` in core/router/app_routes.dart), add a
+// height-parity line for the card to test/common/widgets/ds/
+// skeleton_parity_test.dart, and write the feature's strings in
+// assets/l10n/*.json (dart run tool/generate_app_strings.dart).
 
 String _pluralizePascal(String pascal) {
   if (pascal.endsWith('y') && pascal.length > 1) {
@@ -28,6 +48,7 @@ Future<void> main(List<String> args) async {
   _log('Feature generator starting...', icon: '🧩');
 
   final force = args.any((a) => a == '--force' || a == '-f');
+  final mock = args.contains('--mock');
   final rawName = _readFeatureName(args);
   final name = FeatureName.parse(rawName);
 
@@ -50,6 +71,7 @@ Future<void> main(List<String> args) async {
   try {
     _log('Generating files...', icon: '🛠️');
     await _writeFeatureFiles(name);
+    if (mock) await _writeMockFixture(name);
 
     _log('Created feature: ${name.snake}', icon: '✅');
     await _runBuildRunner();
@@ -106,7 +128,7 @@ Future<void> _runBuildRunner() async {
 String _readFeatureName(List<String> args) {
   final nameArgs = args
       .where((e) => e.trim().isNotEmpty)
-      .where((e) => e != '--force' && e != '-f')
+      .where((e) => e != '--force' && e != '-f' && e != '--mock')
       .toList();
 
   if (nameArgs.isNotEmpty) {
@@ -398,19 +420,31 @@ abstract class ${name.pascal}State with _\$${name.pascal}State {
   await write(
     'presentation/ui/screens/${name.snake}_screen.dart',
     """import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart';
+import '../../../../../core/injection/injectable.dart';
+import '../../states/${name.snake}_bloc.dart';
 import '../widgets/${name.snake}_body.dart';
 
+/// Register it in `AppPage` (core/router/app_routes.dart) and open it with
+/// `AppNavigator.push(context, AppPage.${name.camel})`. As a TAB, drop the
+/// Scaffold: the shell owns it.
 class ${name.pascal}Screen extends StatelessWidget {
   const ${name.pascal}Screen({super.key});
 
-  static const String pagePath = '/${name.snake}_screen';
+  /// Relative: pages are nested under the page that opens them.
+  static const String pagePath = '${name.snake.replaceAll('_', '-')}';
   static const String pageName = '${name.pascal}Screen';
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold.body(child: const ${name.pascal}Body());
+    return BlocProvider<$blocName>(
+      create: (_) => getIt<$blocName>()..add(const ${name.pascal}Event.started()),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('${name.pascal}')),
+        body: const ${name.pascal}Body(),
+      ),
+    );
   }
 }
 """,
@@ -419,13 +453,98 @@ class ${name.pascal}Screen extends StatelessWidget {
   await write(
     'presentation/ui/widgets/${name.snake}_body.dart',
     """import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../common/widgets/ds/ds.dart';
+import '../../../../../common/widgets/empty_state_widget.dart';
+import '../../../../../common/widgets/failed_state_widget.dart';
+import '../../../../../common/widgets/scroll_reveal.dart';
+import '../../../../../core/utils/bloc_status.dart';
+import '../../../../../utils/constants/design_constants.dart';
+import '../../states/${name.snake}_bloc.dart';
+import '${name.snake}_card.dart';
+
+/// Every state of the list, in one place:
+/// loading → skeleton rows (the card's own `.loading()`), success → rows
+/// that rise in as they scroll into view, empty, failed with retry — and
+/// pull to refresh on all of them.
 class ${name.pascal}Body extends StatelessWidget {
   const ${name.pascal}Body({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('${name.snake}'));
+    final bloc = context.read<$blocName>();
+    return BlocBuilder<$blocName, ${name.pascal}State>(
+      buildWhen: (previous, current) =>
+          previous.getAllState != current.getAllState,
+      builder: (context, state) {
+        final status = state.getAllState;
+        if (status.isFailed) {
+          return FailedStateWidget(
+            message: status.errorMessage,
+            onRetrying: () =>
+                bloc.add(const ${name.pascal}Event.getAllRequested()),
+          );
+        }
+        final items = status.getDataWhenSuccess;
+        if (items != null && items.isEmpty) {
+          return const EmptyStateWidget();
+        }
+        return AppRefresh(
+          onRefresh: () async {
+            bloc.add(const ${name.pascal}Event.getAllRequested());
+            await bloc.stream.firstWhere((s) => !s.getAllState.isLoading);
+          },
+          child: ListView.separated(
+            // Pull to refresh keeps working when the list is short.
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppSpacing.screenMargin),
+            itemCount: items?.length ?? 6,
+            separatorBuilder: (_, _) =>
+                const SizedBox(height: AppSpacing.cardGap),
+            itemBuilder: (context, index) => items == null
+                ? const ${name.pascal}Card.loading()
+                : ${name.pascal}Card.success(
+                    item: items[index],
+                  ).revealOnScroll(id: items[index].id),
+          ),
+        );
+      },
+    );
+  }
+}
+""",
+  );
+
+  await write(
+    'presentation/ui/widgets/${name.snake}_card.dart',
+    """import 'package:flutter/material.dart';
+
+import '../../../../../common/widgets/ds/ds.dart';
+import '../../../domain/entities/${name.snake}_entity.dart';
+
+/// One row. ONE layout, two constructors: `.loading()` swaps the leaves
+/// (`SkeletonText`, `SkeletonBox`) and nothing else, so the skeleton can
+/// never drift from the card. Add a height-parity line for it in
+/// test/common/widgets/ds/skeleton_parity_test.dart.
+class ${name.pascal}Card extends SkeletonWidget {
+  const ${name.pascal}Card.success({super.key, required $entityName this.item})
+    : super.success();
+
+  const ${name.pascal}Card.loading({super.key}) : item = null, super.loading();
+
+  final $entityName? item;
+
+  @override
+  Widget buildBody(BuildContext context) {
+    final data = item;
+    return AppCard(
+      onTap: data == null ? null : () {},
+      child: SkeletonText(
+        data?.id,
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
+    );
   }
 }
 """,
@@ -438,4 +557,33 @@ class ${name.pascal}Body extends StatelessWidget {
 }
 """,
   );
+}
+
+/// `assets/mock/<name>/list.json` — the envelope the mock layer serves — and
+/// the two lines that wire it (printed, not written: they go in files you
+/// own).
+Future<void> _writeMockFixture(FeatureName name) async {
+  final file = File('assets/mock/${name.snake}/list.json');
+  if (await file.exists()) {
+    _log('Mock fixture already exists: ${file.path}', icon: '⚠️');
+  } else {
+    await file.create(recursive: true);
+    final items = <Map<String, Object>>[
+      for (var i = 1; i <= 12; i++)
+        <String, Object>{
+          'id': '${name.snake}_${i.toString().padLeft(3, '0')}',
+          'createdAt': '-${i}h',
+        },
+    ];
+    await file.writeAsString(
+      '${const JsonEncoder.withIndent('  ').convert(<String, Object>{'status': true, 'message': 'ok', 'data': items})}\n',
+    );
+    _log('Created ${file.path}', icon: '🧪');
+  }
+  _log('Add to MockRoutes (lib/core/config/mock_config.dart):', icon: '👉');
+  stdout.writeln(
+    "    ('/${name.snake}', 'assets/mock/${name.snake}/list.json'),",
+  );
+  _log('Add to pubspec.yaml under flutter/assets:', icon: '👉');
+  stdout.writeln('    - assets/mock/${name.snake}/');
 }

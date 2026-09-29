@@ -71,7 +71,7 @@ class _ClearIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.clear, size: 20.sp, color: context.grey);
+    return AppIcon(AppIcons.close, color: context.grey);
   }
 }
 

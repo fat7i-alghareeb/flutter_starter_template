@@ -1,238 +1,113 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart' show AppColors;
 
-/// Defines a set of optional seed colors for constructing a [ColorScheme].
+import 'app_colors.dart';
+
+/// Explicit light and dark [ColorScheme]s.
 ///
-/// Any field left `null` will fall back to the value generated from
-/// `ColorScheme.fromSeed`, while non-null fields will override it. This
-/// allows you to:
+/// Every slot is written out from [AppColors]. Nothing is generated with
+/// `ColorScheme.fromSeed`: a generated tint drifts away from the brand and
+/// breaks the measured contrast ratios asserted in
+/// `test/core/theme/app_theme_test.dart`.
 ///
-/// - Customize only a subset of the palette.
-/// - Provide completely different colors for light and dark themes.
-class AppColorSeedSet {
-  /// Creates an immutable set of color seeds used to build a [ColorScheme].
-  const AppColorSeedSet({
-    this.primary,
-    this.onPrimary,
-    this.primaryContainer,
-    this.onPrimaryContainer,
-    this.secondary,
-    this.onSecondary,
-    this.secondaryContainer,
-    this.onSecondaryContainer,
-    this.tertiary,
-    this.onTertiary,
-    this.tertiaryContainer,
-    this.onTertiaryContainer,
-    this.error,
-    this.onError,
-    this.errorContainer,
-    this.onErrorContainer,
-    this.background,
-    this.onBackground,
-    this.surface,
-    this.onSurface,
-    this.surfaceVariant,
-    this.onSurfaceVariant,
-    this.outline,
-    this.outlineVariant,
-    this.shadow,
-    this.scrim,
-    this.inverseSurface,
-    this.onInverseSurface,
-    this.inversePrimary,
-    this.surfaceTint,
-  });
-
-  /// Primary brand color.
-  final Color? primary;
-
-  /// Text/icon color appearing on top of [primary].
-  final Color? onPrimary;
-
-  /// Container color derived from [primary].
-  final Color? primaryContainer;
-
-  /// Text/icon color appearing on top of [primaryContainer].
-  final Color? onPrimaryContainer;
-
-  /// Secondary accent color.
-  final Color? secondary;
-
-  /// Text/icon color appearing on top of [secondary].
-  final Color? onSecondary;
-
-  /// Container color derived from [secondary].
-  final Color? secondaryContainer;
-
-  /// Text/icon color appearing on top of [secondaryContainer].
-  final Color? onSecondaryContainer;
-
-  /// Tertiary accent color.
-  final Color? tertiary;
-
-  /// Text/icon color appearing on top of [tertiary].
-  final Color? onTertiary;
-
-  /// Container color derived from [tertiary].
-  final Color? tertiaryContainer;
-
-  /// Text/icon color appearing on top of [tertiaryContainer].
-  final Color? onTertiaryContainer;
-
-  /// Error color.
-  final Color? error;
-
-  /// Text/icon color appearing on top of [error].
-  final Color? onError;
-
-  /// Container color derived from [error].
-  final Color? errorContainer;
-
-  /// Text/icon color appearing on top of [errorContainer].
-  final Color? onErrorContainer;
-
-  /// Background color for large surfaces.
-  final Color? background;
-
-  /// Text/icon color appearing on top of [background].
-  final Color? onBackground;
-
-  /// Default surface color for components.
-  final Color? surface;
-
-  /// Text/icon color appearing on top of [surface].
-  final Color? onSurface;
-
-  /// Variant of [surface] used for differentiation (e.g. cards).
-  final Color? surfaceVariant;
-
-  /// Text/icon color appearing on top of [surfaceVariant].
-  final Color? onSurfaceVariant;
-
-  /// Outline color for borders and dividers.
-  final Color? outline;
-
-  /// Softer outline variant.
-  final Color? outlineVariant;
-
-  /// Shadow color.
-  final Color? shadow;
-
-  /// Scrim color used for overlays.
-  final Color? scrim;
-
-  /// Inverse surface color used in contrasting areas.
-  final Color? inverseSurface;
-
-  /// Text/icon color appearing on top of [inverseSurface].
-  final Color? onInverseSurface;
-
-  /// Primary color used in inverse contexts.
-  final Color? inversePrimary;
-
-  /// Surface tint applied to emphasize elevation.
-  final Color? surfaceTint;
-}
-
-/// Theme-specific color seeds for the application.
-///
-/// You can provide different colors for light and dark themes here. Any
-/// field left `null` will be derived automatically from a Material 3
-/// seed-based [ColorScheme].
-class AppColorSeeds {
-  AppColorSeeds._();
-
-  /// Seed colors for the light theme.
-  static const AppColorSeedSet light = AppColorSeedSet(
-    primary: AppColors.primaryLight,
-    onPrimary: Colors.white,
-    secondary: AppColors.secondaryLight,
-    background: AppColors.backGroundLight,
-    surface: AppColors.surfaceLight,
-    outline: AppColors.greyLight,
-    error: AppColors.error,
-  );
-
-  /// Seed colors for the dark theme.
-  static const AppColorSeedSet dark = AppColorSeedSet(
-    primary: AppColors.primaryDark,
-    onPrimary: Color(0xFF0A0A0F),
-    secondary: AppColors.secondaryDark,
-    background: AppColors.backGroundDark,
-    surface: AppColors.surfaceDark,
-    outline: AppColors.greyDark,
-    error: AppColors.error,
-  );
-}
-
-/// Predefined light and dark [ColorScheme]s for the app.
-///
-/// These are built explicitly for each theme using [AppColorSeedSet]
-/// overrides on top of a baseline `ColorScheme.fromSeed` result.
+/// Note the split the Material scheme has no name for:
+/// `surface` is the card/sheet/dialog colour while the SCREEN background is
+/// [AppColors.backGroundLight]. The screen color lives in `ThemeData.scaffoldBackgroundColor`
+/// and in `AppSemanticColors.background`.
 class AppColorSchemes {
   AppColorSchemes._();
 
-  /// Fully configured light [ColorScheme] for the app.
-  static final ColorScheme light = _buildColorScheme(
+  static const ColorScheme light = ColorScheme(
     brightness: Brightness.light,
-    seeds: AppColorSeeds.light,
+
+    primary: AppColors.primaryLight,
+    onPrimary: AppColors.onPrimaryLight,
+    primaryContainer: AppColors.primaryContainerLight,
+    onPrimaryContainer: AppColors.onPrimaryContainerLight,
+
+    secondary: AppColors.secondaryLight,
+    onSecondary: AppColors.onSecondaryLight,
+    secondaryContainer: AppColors.secondaryContainerLight,
+    onSecondaryContainer: AppColors.onSecondaryContainerLight,
+
+    tertiary: AppColors.tertiaryLight,
+    onTertiary: AppColors.onTertiaryLight,
+    tertiaryContainer: AppColors.tertiaryContainerLight,
+    onTertiaryContainer: AppColors.onTertiaryContainerLight,
+
+    error: AppColors.errorLight,
+    onError: Color(0xFFFFFFFF),
+    errorContainer: Color(0xFFF9DEDC),
+    onErrorContainer: Color(0xFF410E0B),
+
+    surface: AppColors.surfaceLight,
+    onSurface: AppColors.onSurfaceLight,
+    onSurfaceVariant: AppColors.onSurfaceVariantLight,
+
+    // Material's surface ladder, mapped onto the greys we own.
+    surfaceDim: Color(0xFFE6E8ED),
+    surfaceBright: Color(0xFFFFFFFF),
+    surfaceContainerLowest: Color(0xFFFFFFFF),
+    surfaceContainerLow: Color(0xFFFAFAFC),
+    surfaceContainer: AppColors.backGroundLight,
+    surfaceContainerHigh: Color(0xFFF1F2F6),
+    surfaceContainerHighest: AppColors.surfaceVariantLight,
+
+    outline: AppColors.outlineLight,
+    outlineVariant: AppColors.outlineVariantLight,
+
+    shadow: Color(0xFF1B1F27),
+    scrim: AppColors.scrim,
+
+    inverseSurface: Color(0xFF2B303A),
+    onInverseSurface: Color(0xFFF1F3F7),
+    inversePrimary: AppColors.primaryDark,
+    surfaceTint: Color(0x00000000),
   );
 
-  /// Fully configured dark [ColorScheme] for the app.
-  static final ColorScheme dark = _buildColorScheme(
+  static const ColorScheme dark = ColorScheme(
     brightness: Brightness.dark,
-    seeds: AppColorSeeds.dark,
+
+    primary: AppColors.primaryDark,
+    onPrimary: AppColors.onPrimaryDark,
+    primaryContainer: AppColors.primaryContainerDark,
+    onPrimaryContainer: AppColors.onPrimaryContainerDark,
+
+    secondary: AppColors.secondaryDark,
+    onSecondary: AppColors.onSecondaryDark,
+    secondaryContainer: AppColors.secondaryContainerDark,
+    onSecondaryContainer: AppColors.onSecondaryContainerDark,
+
+    tertiary: AppColors.tertiaryDark,
+    onTertiary: AppColors.onTertiaryDark,
+    tertiaryContainer: AppColors.tertiaryContainerDark,
+    onTertiaryContainer: AppColors.onTertiaryContainerDark,
+
+    error: AppColors.errorDark,
+    onError: Color(0xFF601410),
+    errorContainer: Color(0xFF8C1D18),
+    onErrorContainer: Color(0xFFF9DEDC),
+
+    surface: AppColors.surfaceDark,
+    onSurface: AppColors.onSurfaceDark,
+    onSurfaceVariant: AppColors.onSurfaceVariantDark,
+
+    surfaceDim: AppColors.backGroundDark,
+    surfaceBright: Color(0xFF30343E),
+    surfaceContainerLowest: Color(0xFF0A0C10),
+    surfaceContainerLow: Color(0xFF13161C),
+    surfaceContainer: AppColors.surfaceDark,
+    surfaceContainerHigh: Color(0xFF1C2028),
+    surfaceContainerHighest: AppColors.surfaceVariantDark,
+
+    outline: AppColors.outlineDark,
+    outlineVariant: AppColors.outlineVariantDark,
+
+    shadow: Color(0xFF000000),
+    scrim: AppColors.scrim,
+
+    inverseSurface: Color(0xFFE8EAF0),
+    onInverseSurface: Color(0xFF171A21),
+    inversePrimary: AppColors.primaryLight,
+    surfaceTint: Color(0x00000000),
   );
-
-  /// Builds a [ColorScheme] by merging seed overrides with a baseline
-  /// `ColorScheme.fromSeed` result.
-  static ColorScheme _buildColorScheme({
-    required Brightness brightness,
-    required AppColorSeedSet seeds,
-  }) {
-    // Use primary as the seed when provided, otherwise fall back to a
-    // sensible blue-based default.
-    final Color seedColor = seeds.primary ?? const Color(0xFF1565C0);
-
-    final base = ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: brightness,
-    );
-
-    return ColorScheme(
-      brightness: brightness,
-      primary: seeds.primary ?? base.primary,
-      onPrimary: seeds.onPrimary ?? base.onPrimary,
-      primaryContainer: seeds.primaryContainer ?? base.primaryContainer,
-      onPrimaryContainer: seeds.onPrimaryContainer ?? base.onPrimaryContainer,
-      secondary: seeds.secondary ?? base.secondary,
-      onSecondary: seeds.onSecondary ?? base.onSecondary,
-      secondaryContainer: seeds.secondaryContainer ?? base.secondaryContainer,
-      onSecondaryContainer:
-          seeds.onSecondaryContainer ?? base.onSecondaryContainer,
-      tertiary: seeds.tertiary ?? base.tertiary,
-      onTertiary: seeds.onTertiary ?? base.onTertiary,
-      tertiaryContainer: seeds.tertiaryContainer ?? base.tertiaryContainer,
-      onTertiaryContainer:
-          seeds.onTertiaryContainer ?? base.onTertiaryContainer,
-      error: seeds.error ?? base.error,
-      onError: seeds.onError ?? base.onError,
-      errorContainer: seeds.errorContainer ?? base.errorContainer,
-      onErrorContainer: seeds.onErrorContainer ?? base.onErrorContainer,
-      surface: seeds.surface ?? base.surface,
-      onSurface: seeds.onSurface ?? base.onSurface,
-      surfaceContainerHighest:
-          seeds.surfaceVariant ?? base.surfaceContainerHighest,
-      onSurfaceVariant: seeds.onSurfaceVariant ?? base.onSurfaceVariant,
-      outline: seeds.outline ?? base.outline,
-      outlineVariant: seeds.outlineVariant ?? base.outlineVariant,
-      shadow: seeds.shadow ?? base.shadow,
-      scrim: seeds.scrim ?? base.scrim,
-      inverseSurface: seeds.inverseSurface ?? base.inverseSurface,
-      onInverseSurface: seeds.onInverseSurface ?? base.onInverseSurface,
-      inversePrimary: seeds.inversePrimary ?? base.inversePrimary,
-      surfaceTint: seeds.surfaceTint ?? base.surfaceTint,
-    );
-  }
 }

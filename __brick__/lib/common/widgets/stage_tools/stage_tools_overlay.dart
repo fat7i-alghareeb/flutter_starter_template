@@ -14,6 +14,7 @@ import 'stage_device_preview_controller.dart';
 import '../button/app_button.dart';
 import '../button/app_button_child.dart';
 import '../app_icon_source.dart';
+import '../ds/app_icons.dart';
 
 /// StageToolsOverlay
 /// ----------------
@@ -128,32 +129,37 @@ class StageToolsRegistry {
     }
   }
 
+  /// Where the lowest button starts: above the floating navigation bar
+  /// (`AppBottomNav`, ~100dp with its margin), so the tools never cover a
+  /// tab. Every button can still be dragged anywhere.
+  static const double _clearNavBar = 128;
+
   static List<StageToolDefinition> tools() {
     return <StageToolDefinition>[
       StageToolDefinition(
         id: 'stage_tool_device_preview',
-        icon: IconSource.icon(Icons.devices),
+        icon: IconSource.svg(AppIcons.devices),
         initialPosition: const StageToolInitialPosition(
           anchor: StageToolAnchor.bottomRight,
-          margin: EdgeInsets.only(right: 16, bottom: 24 + 56 + 56),
+          margin: EdgeInsets.only(right: 16, bottom: _clearNavBar + 56 + 56),
         ),
         onPressed: (context) => _showDevicePreviewSheet(context),
       ),
       StageToolDefinition(
         id: 'stage_tool_locale',
-        icon: IconSource.icon(Icons.language),
+        icon: IconSource.svg(AppIcons.language),
         initialPosition: const StageToolInitialPosition(
           anchor: StageToolAnchor.bottomRight,
-          margin: EdgeInsets.only(right: 16, bottom: 24 + 56),
+          margin: EdgeInsets.only(right: 16, bottom: _clearNavBar + 56),
         ),
         onPressed: (context) => _showLocaleSheet(context),
       ),
       StageToolDefinition(
         id: 'stage_tool_theme',
-        icon: IconSource.icon(Icons.dark_mode),
+        icon: IconSource.svg(AppIcons.darkMode),
         initialPosition: const StageToolInitialPosition(
           anchor: StageToolAnchor.bottomRight,
-          margin: EdgeInsets.only(right: 16, bottom: 24),
+          margin: EdgeInsets.only(right: 16, bottom: _clearNavBar),
         ),
         onPressed: (context) => _showThemeSheet(context),
       ),
@@ -223,7 +229,7 @@ class StageToolsRegistry {
                   return ListTile(
                     title: Text(code.toUpperCase()),
                     trailing: currentCode == code
-                        ? const Icon(Icons.check)
+                        ? const AppIcon(AppIcons.check)
                         : null,
                     onTap: () async {
                       final navigator = Navigator.of(context);
@@ -271,7 +277,7 @@ class StageToolsRegistry {
 
                   return ListTile(
                     title: Text(label.toUpperCase()),
-                    trailing: current == mode ? const Icon(Icons.check) : null,
+                    trailing: current == mode ? const AppIcon(AppIcons.check) : null,
                     onTap: () {
                       themeController.setThemeMode(mode);
                       Navigator.of(context).pop();

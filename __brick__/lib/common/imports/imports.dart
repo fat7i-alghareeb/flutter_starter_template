@@ -37,10 +37,11 @@ export "../../utils/helpers/build_svg_icon.dart";
 export "../../utils/helpers/colored_print.dart";
 export "../../utils/helpers/input_formatters.dart";
 export "../widgets/app_bottom_sheet.dart";
+// Design-system primitives
+export "../widgets/ds/ds.dart";
 export "../widgets/app_dialog.dart";
 export "../widgets/app_icon_source.dart";
 export "../widgets/app_image_viewer.dart";
-export "../widgets/app_shimmer.dart";
 // widgets
 export "../widgets/button/app_button.dart";
 export "../widgets/button/app_button_child.dart";

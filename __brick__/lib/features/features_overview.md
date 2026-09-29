@@ -12,7 +12,7 @@ Failure to follow the Hierarchical UI Decomposition (Screens -> Sections -> Widg
 
 ---
 
-This document defines the standardized architecture for all product features. Every new feature module must strictly adhere to this structure to ensure consistency, scalability, and predictable dependency flow across the Alsultan platform.
+This document defines the standardized architecture for all product features. Every new feature module must strictly adhere to this structure to ensure consistency, scalability, and predictable dependency flow across the {{project_title}} platform.
 
 ## 🔑 The Root Feature: Core Logic & Orchestration
 

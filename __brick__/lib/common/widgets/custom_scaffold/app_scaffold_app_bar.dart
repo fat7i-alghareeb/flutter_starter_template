@@ -101,7 +101,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
       ...config.actions,
       if (drawerEnabled)
         _AppScaffoldDrawerAction(
-          icon: config.drawerIcon ?? IconSource.icon(Icons.menu),
+          icon: config.drawerIcon ?? IconSource.svg(AppIcons.menu),
           padding: config.drawerActionPadding,
         ),
     ];
@@ -136,7 +136,8 @@ class _AppScaffoldAppBar extends StatelessWidget {
           ...?(leading == null ? null : <Widget>[leading]),
           Expanded(
             child: Align(
-              alignment: Alignment.centerLeft,
+              // Directional: `start` is the right edge in Arabic.
+              alignment: AlignmentDirectional.centerStart,
               heightFactor: 1,
               child: titleWidget,
             ),
@@ -149,7 +150,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
           ...?(leading == null ? null : <Widget>[leading]),
           Expanded(
             child: Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerEnd,
               heightFactor: 1,
               child: titleWidget,
             ),
@@ -187,9 +188,7 @@ class _AppScaffoldAppBar extends StatelessWidget {
     /// If no custom leading widget is provided, we default to a standard back icon.
     final icon =
         config.leading ??
-        IconSource.faIcon(
-          context.chevronStart,
-        ).build(context, color: context.onSurface, size: 22);
+        AppIcon(context.chevronStart, size: 22, color: context.onSurface);
 
     /// If no leading callback is provided, default behavior is route pop.
     final onTap = config.onLeadingTap ?? () => context.pop();

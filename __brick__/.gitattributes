@@ -1,0 +1,11 @@
+# Files bundled into the app must be byte-identical on every machine.
+#
+# With core.autocrlf=true, a Windows checkout turns text files into CRLF while
+# a macOS/Linux CI machine keeps LF, so the same commit bundles different
+# bytes depending on who built it. Code push (Shorebird, docs/SHOREBIRD.md)
+# compares a patch with its release byte for byte and cannot patch assets:
+# a patch built on Windows for a CI release would see every JSON and
+# translation file as "changed" and be refused. Binary files (images, fonts)
+# are detected by text=auto and left untouched.
+assets/** text=auto eol=lf
+shorebird.yaml text eol=lf

@@ -122,9 +122,13 @@ class LocaleService {
   }
 
   String _resolveDeviceOrFallbackLanguageCode() {
+    if (!AppLocalizationConfig.followDeviceLanguageOnFirstLaunch) {
+      return AppLocalizationConfig.defaultLanguageCode;
+    }
+
     final deviceCode = _deviceLanguageCode();
     return _isSupported(deviceCode)
         ? deviceCode
-        : AppLocalizationConfig.fallbackLanguageCode;
+        : AppLocalizationConfig.defaultLanguageCode;
   }
 }

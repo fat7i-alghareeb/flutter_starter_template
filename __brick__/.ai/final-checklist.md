@@ -20,7 +20,7 @@ Read this before declaring a task complete. Confirm the sections relevant to the
 - Responsive UI dimensions use `.sp`, `.h`, `.w`, or `.r` where appropriate.
 - Spacing-only gaps use `x.verticalSpace` or `y.horizontalSpace`, not `SizedBox(height: x)` or `SizedBox(width: y)`.
 - Padding and margin use `REdgeInsets` where responsive insets are needed.
-- Icons use `FaIcon(FontAwesomeIcons.*)` with `.r` sizes.
+- Icons use `AppIcon(AppIcons.*)` — no `Icons.*`, no icon fonts.
 - Buttons use `AppButton` and disable through `isActive`.
 - Screens use `AppScaffold` and include `pagePath` and `pageName`.
 - UI is decomposed into screens, sections, and widgets.
@@ -50,12 +50,12 @@ Read this before declaring a task complete. Confirm the sections relevant to the
 ## Navigation
 
 - New routes are registered centrally.
-- Route data is passed through typed argument classes and GoRouter `extra`.
+- New pages are an `AppPage` (with `pagePath`/`pageName`) opened with `AppNavigator.push`; path parameters carry ids, not objects.
 - Router guard/session/onboarding changes were checked against `lib/core/router/router_guide.md`.
 
 ## Loading, Empty, and Error States
 
-- Content loading states use shimmer components where appropriate.
+- Content loading states use `SkeletonWidget` (`.loading()` over the same layout), with a height-parity test line.
 - Full-screen blocking loading uses `MainLoadingProgress`.
 - Inline loading uses `LoadingDots`.
 - Empty states use `EmptyStateWidget`.

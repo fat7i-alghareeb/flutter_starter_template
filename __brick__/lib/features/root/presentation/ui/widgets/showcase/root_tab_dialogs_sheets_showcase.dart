@@ -1,12 +1,15 @@
 import 'package:reactive_forms/reactive_forms.dart';
 
 import '../../../../../../common/imports/imports.dart';
+import '../../../../../../common/widgets/scroll_reveal.dart';
+import '../nav_bar/app_bottom_nav.dart';
 
 class RootTabDialogsSheetsShowcase extends StatelessWidget {
   const RootTabDialogsSheetsShowcase({super.key});
 
   Widget _section(BuildContext context, String title, List<Widget> children) {
-    return Column(
+    return ScrollReveal(
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: AppTextStyles.s16w600),
@@ -16,6 +19,7 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
         const Divider(height: 1),
         AppSpacing.lg.verticalSpace,
       ],
+    ),
     );
   }
 
@@ -23,12 +27,12 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
     return AppDialog.show(
       context,
       dialog: AppDialog.basic(
-        icon: IconSource.icon(Icons.info_outline_rounded),
+        icon: IconSource.svg(AppIcons.info),
         title: 'Basic dialog',
         message: 'This is a basic AppDialog with primary/secondary actions.',
         primaryAction: AppDialogAction.primary(
           label: 'OK',
-          icon: IconSource.icon(Icons.check_rounded),
+          icon: IconSource.svg(AppIcons.check),
           onPressed: () => Navigator.of(context).pop(),
         ),
         secondaryAction: AppDialogAction.secondary(
@@ -82,12 +86,12 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
         actions: [
           AppDialogAction.secondary(
             label: 'Extra 1',
-            icon: IconSource.icon(Icons.star_outline_rounded),
+            icon: IconSource.svg(AppIcons.star),
             onPressed: () => Navigator.of(context).pop(),
           ),
           AppDialogAction.secondary(
             label: 'Extra 2',
-            icon: IconSource.icon(Icons.bolt_rounded),
+            icon: IconSource.svg(AppIcons.power),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -139,7 +143,7 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
                 shape: AppButtonShape.circle,
                 height: 44,
               ),
-              child: AppButtonChild.icon(IconSource.icon(Icons.close_rounded)),
+              child: AppButtonChild.icon(IconSource.svg(AppIcons.close)),
             ),
           ],
         ),
@@ -168,7 +172,9 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: AppSpacing.standardPadding,
+      padding: AppSpacing.standardPadding.copyWith(
+        bottom: AppBottomNav.listBottomPadding(context),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -190,7 +196,7 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
               onTap: () => _showBasicDialog(context),
               child: AppButtonChild.labelIcon(
                 label: 'Show basic dialog',
-                icon: IconSource.icon(Icons.open_in_new_rounded),
+                icon: IconSource.svg(AppIcons.externalLink),
               ),
             ),
             AppSpacing.md.verticalSpace,

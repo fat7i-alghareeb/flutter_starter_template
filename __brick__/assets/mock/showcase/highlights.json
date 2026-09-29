@@ -1,0 +1,62 @@
+{
+  "status": true,
+  "message": "ok",
+  "data": [
+    {
+      "id": "item_001",
+      "title": "Community garden opens its doors this weekend",
+      "subtitle": "Free seedlings for the first hundred visitors.",
+      "body": "Free seedlings for the first hundred visitors.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "news",
+      "categoryName": "News",
+      "author": "Omar Haddad",
+      "publishedAt": "-20m",
+      "imageUrl": "https://picsum.photos/seed/starter001/800/450",
+      "isFeatured": true,
+      "rating": 4.3,
+      "readMinutes": 3
+    },
+    {
+      "id": "item_004",
+      "title": "A practical guide to offline-first apps",
+      "subtitle": "Cache what matters, sync what changed, tell the user.",
+      "body": "Cache what matters, sync what changed, tell the user.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "tech",
+      "categoryName": "Tech",
+      "author": "Noor Aziz",
+      "publishedAt": "-9h",
+      "imageUrl": "https://picsum.photos/seed/starter004/800/450",
+      "isFeatured": true,
+      "rating": 3.6,
+      "readMinutes": 6
+    },
+    {
+      "id": "item_009",
+      "title": "Designing loading states people trust",
+      "subtitle": "Skeletons that match the content they stand for.",
+      "body": "Skeletons that match the content they stand for.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "design",
+      "categoryName": "Design",
+      "author": "Sam Rivera",
+      "publishedAt": "-3d",
+      "imageUrl": "https://picsum.photos/seed/starter009/800/450",
+      "isFeatured": true,
+      "rating": 4.3,
+      "readMinutes": 5
+    },
+    {
+      "id": "item_015",
+      "title": "Motion that explains instead of decorates",
+      "subtitle": "When an animation earns its milliseconds.",
+      "body": "When an animation earns its milliseconds.\n\nThis is demo content served by the mock layer (USE_MOCK=true). It exists so every state of the screen can be seen without a backend: loading skeletons, the reveal on scroll, pull to refresh, paging, search, an item that is gone, and an item without a picture.\n\nReplace assets/mock/showcase/*.json with your own fixtures, or delete the showcase feature entirely once your first real feature is in place.",
+      "category": "design",
+      "categoryName": "Design",
+      "author": "Sam Rivera",
+      "publishedAt": "-8d",
+      "imageUrl": "https://picsum.photos/seed/starter015/800/450",
+      "isFeatured": true,
+      "rating": 4.3,
+      "readMinutes": 5
+    }
+  ]
+}

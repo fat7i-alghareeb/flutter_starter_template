@@ -440,9 +440,8 @@ class _AppReactiveDropdownFieldState<T>
         : (widget.isFailed
               ? _TapArea(
                   onTap: canInteract ? widget.onRetry : null,
-                  child: Icon(
-                    Icons.refresh,
-                    size: 20.r,
+                  child: const AppIcon(
+                    AppIcons.refresh,
                     color: AppColors.error,
                   ),
                 )

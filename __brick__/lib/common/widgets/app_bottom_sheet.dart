@@ -23,12 +23,14 @@ class AppBottomSheet extends StatelessWidget {
     super.key,
     required this.child,
     this.title,
+    this.titleIcon,
     this.titleStyle,
     this.header,
     this.actions,
     this.padding,
     this.backgroundColor,
-    this.borderRadius = 16,
+    // DESIGN_SYSTEM.md: sheets use radius.sheet.
+    this.borderRadius = AppRadii.sheet,
     this.showDragHandle = true,
     this.unfocusOnTapOutside = true,
     this.scrollable = true,
@@ -39,12 +41,13 @@ class AppBottomSheet extends StatelessWidget {
     Key? key,
     required Widget child,
     String? title,
+    String? titleIcon,
     TextStyle? titleStyle,
     Widget? header,
     List<Widget>? actions,
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
-    double borderRadius = 16,
+    double borderRadius = AppRadii.sheet,
     bool showDragHandle = true,
     bool unfocusOnTapOutside = true,
     bool scrollable = true,
@@ -52,6 +55,7 @@ class AppBottomSheet extends StatelessWidget {
     return AppBottomSheet._(
       key: key,
       title: title,
+      titleIcon: titleIcon,
       titleStyle: titleStyle,
       header: header,
       actions: actions,
@@ -86,12 +90,19 @@ class AppBottomSheet extends StatelessWidget {
       isDismissible: isDismissible,
       barrierColor: barrierColor,
       backgroundColor: Colors.transparent,
+      // The sheet draws its own handle. The theme's (`showDragHandle: true`)
+      // was drawn as well, on this transparent modal — a second handle
+      // floating on the scrim above the sheet.
+      showDragHandle: false,
       builder: (context) => sheet,
     );
   }
 
   final Widget child;
   final String? title;
+
+  /// An icon in a `primaryContainer` disc before the title.
+  final String? titleIcon;
   final TextStyle? titleStyle;
   final Widget? header;
   final List<Widget>? actions;
@@ -104,15 +115,18 @@ class AppBottomSheet extends StatelessWidget {
   final bool unfocusOnTapOutside;
   final bool scrollable;
 
+  /// The theme's handle — `34×4`, `outlineVariant` —
+  /// so every sheet in the app carries the same one.
   Widget _dragHandle(BuildContext context) {
-    final handleColor = context.onSurface.withValues(alpha: 0.14);
+    final theme = Theme.of(context).bottomSheetTheme;
+    final size = theme.dragHandleSize ?? const Size(34, 4);
 
     return Container(
-      width: 120.w,
-      height: 4.h,
+      width: size.width,
+      height: size.height,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r),
-        color: handleColor,
+        borderRadius: BorderRadius.circular(size.height),
+        color: theme.dragHandleColor ?? context.colorScheme.outlineVariant,
       ),
     );
   }
@@ -141,16 +155,47 @@ class AppBottomSheet extends StatelessWidget {
                 if (header != null) ...[AppSpacing.md.verticalSpace, header!],
                 if (title?.trim().isNotEmpty == true) ...[
                   AppSpacing.md.verticalSpace,
-                  Text(
-                    title!,
-                    textAlign: TextAlign.center,
-                    style:
-                        titleStyle ??
-                        AppTextStyles.s16w400.copyWith(
-                          color: context.colorScheme.onSurface,
-                          fontWeight: FontWeight.w700,
+                  if (titleIcon == null)
+                    Text(
+                      title!,
+                      textAlign: TextAlign.center,
+                      style:
+                          titleStyle ??
+                          AppTextStyles.s16w400.copyWith(
+                            color: context.colorScheme.onSurface,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: context.colorScheme.primaryContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: AppIcon(
+                            titleIcon!,
+                            color: context.colorScheme.onPrimaryContainer,
+                          ),
                         ),
-                  ),
+                        AppSpacing.md.horizontalSpace,
+                        Expanded(
+                          child: Text(
+                            title!,
+                            style:
+                                titleStyle ??
+                                AppTextStyles.s16w400.copyWith(
+                                  color: context.colorScheme.onSurface,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
                 if (title?.trim().isNotEmpty == true || header != null)
                   AppSpacing.lg.verticalSpace,

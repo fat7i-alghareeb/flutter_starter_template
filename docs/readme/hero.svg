@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-labelledby="t d">
+  <title id="t">Flutter Starter Template</title>
+  <desc id="d">A Mason brick: clean architecture, a design system with skeletons and motion, a floating navigation bar, mock data, tests and release docs.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E2F72"/>
+      <stop offset="0.55" stop-color="#3B5BDB"/>
+      <stop offset="1" stop-color="#6E86F0"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="phone"><rect x="842" y="46" width="200" height="340" rx="28"/></clipPath>
+    <style>
+      .h{font:800 54px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:#fff}
+      .s{font:500 22px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:#DCE3FF}
+      .p{font:700 15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:#1E2F72}
+      .rise{opacity:0;animation:rise .9s cubic-bezier(.2,1.08,.36,1) forwards}
+      .r2{animation-delay:.25s}.r3{animation-delay:.5s}.r4{animation-delay:.75s}
+      @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+      .float{animation:float 6s ease-in-out infinite}
+      @keyframes float{50%{transform:translateY(-8px)}}
+      .blob{animation:spin 30s linear infinite;transform-origin:1000px 210px}
+      @keyframes spin{to{transform:rotate(360deg)}}
+      .dock{animation:dock 4s cubic-bezier(.2,1,.36,1) infinite;transform-origin:942px 360px}
+      @keyframes dock{0%,35%{transform:scaleX(1)}50%,85%{transform:scaleX(.42)}100%{transform:scaleX(1)}}
+      .shine{animation:shine 1.5s linear infinite}
+      @keyframes shine{from{transform:translateX(-220px)}to{transform:translateX(220px)}}
+      @media (prefers-reduced-motion:reduce){*{animation:none!important;opacity:1!important}}
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" rx="28" fill="url(#bg)"/>
+  <g class="blob" opacity=".18">
+    <circle cx="1080" cy="80" r="140" fill="#fff"/>
+    <circle cx="880" cy="360" r="90" fill="#fff"/>
+  </g>
+
+  <g class="rise"><text x="70" y="140" class="h">Flutter Starter</text></g>
+  <g class="rise r2"><text x="70" y="200" class="h">Template</text></g>
+  <g class="rise r3"><text x="72" y="252" class="s">Clean architecture · design system · motion · mock data · tests</text></g>
+  <g class="rise r4">
+    <rect x="70" y="290" width="150" height="42" rx="21" fill="#fff"/><text x="145" y="317" text-anchor="middle" class="p">Mason brick</text>
+    <rect x="232" y="290" width="160" height="42" rx="21" fill="#fff"/><text x="312" y="317" text-anchor="middle" class="p">Flutter 3.44</text>
+    <rect x="404" y="290" width="178" height="42" rx="21" fill="#fff"/><text x="493" y="317" text-anchor="middle" class="p">Arabic + English</text>
+  </g>
+
+  <!-- the phone: skeleton rows sweeping, the bar morphing into its dock -->
+  <g class="float">
+    <rect x="834" y="38" width="216" height="356" rx="34" fill="#0F1115"/>
+    <g clip-path="url(#phone)">
+      <rect x="842" y="46" width="200" height="340" fill="#F5F6F8"/>
+      <rect x="858" y="66" width="90" height="10" rx="5" fill="#CDD2DC"/>
+      <rect x="858" y="86" width="168" height="28" rx="14" fill="#fff"/>
+      <rect x="858" y="126" width="168" height="84" rx="16" fill="#3B5BDB" opacity=".9"/>
+      <g fill="#fff">
+        <rect x="858" y="222" width="168" height="44" rx="12"/>
+        <rect x="858" y="274" width="168" height="44" rx="12"/>
+      </g>
+      <g fill="#E3E6EC">
+        <rect x="866" y="230" width="28" height="28" rx="7"/><rect x="902" y="234" width="100" height="8" rx="4"/><rect x="902" y="248" width="64" height="7" rx="3.5"/>
+        <rect x="866" y="282" width="28" height="28" rx="7"/><rect x="902" y="286" width="100" height="8" rx="4"/><rect x="902" y="300" width="64" height="7" rx="3.5"/>
+      </g>
+      <rect class="shine" x="842" y="222" width="200" height="96" fill="url(#sweep)"/>
+      <g class="dock">
+        <rect x="862" y="340" width="160" height="34" rx="17" fill="#fff" stroke="#E3E6EC"/>
+        <circle cx="890" cy="357" r="11" fill="#E3E8FB"/>
+        <circle cx="890" cy="357" r="4" fill="#3B5BDB"/>
+        <circle cx="922" cy="357" r="3" fill="#A0A7B6"/><circle cx="952" cy="357" r="3" fill="#A0A7B6"/>
+        <circle cx="982" cy="357" r="3" fill="#A0A7B6"/><circle cx="1004" cy="357" r="3" fill="#A0A7B6"/>
+      </g>
+    </g>
+  </g>
+</svg>

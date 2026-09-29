@@ -13,12 +13,14 @@ import 'core/notification/notification_config.dart';
 import 'core/notification/notification_coordinator.dart';
 import 'core/notification/notification_init_options.dart';
 import 'core/notification/notification_payload.dart';
-import 'core/router/router_config.dart';
+import 'core/notification/push_token_registrar.dart';
+import 'core/router/app_links.dart';
 import 'core/services/localization/locale_service.dart';
 import 'core/services/onboarding/onboarding_service.dart';
 import 'core/services/session/auth_manager.dart';
 import 'core/services/session/auth_state_notifier.dart';
 import 'core/theme/theme_controller.dart';
+import 'features/showcase_feed/presentation/states/feed_preloader.dart';
 import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
 import 'utils/constants/app_flow_constants.dart';
 import 'utils/constants/design_constants.dart';
@@ -45,6 +47,7 @@ const double _tabletFontScaleFactor = 1.1;
 /// - Configures Injectable / GetIt without blocking the first frame.
 /// - Registers stage-only tooling when [AppConfig.stageToolsEnabled] is set.
 /// - Resolves the initial locale using [LocaleService].
+/// - Restores the saved theme, so the first frame is drawn in it.
 /// - Runs the provided widget tree inside a guarded zone with
 ///   EasyLocalization.
 /// - Starts non-critical service warmup after the first frame.
@@ -60,6 +63,12 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       //    Configure the dependency injection container.
       configureDependencies();
 
+      //    Links from outside the app — a shared URL, a notification — go to
+      //    the dispatcher BEFORE the router. The binding asks its observers
+      //    in the order they were added and stops at the first `true`; the
+      //    router adds its own when it is first built, after this line.
+      WidgetsBinding.instance.addObserver(getIt<LinkDispatcher>());
+
       if (AppConfig.stageToolsEnabled) {
         if (!getIt.isRegistered<StageDevicePreviewController>()) {
           getIt.registerSingleton<StageDevicePreviewController>(
@@ -70,8 +79,27 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
       await EasyLocalization.ensureInitialized();
 
-      // Resolve the locale for the first frame without touching storage.
-      final initialLocale = getIt<LocaleService>().resolveStartupLocale();
+      // The saved LANGUAGE is read before the first frame, alongside the
+      // theme below. Applied after it, the app would start in one language
+      // and switch — and on a cold start that switch can race
+      // `easy_localization`'s own load: `Localizations` takes the new locale
+      // while its file is still loading and never reloads, so the app runs
+      // in the new direction with every word in the old language. With the
+      // right language from the first frame there is no switch to race.
+      final savedLocale = _resolveSavedLocale();
+
+      // The saved theme is read before the first frame too: it is part of
+      // that frame being correct. Restored after it, every launch in dark
+      // would draw the splash light and then fade it to dark in the middle
+      // of its entrance — right after a native splash that was already
+      // dark. It is one preferences read, made while the native splash
+      // still covers the screen; the budget only guards against a read that
+      // never returns, and a late one still lands, just animated.
+      await _initializeTheme().timeout(
+        _themeRestoreBudget,
+        onTimeout: () {},
+      );
+      final initialLocale = await savedLocale;
 
       await _runGuardedApp(builder, initialLocale);
       _startPostLaunchWarmup();
@@ -95,9 +123,12 @@ double _resolveFontScaleFactor(double screenWidth) {
 void _startPostLaunchWarmup() {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     unawaited(_initializeStageTools());
-    unawaited(_initializeTheme());
     unawaited(_initializeOnboarding());
     unawaited(_initializeAuthState());
+    // The native splash is gone with this frame: the first tab's requests
+    // start now, behind the custom splash, as soon as the session is read
+    // (`BlocPreloader`).
+    _preloadFirstTab();
     unawaited(
       Future<void>.delayed(SplashConfig.initialDelay, _initializeNotifications),
     );
@@ -114,11 +145,39 @@ Future<void> _initializeStageTools() async {
   }
 }
 
+/// The longest the first frame waits for the saved theme.
+const Duration _themeRestoreBudget = Duration(milliseconds: 250);
+
+/// The reader's saved language, or the device's when there is none or the
+/// read is slower than [_themeRestoreBudget] — `App` still applies a late
+/// one after the first frame (`LocaleService.reconcilePersistedLocale`).
+Future<Locale> _resolveSavedLocale() async {
+  final service = getIt<LocaleService>();
+  try {
+    final saved = await service.resolveSavedLocale().timeout(
+      _themeRestoreBudget,
+      onTimeout: () => null,
+    );
+    return saved ?? service.resolveStartupLocale();
+  } catch (e) {
+    printY('[Bootstrap] Saved locale read failed: $e');
+    return service.resolveStartupLocale();
+  }
+}
+
 Future<void> _initializeTheme() async {
   try {
     await getIt<ThemeController>().initialize();
   } catch (e) {
     printY('[Bootstrap] Theme initialize failed: $e');
+  }
+}
+
+void _preloadFirstTab() {
+  try {
+    getIt<FeedPreloader>().start();
+  } catch (e) {
+    printY('[Bootstrap] Feed preload failed to start: $e');
   }
 }
 
@@ -130,24 +189,36 @@ Future<void> _initializeOnboarding() async {
   }
 }
 
+/// Firebase Cloud Messaging (push). OFF by default: the template ships no
+/// Firebase project. Turn it on once `google-services.json` /
+/// `GoogleService-Info.plist` and the Gradle plugin are in place
+/// (`docs/ANDROID_RELEASE_SETUP.md`, `docs/IOS_SETUP.md`). Local
+/// notifications work either way.
+const bool _fcmEnabled = false;
+
 /// Initializes notifications.
 ///
-/// Note:
-/// - Firebase/FCM initialization is controlled by [NotificationInitOptions]
-///   passed to [NotificationCoordinator.initialize].
+/// No permission prompt here: this runs behind the splash, and on a first
+/// launch the prompt would land on top of onboarding. `RootScreen` asks
+/// once the user is in the app.
 Future<void> _initializeNotifications() async {
   try {
     final coordinator = getIt<NotificationCoordinator>();
 
     await coordinator.initialize(
       config: AppNotificationConfig.defaults(),
-      options: const NotificationInitOptions(
-        initializeFirebase: false,
-        enableFcm: false,
-      ),
       onNotificationTap: (payload) async {
         await _handleNotificationNavigation(payload);
       },
+      // With FCM on, every new token is sent to the server (`/devices`).
+      onTokenRefresh: _fcmEnabled
+          ? getIt<PushTokenRegistrar>().tokenChanged
+          : null,
+      options: const NotificationInitOptions(
+        initializeFirebase: _fcmEnabled,
+        enableFcm: _fcmEnabled,
+        requestPermissionsAtStartup: false,
+      ),
     );
 
     printG('[Bootstrap] Notifications initialized');
@@ -156,22 +227,21 @@ Future<void> _initializeNotifications() async {
   }
 }
 
+/// A tapped notification opens its page OVER the shell.
+///
+/// `go` would replace the stack: the page would open with nothing under it
+/// and back would leave the app. And on a cold start the shell is not up
+/// yet — the dispatcher holds the page until it is.
 Future<void> _handleNotificationNavigation(
   AppNotificationPayload payload,
 ) async {
   final location = payload.toGoRouterLocation;
   if (location == null || location.isEmpty) {
-    printC('[Notifications] Tap ignored (no route/deepLink)');
+    printC('[Notifications] Tap ignored (no page to open)');
     return;
   }
 
-  try {
-    final router = getIt<AppRouterConfig>().router;
-    router.go(location);
-    printG('[Notifications] Navigated to $location');
-  } catch (e) {
-    printY('[Notifications] Navigation failed: $e (location=$location)');
-  }
+  getIt<LinkDispatcher>().open(location);
 }
 
 /// Initializes persisted authentication state after the first frame.
@@ -221,6 +291,10 @@ Future<void> _runGuardedApp(
     startLocale: initialLocale,
     saveLocale: false,
     useOnlyLangCode: true,
+    // The package's default ignores the language's plural rules and knows
+    // only 0 · 1 · 2 · «other» — Arabic's «few» (3-10) and «many» (11-99)
+    // would both print the «other» form (`AppStrings`' `_plural`).
+    ignorePluralRules: false,
     child: ScreenUtilInit(
       designSize: AppDesign.designSize,
       minTextAdapt: true,

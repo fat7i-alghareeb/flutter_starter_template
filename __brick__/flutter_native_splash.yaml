@@ -1,23 +1,27 @@
-# Run this file from the project root:
+# The NATIVE splash: what the OS shows while the engine starts, before the
+# first Flutter frame. Colour only, on purpose — the in-app splash
+# (lib/features/splash/) takes over on the very next frame with the same
+# background, so the hand-over is invisible. Keep these two colours equal to
+# AppColors.light.background / AppColors.dark.background.
+#
+# Generate (after changing anything here):
 #   dart run flutter_native_splash:create --path flutter_native_splash.yaml
-# Remove generated splash resources:
+# Remove the generated resources:
 #   dart run flutter_native_splash:remove
+#
+# Want a logo on it? Add `image:` / `image_dark:` (and the android_12 ones,
+# 288×288 px with the icon inside the centre 192 px circle). See README
+# → "Splash: native + in-app".
 
 flutter_native_splash:
-  # Light theme
-  color: "#FFF9EF"
-  image: assets/images/splash_light.png
+  color: "#F5F6F8"
+  color_dark: "#0F1115"
 
-  # Dark theme
-  color_dark: "#26241D"
-  image_dark: assets/images/splash_dark.png
+  # Draw under the status and navigation bars, like the app does.
+  fullscreen: false
 
-  fullscreen: true
-
-  # Android 12+
   android_12:
-    color: "#FFF9EF"
-    image: assets/images/splash_light.png
+    color: "#F5F6F8"
+    color_dark: "#0F1115"
 
-    color_dark: "#26241D"
-    image_dark: assets/images/splash_dark.png
+  web: false

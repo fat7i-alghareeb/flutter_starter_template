@@ -20,6 +20,10 @@ class AuthReasons {
 
   static const String logout = 'logout';
   static const String guest = 'guest';
+
+  /// The session ended without the reader asking: a refresh that failed, or
+  /// a token the server revoked.
+  static const String expired = 'expired';
 }
 
 /// Log tags for auth-related components.

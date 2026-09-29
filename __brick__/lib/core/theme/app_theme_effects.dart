@@ -233,6 +233,62 @@ class AppThemeShadows {
     BoxShadow(color: Color(0x33000000), blurRadius: 16, offset: Offset(0, 8)),
   ];
 
+  // ───────────────────────────── Elevation system
+  //
+  // ONE shadow in the whole system, at three intensities. In dark mode the
+  // shadow is replaced by a 1px `outline` border, because a shadow is
+  // invisible on a dark ground — use [borderOnDark] for that.
+  //
+  // Forbidden: a shadow AND a border on the same element; more than three
+  // elevation layers on one screen.
+
+  static const Color _shadowTint = Color(0xFF23261C);
+  static const Color _sheetTint = Color(0xFF141510);
+
+  /// `0 4px 16px rgba(35,38,28,.07)` — cards.
+  List<BoxShadow> get card => brightness == Brightness.dark
+      ? const <BoxShadow>[]
+      : const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x1223261C), // .07
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ];
+
+  /// `0 4px 18px rgba(35,38,28,.12)` — the floating navigation bar.
+  List<BoxShadow> get nav => brightness == Brightness.dark
+      ? const <BoxShadow>[]
+      : const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x1F23261C), // .12
+            blurRadius: 18,
+            offset: Offset(0, 4),
+          ),
+        ];
+
+  /// `0 -8px 30px rgba(20,21,16,.18)` — bottom sheets.
+  List<BoxShadow> get sheet => brightness == Brightness.dark
+      ? const <BoxShadow>[]
+      : const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x2E141510), // .18
+            blurRadius: 30,
+            offset: Offset(0, -8),
+          ),
+        ];
+
+  /// What replaces the shadow in dark mode.
+  ///
+  /// Returns `null` in light mode — apply a shadow there instead, never both.
+  BoxBorder? get borderOnDark => brightness == Brightness.dark
+      ? Border.all(color: colorScheme.outline)
+      : null;
+
+  /// The raw tints, for callers that need to build their own shadow.
+  static const Color shadowTint = _shadowTint;
+  static const Color sheetTint = _sheetTint;
+
   List<BoxShadow> _colored(Color base, {required AppShadowSpec spec}) {
     final opacity = brightness == Brightness.dark
         ? spec.darkOpacity

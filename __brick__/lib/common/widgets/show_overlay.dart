@@ -21,7 +21,7 @@ import '../imports/imports.dart';
 ///   position: OverlayPosition.top,
 ///   duration: const Duration(seconds: 3),
 ///   backgroundColor: context.primary.withValues(alpha: 0.25),
-///   prefix: Icon(Icons.info_outline, color: Colors.white),
+///   prefix: const AppIcon(AppIcons.info, color: Colors.white),
 ///   content: Text(
 ///     'Custom banner',
 ///     style: AppTextStyles.s14w600.copyWith(color: Colors.white),
@@ -229,8 +229,8 @@ class _AnimatedOverlayContainerState extends State<_AnimatedOverlayContainer>
                             6.horizontalSpace,
                             GestureDetector(
                               onTap: reverseAndRemove,
-                              child: Icon(
-                                Icons.close,
+                              child: AppIcon(
+                                AppIcons.close,
                                 color: Colors.white.withValues(alpha: 0.9),
                               ),
                             ),
@@ -270,7 +270,7 @@ void clearAllOverlays() => _clearAllOverlays();
 bool showSuccessOverlay(BuildContext context, String message) {
   return showOverlayBanner(
     context,
-    backgroundColor: const Color(0xFF28C76F),
+    backgroundColor: AppColors.success,
     prefix: Container(
       width: 36,
       height: 36,
@@ -278,7 +278,8 @@ bool showSuccessOverlay(BuildContext context, String message) {
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
-      child: const Icon(Icons.check, color: Color(0xFF28C76F), size: 18),
+      alignment: Alignment.center,
+      child: const AppIcon(AppIcons.check, color: AppColors.success, size: 18),
     ),
     content: Text(
       message,
@@ -292,7 +293,7 @@ bool showSuccessOverlay(BuildContext context, String message) {
 bool showErrorOverlay(BuildContext context, String message) {
   return showOverlayBanner(
     context,
-    backgroundColor: const Color(0xFFEA5455).withValues(alpha: 0.3),
+    backgroundColor: AppColors.error.withValues(alpha: 0.3),
     prefix: Container(
       width: 36,
       height: 36,
@@ -300,7 +301,8 @@ bool showErrorOverlay(BuildContext context, String message) {
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
-      child: const Icon(Icons.close, color: Color(0xFFEA5455), size: 18),
+      alignment: Alignment.center,
+      child: const AppIcon(AppIcons.close, color: AppColors.error, size: 18),
     ),
     content: Text(
       message,

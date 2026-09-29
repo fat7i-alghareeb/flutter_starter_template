@@ -11,13 +11,15 @@ class AppSystemUiOverlay {
 
   /// Builds a [SystemUiOverlayStyle] for the given [theme].
   ///
-  /// - Uses [ColorScheme.surface] as the base color for both the
-  ///   status bar and the navigation bar.
+  /// - Uses [ThemeData.scaffoldBackgroundColor] as the base color. That is
+  ///   the SCREEN ground (`#F4F3EE` in light), which is not the same as
+  ///   [ColorScheme.surface] (`#FFFFFF`, the card color) — see
+  ///   `DESIGN_SYSTEM.md`. Matching `surface` would leave a visible seam
+  ///   between the system navigation bar and the screen.
   /// - Chooses icon brightness based on the estimated brightness of the
   ///   surface color to ensure good contrast.
   static SystemUiOverlayStyle forTheme(ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-    final surface = colorScheme.surface;
+    final surface = theme.scaffoldBackgroundColor;
 
     // Estimate how light or dark the surface color is so we can pick
     // icon colors that remain legible.

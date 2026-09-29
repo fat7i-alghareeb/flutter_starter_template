@@ -61,6 +61,7 @@ library;
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
+import 'ds/app_icons.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -68,7 +69,7 @@ import '../../utils/extensions/context_extensions.dart';
 
 import '../../utils/extensions/theme_extensions.dart';
 
-import 'app_shimmer.dart';
+import 'ds/app_skeleton.dart';
 
 import 'full_screen_image_screen.dart';
 
@@ -122,14 +123,6 @@ class AppImageViewer extends StatelessWidget {
 
     this.loading = AppImageViewerLoading.shimmer,
 
-    this.shimmerAnimate = true,
-
-    this.shimmerEnableHighlight = true,
-
-    this.shimmerBaseColor,
-
-    this.shimmerHighlightColor,
-
     this.progressSize = 30,
 
     this.progressStrokeWidth = 3,
@@ -173,14 +166,6 @@ class AppImageViewer extends StatelessWidget {
     FilterQuality filterQuality = FilterQuality.medium,
 
     AppImageViewerLoading loading = AppImageViewerLoading.shimmer,
-
-    bool shimmerAnimate = true,
-
-    bool shimmerEnableHighlight = true,
-
-    Color? shimmerBaseColor,
-
-    Color? shimmerHighlightColor,
 
     double progressSize = 30,
 
@@ -227,14 +212,6 @@ class AppImageViewer extends StatelessWidget {
 
       loading: loading,
 
-      shimmerAnimate: shimmerAnimate,
-
-      shimmerEnableHighlight: shimmerEnableHighlight,
-
-      shimmerBaseColor: shimmerBaseColor,
-
-      shimmerHighlightColor: shimmerHighlightColor,
-
       progressSize: progressSize,
 
       progressStrokeWidth: progressStrokeWidth,
@@ -277,14 +254,6 @@ class AppImageViewer extends StatelessWidget {
     FilterQuality filterQuality = FilterQuality.medium,
 
     AppImageViewerLoading loading = AppImageViewerLoading.shimmer,
-
-    bool shimmerAnimate = true,
-
-    bool shimmerEnableHighlight = true,
-
-    Color? shimmerBaseColor,
-
-    Color? shimmerHighlightColor,
 
     double progressSize = 30,
 
@@ -329,14 +298,6 @@ class AppImageViewer extends StatelessWidget {
 
       loading: loading,
 
-      shimmerAnimate: shimmerAnimate,
-
-      shimmerEnableHighlight: shimmerEnableHighlight,
-
-      shimmerBaseColor: shimmerBaseColor,
-
-      shimmerHighlightColor: shimmerHighlightColor,
-
       progressSize: progressSize,
 
       progressStrokeWidth: progressStrokeWidth,
@@ -380,14 +341,6 @@ class AppImageViewer extends StatelessWidget {
   final FilterQuality filterQuality;
 
   final AppImageViewerLoading loading;
-
-  final bool shimmerAnimate;
-
-  final bool shimmerEnableHighlight;
-
-  final Color? shimmerBaseColor;
-
-  final Color? shimmerHighlightColor;
 
   final double progressSize;
 
@@ -452,14 +405,6 @@ class AppImageViewer extends StatelessWidget {
 
     final foreground = progressColor ?? context.colorScheme.primary;
 
-    final base = Container(
-      width: double.infinity,
-
-      height: double.infinity,
-
-      color: backgroundColor ?? context.colorScheme.surfaceContainerHighest,
-    );
-
     if (loading == AppImageViewerLoading.progress) {
       return Center(
         child: MainLoadingProgress(
@@ -472,16 +417,11 @@ class AppImageViewer extends StatelessWidget {
       );
     }
 
-    return AppShimmer(
-      animate: shimmerAnimate,
-
-      enableHighlight: shimmerEnableHighlight,
-
-      baseColor: shimmerBaseColor,
-
-      highlightColor: shimmerHighlightColor,
-
-      child: base,
+    // The app's one shimmer (`app_skeleton.dart`): synced to every other
+    // skeleton on screen rather than running its own separate sweep.
+    return const SkeletonScope(
+      isLoading: true,
+      child: SkeletonBox(radius: 0, child: SizedBox.expand()),
     );
   }
 
@@ -489,7 +429,9 @@ class AppImageViewer extends StatelessWidget {
     final iconColor = context.colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Center(
-      child: Icon(Icons.broken_image_outlined, size: 26.sp, color: iconColor),
+      // The app's own line glyph — a failed picture
+      // is common with no network, so this one is seen.
+      child: AppIcon(AppIcons.image, size: 26.sp, color: iconColor),
     );
   }
 
@@ -709,9 +651,10 @@ class AppImageViewer extends StatelessWidget {
 
         decoration: decoration,
 
-        // This enables anti-aliased clipping for rounded corners.
-        clipBehavior: hasRadius ? Clip.antiAlias : Clip.none,
-
+        // No `clipBehavior` here: `content` is already clipped by the
+        // ClipRRect above, to the same radius. Clipping here too stacked a
+        // second, path-based anti-aliased clip on every image in every list
+        // — double the clip work per frame for no visible difference.
         child: content,
       );
 

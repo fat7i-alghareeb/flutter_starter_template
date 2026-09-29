@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show DateTimeComponents;
 
 import '../../../../../../common/imports/imports.dart';
+import '../nav_bar/app_bottom_nav.dart';
 import '../../../../../../core/notification/notification_coordinator.dart';
 import '../../../../constants/root_constants.dart';
 
@@ -23,7 +24,7 @@ class _RootTabNotificationsShowcaseState
   void _toast(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(milliseconds: 900)),
+      SnackBar(content: AppSnackContent(msg), duration: const Duration(milliseconds: 900)),
     );
   }
 
@@ -123,7 +124,9 @@ class _RootTabNotificationsShowcaseState
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: AppSpacing.standardPadding,
+      padding: AppSpacing.standardPadding.copyWith(
+        bottom: AppBottomNav.listBottomPadding(context),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -142,7 +145,7 @@ class _RootTabNotificationsShowcaseState
               onTap: _checkPermission,
               child: AppButtonChild.labelIcon(
                 label: 'Check permission',
-                icon: IconSource.icon(Icons.verified_rounded),
+                icon: IconSource.svg(AppIcons.success),
               ),
             ),
             AppSpacing.md.verticalSpace,
@@ -150,7 +153,7 @@ class _RootTabNotificationsShowcaseState
               onTap: _requestPermission,
               child: AppButtonChild.labelIcon(
                 label: 'Request permission',
-                icon: IconSource.icon(Icons.notifications_rounded),
+                icon: IconSource.svg(AppIcons.bell),
               ),
             ),
           ]),

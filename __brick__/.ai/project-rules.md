@@ -1,6 +1,6 @@
 # Project Rules
 
-This is the always-loaded entry point for AI coding agents working on the Alsultan single-app Flutter project template.
+This is the always-loaded entry point for AI coding agents working on the {{project_title}} Flutter project template.
 
 Use this file to decide which detailed rules to load. Keep daily task context small, but do not weaken the project standards.
 
@@ -48,8 +48,11 @@ Read these project guides only when needed:
 - State management uses BLoC, Freezed, `BlocStatus<T>`, and `StatusBuilder<T>`.
 - Data layers must separate Entity, Model, Mapper, Repository, DataSource, and RequestModel responsibilities.
 - Data sources wrap failures with `rethrowAsAppException`; repositories wrap operations with `runAsResult`.
-- Navigation uses typed arguments through GoRouter `extra` when passing data.
-- Loading states use shimmer or platform loading widgets, not ad-hoc spinners.
+- Navigation: register an `AppPage`, open it with `AppNavigator.push(context, AppPage.x, params: {...})` — pages nest under the page that opens them. `context.go` only to replace the whole stack.
+- Loading states use `SkeletonWidget` (`.success` / `.loading`), not spinners; spinners only for an action in progress.
+- Icons come from `AppIcons` (Lucide SVG), never `Icons.*` or icon fonts.
+- Develop against the mock layer (`--dart-define=USE_MOCK=true`, `assets/mock/`) until the API exists.
+- Visual rules: `DESIGN_SYSTEM.md`. Tests: `test/README.md`.
 - Assets must be referenced through FlutterGen `Assets`.
 - Do not run `melos`; this project does not use it.
 - Keep documentation in sync when adding reusable patterns, commands, dependencies, or architecture.
