@@ -474,7 +474,7 @@ Every `.md` the brick generates, what it is for, and when to read it.
 | [`IOS_SETUP.md`](__brick__/docs/IOS_SETUP.md) | Podfile with permission flags, Info.plist additions, push (APNs + FCM), universal links, build and symbols. |
 | [`CODEMAGIC.md`](__brick__/docs/CODEMAGIC.md) | Setting up `codemagic.yaml`: repository, Android keystore, App Store Connect key, versioning, artifacts. |
 | [`SHOREBIRD.md`](__brick__/docs/SHOREBIRD.md) | Optional over-the-air patches: what is patchable, setup, the complete `tool/shorebird.dart`, the release/patch cycle, the mock app, Codemagic workflows, troubleshooting. |
-| [`AGENT_TASK_PROMPT_TEMPLATE.md`](__brick__/docs/AGENT_TASK_PROMPT_TEMPLATE.md) | Copy-paste prompts for starting a task with an AI coding agent. |
+| [`AGENT_TASK_PROMPT_TEMPLATE.md`](__brick__/docs/AGENT_TASK_PROMPT_TEMPLATE.md) | Copy-paste prompts for an AI coding agent: direct implementation, planning only, new feature, screen from a design, bug fix, small task. |
 
 </details>
 
