@@ -65,13 +65,17 @@ static const String pageName = 'FeatureNameScreen';
 
 ## Icons
 
-- Use `FaIcon` with `FontAwesomeIcons`.
-- Do not use Flutter's `Icons.*` in app UI.
-- Any explicit icon size must use `.r`.
+- One family: Lucide SVGs through `AppIcons.*`, drawn with `AppIcon` (or `IconSource.svg` where a widget takes an `IconSource`).
+- Do not use Flutter's `Icons.*` or any icon font in app UI.
+- A missing glyph: add the Lucide SVG to `assets/svgIcons/` and a constant to `AppIcons`.
+- Directional glyphs follow the text direction (`context.chevronEnd`).
 
 ## Loading, Empty, and Error States
 
-- Content loading states should use shimmer components based on `AppShimmer`.
+- Content loading states use `SkeletonWidget`: `.success(...)` and `.loading()` over ONE `buildBody`, leaves wrapped in `SkeletonText` / `SkeletonBox`. Never a second "skeleton version" of a widget.
+- Every new `.loading()` gets a line in `test/common/widgets/ds/skeleton_parity_test.dart`.
+- The next page of a list is `SkeletonMore`, not a spinner.
+- A section of a page loads on its own (`AppLazySection`) and fails on its own.
 - Full-screen blocking loading should use `MainLoadingProgress`.
 - Inline or button loading should use `LoadingDots`.
 - Do not use raw `CircularProgressIndicator` directly in feature UI.
@@ -83,7 +87,9 @@ static const String pageName = 'FeatureNameScreen';
 
 - Use animations where they improve UX and clarity.
 - Screen/list entry animations are required when appropriate for user-facing content.
-- Prefer `flutter_animate` for entry effects.
+- Use the motion kit first: `.revealOnScroll()` / `ScrollReveal` for list items, `AppIntro` + `AppIntroSlot` for a once-per-run opening, `AppCountUp`, `AppAccentLine`, `AppGlint`, `AppKenBurns`, `AppParallax`, `AppPopIn`, `AppRefresh` (pull to refresh), `AppBackToTop`.
+- Every animation is finite and honours `MediaQuery.disableAnimations`; anything repeating stops when unseen (`TickerMode`).
+- `flutter_animate` is available for one-off effects the kit does not cover.
 - Use built-in implicit animations for simple state-driven transitions.
 - Avoid useless animations on static, admin, dashboard, or table-heavy screens.
 - If using a manual `AnimationController`, document why simpler options were not enough.

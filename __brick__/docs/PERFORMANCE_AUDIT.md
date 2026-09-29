@@ -126,7 +126,7 @@ Current behavior:
 ## Remaining Watchpoints
 
 - `EasyLocalization.ensureInitialized()` still runs before `runApp` because localization assets must exist before the app tree is wrapped.
-- Saved locale/theme are applied after the first frame. This favors launch speed and may cause one post-splash correction if the persisted setting differs from the device/fallback value.
+- Saved locale/theme are read BEFORE the first frame, each within a 250ms budget (one preferences read while the native splash still covers the screen). A read slower than that lands after the first frame, animated.
 - ObjectBox dependencies and generated files are present, but ObjectBox is not opened during startup unless a feature explicitly asks for `ObjectBoxService`.
 - `debugPrint` appears in debug-only helpers/assert paths. Keep production features on `printC/printG/printY` and localized `AppStrings`.
 - Large images should keep using generated `Assets`, `CachedNetworkImage`, and explicit dimensions. Avoid decoding full-resolution images into small UI slots.
@@ -138,9 +138,28 @@ Keep this order when editing startup code:
 1. Initialize Flutter binding and system UI.
 2. Configure DI and register runtime singletons.
 3. Initialize localization core.
-4. Resolve first-frame locale synchronously from device/fallback.
+4. Read the saved theme and language (250ms budget each).
 5. Call `runApp`.
-6. After the first frame, reconcile saved locale and warm non-critical services.
-7. Ask notification permission only after the splash duration or after a user action.
+6. After the first frame: stage tools, onboarding, auth/session restore, the first tab's preload (`BlocPreloader`), then notifications after `SplashConfig.initialDelay`.
+7. Ask the notification permission from the shell (`RootScreen`), never at startup.
 
 Do not add storage reads, Firebase, ObjectBox, network calls, permission requests, asset precaching, or heavy JSON parsing before `runApp` unless the app cannot render a correct first screen without it.
+
+
+## Frame-Rate Rules (raster pass)
+
+Found by profiling a production app built on this template; each one cost frames on a mid-range phone.
+
+- **Shadows:** a `BoxShadow` on a rounded rect is cheap. `Material(elevation:)` on a stadium or circle blurs its path offscreen every frame — the search pill, the nav bar and icon buttons draw their shadow directly.
+- **`ShaderMask` only while it is visible:** `AppGlint` wraps its child in the mask only during its pass.
+- **Repeating animations stop when unseen:** a kept-alive tab under another one is still built; `TickerMode.valuesOf(context).enabled` gates the rotating hint's timer and Ken Burns.
+- **`HeroMode(enabled: isActive)`** on kept-alive tabs, or their heroes fly on every push.
+- **`RepaintBoundary`** around each tab, so a tab that animates never repaints the others.
+- **Scroll reveal plays on crossing an edge**, not on build — a list builds 400dp ahead of the viewport.
+- **Lazy sections:** a section asks for its data when first built near the viewport (`AppLazySection`, `scrollCacheExtent`), so the first frame requests only what is above the fold.
+- **Images:** `AppThumbnail` caches (`cached_network_image`), settles in once, and falls back to an icon tile — never a stock photo. For large photos in small slots, pass `memCacheWidth` so the full image is not decoded.
+- **120 Hz:** Flutter does not ask for the panel's fastest mode and some OEMs lock unknown apps to 60 Hz — `MainActivity.kt` and `android:appCategory` in `docs/ANDROID_RELEASE_SETUP.md`.
+
+## APK Size
+
+The Dart side ships lean (no `google_fonts`, `shimmer`, `font_awesome_flutter`; SVG icons compiled to binary vector graphics). The Android side — R8 full mode without blanket keeps, resource shrinking, `localeFilters`, arm64-only release, compressed native libs — is `docs/ANDROID_RELEASE_SETUP.md`; measure before and after with its §1 and §12.

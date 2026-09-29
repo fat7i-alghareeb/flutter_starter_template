@@ -2,7 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Notification configuration used as the single source of truth for how
 /// notifications are presented across:
-/// - Firebase Cloud Messaging (FCM) remote messages
+/// - Firebase Cloud Messaging remote messages
 /// - flutter_local_notifications local presentation
 ///
 /// This file defines pure configuration models and mapping helpers.

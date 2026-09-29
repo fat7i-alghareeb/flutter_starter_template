@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../utils/constants/app_flow_constants.dart';
 import '../services/storage/storage_service.dart';
+import 'native_night_mode.dart';
 
 /// Global controller responsible for managing the current [ThemeMode].
 ///
@@ -10,7 +14,9 @@ import '../services/storage/storage_service.dart';
 /// controller to rebuild when the theme changes.
 @lazySingleton
 class ThemeController extends ChangeNotifier {
-  ThemeController(this._storage) : _themeMode = ThemeMode.system;
+  /// Starts at [AppThemeConfig.defaultMode]. Only a value the user saved
+  /// overrides it.
+  ThemeController(this._storage) : _themeMode = AppThemeConfig.defaultMode;
 
   static const String _themeModeStorageKey = 'theme.mode';
 
@@ -29,6 +35,7 @@ class ThemeController extends ChangeNotifier {
     if (mode == _themeMode) return;
     _themeMode = mode;
     _storage.writeString(_themeModeStorageKey, _serialize(mode));
+    unawaited(NativeNightMode.sync(mode));
     notifyListeners();
   }
 
@@ -38,13 +45,14 @@ class ThemeController extends ChangeNotifier {
 
     if (saved == null || saved.isEmpty) {
       await _storage.writeString(_themeModeStorageKey, _serialize(_themeMode));
-      return;
-    }
-
-    if (parsed != null && parsed != _themeMode) {
+    } else if (parsed != null && parsed != _themeMode) {
       _themeMode = parsed;
       notifyListeners();
     }
+
+    // Every launch, not only on change: the OS value is lost when the app's
+    // data is cleared, and a first install has never been told at all.
+    unawaited(NativeNightMode.sync(_themeMode));
   }
 
   static String _serialize(ThemeMode mode) {

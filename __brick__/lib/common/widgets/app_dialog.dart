@@ -38,7 +38,8 @@ class AppDialog extends StatelessWidget {
     this.maxWidth,
     this.padding,
     this.backgroundColor,
-    this.borderRadius = 16,
+    // DESIGN_SYSTEM.md: dialogs use radius.lg (18) and cap at 320dp.
+    this.borderRadius = AppRadii.lg,
     this.barrierDismissible = true,
   });
 
@@ -57,7 +58,7 @@ class AppDialog extends StatelessWidget {
     double? maxWidth,
     EdgeInsetsGeometry? padding,
     Color? backgroundColor,
-    double borderRadius = 16,
+    double borderRadius = AppRadii.lg,
     bool barrierDismissible = true,
   }) {
     return AppDialog._(

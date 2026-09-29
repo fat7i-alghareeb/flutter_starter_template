@@ -32,14 +32,20 @@ class NotificationFcmService {
   bool get isInitialized => _initialized;
   String? get cachedToken => _cachedToken;
 
-  Future<void> initialize({required AppNotificationConfig config}) async {
+  /// [requestPermission] false leaves the prompt to the app: on Android 13+
+  /// and iOS `requestPermission` IS the system prompt, and the app asks from
+  /// the shell, never over the splash or onboarding.
+  Future<void> initialize({
+    required AppNotificationConfig config,
+    bool requestPermission = true,
+  }) async {
     if (_initialized) return;
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     // This call is safe even when the permission was requested earlier via
     // permission_handler. On iOS it will not prompt again once granted.
-    await _messaging.requestPermission();
+    if (requestPermission) await _messaging.requestPermission();
 
     // Prevent iOS from showing system notifications in foreground.
     // Foreground notifications are shown via flutter_local_notifications.

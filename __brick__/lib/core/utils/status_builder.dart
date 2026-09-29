@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../common/imports/imports.dart'
     show AppStrings, EmptyStateWidget, FailedStateWidget;
+import '../../common/widgets/ds/app_motion.dart' show AppRefresh;
 import '../../common/widgets/main_loading_progress.dart'
     show MainLoadingProgress;
 import '../../core/utils/bloc_status.dart' show BlocStatus, BlocStatusPatterns;
@@ -89,6 +90,6 @@ class StatusBuilder<T> extends StatelessWidget {
       );
     }
 
-    return RefreshIndicator(onRefresh: onRefresh!, child: scrollableChild);
+    return AppRefresh(onRefresh: onRefresh!, child: scrollableChild);
   }
 }

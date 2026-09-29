@@ -65,7 +65,7 @@ class _ClearIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.close, size: 20.sp, color: context.grey);
+    return AppIcon(AppIcons.close, color: context.grey);
   }
 }
 
@@ -75,7 +75,7 @@ class _ArrowIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.keyboard_arrow_down, size: 24.sp, color: context.grey);
+    return AppIcon(AppIcons.chevronDown, size: 24, color: context.grey);
   }
 }
 
@@ -180,9 +180,9 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
               ),
               child: Row(
                 children: <Widget>[
-                  Icon(
-                    Icons.search,
-                    size: 18.sp,
+                  AppIcon(
+                    AppIcons.search,
+                    size: 18,
                     color: context.grey.withValues(alpha: 0.9),
                   ),
                   AppSpacing.sm.horizontalSpace,
@@ -212,9 +212,9 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
                           _query = '';
                         });
                       },
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
+                      child: AppIcon(
+                        AppIcons.close,
+                        size: 18,
                         color: context.grey.withValues(alpha: 0.9),
                       ),
                     ),

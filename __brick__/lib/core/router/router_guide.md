@@ -7,7 +7,7 @@ This document is a **Hard Requirement** for any AI agent interacting with routes
 - **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
 - **Feature Structure**: [lib/features/features_overview.md](lib/features/features_overview.md)
 
-Failure to follow the Typed Navigation Protocol (using `Arguments` classes and `extra`) is a protocol violation.
+Pages are `AppPage`s opened with `AppNavigator.push` (see below); ids travel as path parameters. Pass objects through `extra` only when a page cannot re-read them by id.
 
 ---
 
@@ -54,14 +54,19 @@ Key parts:
     - inline onboarding gating before auth redirects
     - `_handleAuth(...)`
 
-### `app_routes.dart`
+### `app_routes.dart` — the page tree
 
-Central registry of app routes (`List<GoRoute>`). This is where you add/remove screens.
+- **`AppPage`**: every page pushed over the shell, with its relative `segment` (`items/:id`) and `children` (which pages it opens). Sign-in is a child of every page.
+- **`AppRouteTree.build`**: generates the nested `GoRoute`s under `/root` up to `maxDepth` (6), so `/root/items/1/items/2/login` is a real stack. Parameters are renamed per depth (`:id`, `:id2`…).
+- **`AppRouteRegistry.routes`**: splash, onboarding, the login wall (`/login`) and the tree.
 
-Responsibilities:
+### `app_navigator.dart`
 
-- Own route `path` and `name` constants (usually on the screen).
-- Map each route to its screen widget.
+`AppNavigator.push(context, AppPage.x, params: {...})` pushes the page as a child of the page on top when the graph allows it, or under the shell otherwise — always a PUSH, so back pops one page. `pushTarget(router, AppTarget(...))` does the same without a context.
+
+### `app_links.dart`
+
+`AppLinks` (hosts, custom scheme, `linkable` pages, `locationOf`, `shareUrlOf`, notification `locationOfTarget`) and `LinkDispatcher`, the binding observer that opens a link from outside OVER the shell — and holds it until `RootScreen` reports the shell ready on a cold start.
 
 ### `app_page_transitions.dart`
 
@@ -143,8 +148,9 @@ After onboarding (or if onboarding is disabled), the guard checks auth:
 
 Then:
 
-- If **not authenticated and not guest**:
-  - Redirect to `LoginScreen.pagePath`.
+- `AuthMode.loginRequired` and **not authenticated and not guest**:
+  - Redirect to `LoginScreen.wallPath` (`/login`).
+- `AuthMode.guestFirst`: never redirected to sign-in — protected actions open the sign-in sheet instead (`AuthGate.run`).
 
 - If **authenticated or guest**:
   - If you are currently on splash/login/onboarding, redirect to `RootScreen.pagePath`.
@@ -172,10 +178,14 @@ Then:
 1. Requests may return 401 or token may be near expiry.
 2. `DioClient` refresh flow attempts refresh.
 3. If refresh succeeds → status stays authenticated.
-4. If refresh fails/revoked → `AuthManager.logout()` → notifier updates → redirect runs → user sent to Login.
+4. If refresh fails/revoked → `AuthManager.expireSession()` (not `logout()`: the user did not ask to leave) → login wall with «session ended», or in guest-first mode a banner over the app and the user stays where they were.
 
-## How to add a new route
+## How to add a new page
 
-1. Add a new screen with `static const pagePath` and `static const pageName`.
-2. Register it in `AppRouteRegistry.routes`.
-3. If the route needs protection/redirect rules, update `AppRouteGuard`.
+1. Screen with `static const pagePath = 'orders/:id'` (relative) and `pageName`.
+2. Add `orders(OrderScreen.pagePath, OrderScreen.pageName)` to `AppPage`, list it in the `children` of the pages that open it, and build it in `AppRouteTree`'s page switch.
+3. Open it: `AppNavigator.push(context, AppPage.orders, params: {'id': id})`.
+4. Reachable from a link? Add it to `AppLinks.linkable` and the Android/iOS link config (`docs/ANDROID_RELEASE_SETUP.md` §8, `docs/IOS_SETUP.md` §4).
+5. Test the walk in `test/core/router/navigation_stack_test.dart`.
+
+`context.go` replaces the whole stack — use it only for that (sign-out on the wall). Everything else is a push.

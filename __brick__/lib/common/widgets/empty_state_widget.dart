@@ -30,11 +30,13 @@ class EmptyStateWidget extends StatelessWidget {
     super.key,
     this.icon,
     this.text,
+    this.description,
     this.onRefresh,
     this.onRetrying,
     this.retryLabel,
     this.retryIcon,
-    this.iconSize = 86,
+    // DESIGN_SYSTEM.md: the empty-state icon is 28, not a hero graphic.
+    this.iconSize = AppIconSizes.emptyState,
     this.padding,
     this.maxWidth,
     this.textStyle,
@@ -42,7 +44,13 @@ class EmptyStateWidget extends StatelessWidget {
   });
 
   final IconSource? icon;
+
+  /// The headline. Be specific: `لا توجد نتائج لـ «براد صغير»`, never
+  /// `لا توجد بيانات`.
   final String? text;
+
+  /// One supporting line under [text]. Hidden when null.
+  final String? description;
 
   final Future<void> Function()? onRefresh;
   final VoidCallback? onRetrying;
@@ -60,14 +68,12 @@ class EmptyStateWidget extends StatelessWidget {
     final colors = context.colorScheme;
 
     final effectiveIcon =
-        icon ?? IconSource.icon(Icons.inbox_outlined, size: iconSize);
+        icon ?? IconSource.svg(AppIcons.empty, size: iconSize);
 
     final effectiveText = text?.trim().isNotEmpty == true
         ? text!
         : AppStrings.emptyStateNoData;
 
-    final effectiveIconColor =
-        iconColor ?? colors.onSurface.withValues(alpha: 0.55);
 
     // For pull-to-refresh to work even when the content doesn't fill the
     // viewport, the scroll view must always be scrollable.
@@ -92,31 +98,46 @@ class EmptyStateWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      effectiveIcon.build(
-                        context,
-                        color: effectiveIconColor,
-                        size: iconSize,
+                      // A large icon disc, a bold title, one line, one pill.
+                      AppStateDisc(
+                        child: effectiveIcon.build(
+                          context,
+                          color: iconColor ?? AppStateDisc.iconColor(context),
+                          size: 34,
+                        ),
                       ),
                       AppSpacing.lg.verticalSpace,
                       Text(
                         effectiveText,
                         textAlign: TextAlign.center,
+                        // The headline of the state.
                         style:
                             textStyle ??
-                            AppTextStyles.s16w400.copyWith(
-                              color: colors.onSurface.withValues(alpha: 0.82),
+                            context.titleMedium.copyWith(
+                              fontWeight: FontWeight.w800,
                             ),
                       ),
+                      if (description != null) ...[
+                        AppSpacing.xs.verticalSpace,
+                        Text(
+                          description!,
+                          textAlign: TextAlign.center,
+                          style: context.bodySmall.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                       if (onRetrying != null) ...[
                         AppSpacing.xl.verticalSpace,
-                        AppButton.primaryGradient(
+                        AppActionPill(
                           onTap: onRetrying,
-                          child: AppButtonChild.labelIcon(
-                            label: retryLabel ?? AppStrings.retry,
-                            icon:
-                                retryIcon ??
-                                IconSource.icon(Icons.refresh_rounded),
-                          ),
+                          label: retryLabel ?? AppStrings.retry,
+                          icon: (retryIcon ?? IconSource.svg(AppIcons.refresh))
+                              .build(
+                                context,
+                                color: context.colorScheme.onPrimary,
+                                size: 18,
+                              ),
                         ),
                       ],
                     ],
@@ -132,14 +153,15 @@ class EmptyStateWidget extends StatelessWidget {
     if (onRefresh == null) return content;
 
     // Wrap with RefreshIndicator only when refresh is enabled.
-    return RefreshIndicator(onRefresh: onRefresh!, child: content);
+    return AppRefresh(onRefresh: onRefresh!, child: content);
   }
 
   @override
   Widget build(BuildContext context) {
     return _buildBody(context)
         .animate()
-        .fadeIn(duration: 200.ms, curve: Curves.easeOutCubic)
-        .slideY(begin: 0.04, end: 0, duration: 240.ms, curve: Curves.easeOut);
+        .fadeIn(duration: 260.ms, curve: Curves.easeOutCubic)
+        .scaleXY(begin: 0.94, end: 1, duration: 420.ms, curve: AppCurves.reveal)
+        .slideY(begin: 0.06, end: 0, duration: 420.ms, curve: AppCurves.reveal);
   }
 }

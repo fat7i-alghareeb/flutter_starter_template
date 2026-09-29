@@ -5,6 +5,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 
 import '../../../common/widgets/app_affixes.dart';
 import '../../../common/widgets/app_icon_source.dart';
+import '../../../common/widgets/ds/app_icons.dart';
 import '../../../common/widgets/form/app_reactive_text_field.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../utils/constants/design_constants.dart';
@@ -27,6 +28,7 @@ final class AppScaffoldConfig {
     this.backgroundColor,
     this.resizeToAvoidBottomInset = true,
     this.safeArea = const [AppScaffoldSafeArea.top],
+    this.extendBody = false,
   });
 
   /// Background color passed to [Scaffold].
@@ -35,6 +37,14 @@ final class AppScaffoldConfig {
   /// Passed to [Scaffold.resizeToAvoidBottomInset].
   final bool resizeToAvoidBottomInset;
   final List<AppScaffoldSafeArea> safeArea;
+
+  /// Passed to [Scaffold.extendBody]: the body runs on under the
+  /// `bottomNavigationBar` instead of stopping at its top edge. The shell
+  /// sets it so the floating capsule floats OVER the tabs' content — the
+  /// lists scroll on underneath it and show around its edges — and each
+  /// list reserves `AppBottomNav.listBottomPadding` so its last row can
+  /// still clear it.
+  final bool extendBody;
 }
 
 /// A compact, feature-driven scaffold that composes optional UI sections
@@ -302,6 +312,7 @@ class AppScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: scaffoldConfig.backgroundColor,
         resizeToAvoidBottomInset: scaffoldConfig.resizeToAvoidBottomInset,
+        extendBody: scaffoldConfig.extendBody,
         endDrawer: _drawerEnabled ? _AppEndDrawerShell(child: endDrawer) : null,
         body: body,
         bottomNavigationBar: bottomNavigationBar,

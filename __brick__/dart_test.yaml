@@ -1,0 +1,14 @@
+# Test configuration.
+#
+# Golden tests are TAGGED but not skipped: they run with everything else, so a
+# spacing or colour regression fails the same command as a logic one.
+#
+#   flutter test                             everything
+#   flutter test --exclude-tags golden       skip goldens (see below)
+#   flutter test --update-goldens            regenerate the baselines
+#
+# Use --exclude-tags on CI if the runner's OS differs from the machine that
+# generated the baselines: text rasterises slightly differently per platform,
+# so the images will not match byte-for-byte even with no real change.
+tags:
+  golden:

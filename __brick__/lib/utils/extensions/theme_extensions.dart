@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_effects.dart';
 
 /// Theme-related convenience extensions on [BuildContext].
@@ -22,6 +23,12 @@ extension AppThemeContextX on BuildContext {
   AppThemeGradients get gradients => AppThemeEffects.gradients(theme);
 
   AppThemeShadows get shadows => AppThemeEffects.shadows(theme);
+
+  /// Colours the Material scheme has no slot for — success, warning,
+  /// urgent, info, the screen background, text over photos.
+  AppSemanticColors get semantic =>
+      theme.extension<AppSemanticColors>() ??
+      (isDarkTheme ? AppSemanticColors.dark : AppSemanticColors.light);
 
   /// Primary color from the current [ColorScheme].
   Color get primary => colorScheme.primary;

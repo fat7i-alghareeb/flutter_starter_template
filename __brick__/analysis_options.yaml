@@ -14,7 +14,6 @@ analyzer:
     void_checks: ignore
   exclude:
     - "build/**"
-    - "tool/**"
     - "ios/**"
     - "android/**"
     - "windows/**"
@@ -28,7 +27,6 @@ analyzer:
     - ".dart_tool/**"
     - "node_modules/**"
     - "assets/**"
-    - "test/**"
     - "**/*.pbxproj"
     - "**/*.plist"
     - "**/*.xcconfig"

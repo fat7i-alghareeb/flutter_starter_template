@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 
 import 'app_typography.dart';
 
+/// Named text styles that resolve against [AppTypography.textTheme].
+///
+/// Prefer `context.textTheme.titleMedium` in widgets. These aliases exist for
+/// the pre-existing common widgets that were written before the scale in
+/// `DESIGN_SYSTEM.md` was settled, and for the rare non-widget call site.
+///
+/// The names encode the ORIGINAL size/weight pairs of the starter template and
+/// are kept so nothing breaks, but each getter now returns the style that
+/// `DESIGN_SYSTEM.md` actually prescribes for that role. Where the two
+/// disagree — the spec bans weights 300 and 600 — the spec wins and the
+/// mismatch is called out on the getter.
 class AppTextStyles {
   AppTextStyles._();
 
+  /// Rebuilds [base] with [weight], dropping any color so the style inherits
+  /// the active theme's color.
+  ///
+  /// `TextStyle.copyWith(color: null)` does NOT clear a color; it keeps the
+  /// original. The style has to be rebuilt field by field.
   static TextStyle _withWeight(TextStyle? base, FontWeight weight) {
-    final b = base!;
-    // IMPORTANT:
-    // `TextStyle.copyWith(color: null)` does NOT clear the color; it keeps the
-    // original color. To make the style inherit the active theme's color, we
-    // must rebuild the style without carrying over `color/foreground/background`.
+    final b = base ?? const TextStyle();
     return TextStyle(
       fontFamily: b.fontFamily,
       fontFamilyFallback: b.fontFamilyFallback,
@@ -30,82 +42,67 @@ class AppTextStyles {
       decorationThickness: b.decorationThickness,
       debugLabel: b.debugLabel,
       shadows: b.shadows,
+      fontFeatures: b.fontFeatures,
       overflow: b.overflow,
     );
   }
 
-  static TextStyle get s40w700 {
-    final base = AppTypography.textTheme?.displayLarge;
-    return _withWeight(base, FontWeight.w700);
-  }
+  static TextTheme get _t =>
+      AppTypography.textTheme ?? AppTypography.buildTextTheme;
 
-  static TextStyle get s34w700 {
-    final base = AppTypography.textTheme?.displayMedium;
-    return _withWeight(base, FontWeight.w700);
-  }
+  /// Adds tabular figures — prices, ratings, counters.
+  static TextStyle tabular(TextStyle style) =>
+      style.copyWith(fontFeatures: AppTypography.tabularFigures);
 
-  static TextStyle get s28w700 {
-    final base = AppTypography.textTheme?.displaySmall;
-    return _withWeight(base, FontWeight.w700);
-  }
+  // ───────────────────────────── Display
 
-  static TextStyle get s24w700 {
-    final base = AppTypography.textTheme?.headlineLarge;
-    return _withWeight(base, FontWeight.w700);
-  }
+  static TextStyle get s40w700 => _withWeight(_t.displayLarge, FontWeight.w800);
 
-  static TextStyle get s22w700 {
-    final base = AppTypography.textTheme?.headlineMedium;
-    return _withWeight(base, FontWeight.w700);
-  }
+  static TextStyle get s34w700 =>
+      _withWeight(_t.displayMedium, FontWeight.w800);
 
-  static TextStyle get s20w700 {
-    final base = AppTypography.textTheme?.headlineSmall;
-    return _withWeight(base, FontWeight.w700);
-  }
+  static TextStyle get s28w700 => _withWeight(_t.displaySmall, FontWeight.w800);
 
-  static TextStyle get s18w600 {
-    final base = AppTypography.textTheme?.titleLarge;
-    return _withWeight(base, FontWeight.w600);
-  }
+  // ───────────────────────────── Headline
 
-  static TextStyle get s16w600 {
-    final base = AppTypography.textTheme?.titleMedium;
-    return _withWeight(base, FontWeight.w600);
-  }
+  static TextStyle get s24w700 =>
+      _withWeight(_t.headlineLarge, FontWeight.w800);
 
-  static TextStyle get s14w600 {
-    final base = AppTypography.textTheme?.titleSmall;
-    return _withWeight(base, FontWeight.w600);
-  }
+  static TextStyle get s22w700 =>
+      _withWeight(_t.headlineMedium, FontWeight.w800);
 
-  static TextStyle get s16w400 {
-    final base = AppTypography.textTheme?.bodyLarge;
-    return _withWeight(base, FontWeight.w400);
-  }
+  static TextStyle get s20w700 =>
+      _withWeight(_t.headlineSmall, FontWeight.w800);
 
-  static TextStyle get s14w400 {
-    final base = AppTypography.textTheme?.bodyMedium;
-    return _withWeight(base, FontWeight.w400);
-  }
+  // ───────────────────────────── Title
+  //
+  // Weight 600 is banned by `DESIGN_SYSTEM.md`; these return 700.
 
-  static TextStyle get s12w400 {
-    final base = AppTypography.textTheme?.bodySmall;
-    return _withWeight(base, FontWeight.w400);
-  }
+  /// Screen title. **Returns w700** — the spec allows no w600.
+  static TextStyle get s18w600 => _withWeight(_t.titleLarge, FontWeight.w700);
 
-  static TextStyle get s14w500 {
-    final base = AppTypography.textTheme?.labelLarge;
-    return _withWeight(base, FontWeight.w500);
-  }
+  /// Section title, store name. **Returns w700.**
+  static TextStyle get s16w600 => _withWeight(_t.titleMedium, FontWeight.w700);
 
-  static TextStyle get s12w500 {
-    final base = AppTypography.textTheme?.labelMedium;
-    return _withWeight(base, FontWeight.w500);
-  }
+  /// Card title, price. **Returns w700.**
+  static TextStyle get s14w600 => _withWeight(_t.titleSmall, FontWeight.w700);
 
-  static TextStyle get s11w500 {
-    final base = AppTypography.textTheme?.labelSmall;
-    return _withWeight(base, FontWeight.w500);
-  }
+  // ───────────────────────────── Body
+
+  static TextStyle get s16w400 => _withWeight(_t.bodyLarge, FontWeight.w400);
+
+  static TextStyle get s14w400 => _withWeight(_t.bodyMedium, FontWeight.w400);
+
+  static TextStyle get s12w400 => _withWeight(_t.bodySmall, FontWeight.w400);
+
+  // ───────────────────────────── Label
+
+  /// Button text. **Returns w700** per `DESIGN_SYSTEM.md`.
+  static TextStyle get s14w500 => _withWeight(_t.labelLarge, FontWeight.w700);
+
+  /// Chips, field labels.
+  static TextStyle get s12w500 => _withWeight(_t.labelMedium, FontWeight.w500);
+
+  /// Badges. **Returns w700** per `DESIGN_SYSTEM.md`.
+  static TextStyle get s11w500 => _withWeight(_t.labelSmall, FontWeight.w700);
 }

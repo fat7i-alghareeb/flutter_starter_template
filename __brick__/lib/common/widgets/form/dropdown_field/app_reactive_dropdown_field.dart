@@ -17,6 +17,7 @@ import '../../app_bottom_sheet.dart';
 import '../../app_dialog.dart';
 import '../app_reactive_text_field.dart';
 import '../app_reactive_validation_messages.dart';
+import '../../ds/app_icons.dart';
 
 part 'app_reactive_dropdown_field_types.dart';
 part 'app_reactive_dropdown_field_internal_widgets.dart';

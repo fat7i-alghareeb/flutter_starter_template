@@ -4,37 +4,24 @@
 
 This document is a **Hard Requirement** for any AI agent interacting with shared components or animations. You **MUST** ensure your internal state is synced with the following dependencies:
 
-- **Global Rules**: [.ai/project-rules.md](file:///c:/Users/Fat7i/myProject/Alsultan/alsultan_sy/.ai/project-rules.md)
-- **Animation Constants**: [lib/utils/constants/design_constants.dart](file:///c:/Users/Fat7i/myProject/Alsultan/alsultan_sy/lib/utils/constants/design_constants.dart)
-- **Responsive Sizing**: [lib/core/core_architecture_overview.md](file:///c:/Users/Fat7i/myProject/Alsultan/alsultan_sy/lib/core/core_architecture_overview.md)
+- **Global Rules**: [.ai/project-rules.md](../../.ai/project-rules.md)
+- **Animation Constants**: [lib/utils/constants/design_constants.dart](../../lib/utils/constants/design_constants.dart)
+- **Responsive Sizing**: [lib/core/core_architecture_overview.md](../../lib/core/core_architecture_overview.md)
 
 Failure to apply the 3-Tier Animation Mandate or Responsive Sizing protocols is a protocol violation.
 
 ---
 
-## 🎬 Animation Mandate (STRICT)
+## 🎬 Motion
 
-To maintain Alsultan's premium aesthetic, all UI transitions must follow this multi-tier animation protocol.
+Rules and durations: `DESIGN_SYSTEM.md` → Motion. In order of preference:
 
-### Tier 1 `flutter_animate` (Primary Choice)
+1. **The motion kit** (`widgets/ds/app_motion.dart`, `widgets/scroll_reveal.dart`): `.revealOnScroll()` for list items, `AppIntro` + `AppIntroSlot` for a once-per-run opening, `AppCountUp`, `AppAccentLine`, `AppGlint`, `AppKenBurns`, `AppParallax`, `AppPopIn`, `AppRailNudge`, `AppRefresh`, `AppBackToTop`, `AppRotatingHint`.
+2. **Implicit animations** (`AnimatedContainer`, `AnimatedOpacity`, `AnimatedSwitcher`) for a state toggle.
+3. **`flutter_animate`** for a one-off effect the kit does not cover.
+4. **`AnimationController`** last, with a comment saying why.
 
-For 90% of UI effects (fade-ins, slide-ins, scale-up), you **MUST** use the `flutter_animate` package. It provides a declarative, performance-optimized syntax.
-
-- **Rule**: Every screen-level section and major internal widget **MUST** have a staggered entry animation (e.g., `.fadeIn() .slideY()`).
-- **Timing**: Use `200.ms` to `400.ms` for durations. Avoid excessively long animations that hinder user productivity.
-
-### Tier 2 Built-in Flutter Animations (Explicit Fallback)
-
-For simple, state-driven property transitions (e.g., changing a container's color, size, or opacity based on a boolean), use Flutter's implicit animations.
-
-- **Widgets**: `AnimatedContainer`, `AnimatedOpacity`, `AnimatedPadding`.
-- **Criteria**: Use when the animation is a direct result of a simple state toggle and doesn't require complex sequencing.
-
-### Tier 3 `AnimationController` (Advanced/Critical)
-
-For extremely complex, performance-critical, or low-level custom transitions where `flutter_animate` becomes unreadable or inefficient.
-
-- **Constraint**: This is the last resort. You **MUST** document why Tier 1 or 2 was insufficient in the code comments.
+Every motion is finite, interruptible and honours `MediaQuery.disableAnimations`.
 
 ---
 
@@ -98,19 +85,19 @@ Padding(
 
 - **Path**: `lib/common/widgets/app_icon_source.dart`
 - **Responsibility**: Unified icon type system.
-- **Details**: Defines the `IconSource` class and `IconSourceWidget`. It allows passing Material `IconData`, FontAwesome `FaIconData`, SVG paths, or Asset paths as a single object, resolving them correctly at render time.
+- **Details**: Defines the `IconSource` class and `IconSourceWidget`. It allows passing an `AppIcons` SVG path (`IconSource.svg`), an asset or a Material `IconData` as a single object, resolved at render time. App UI uses `AppIcons` SVGs only.
 
 ### `app_image_viewer.dart`
 
 - **Path**: `lib/common/widgets/app_image_viewer.dart`
 - **Responsibility**: High-performance image loading.
-- **Details**: Uses `CachedNetworkImage` internally and handles placeholders (`AppShimmer`) and fallback icons when an image fails to load.
+- **Details**: Uses `CachedNetworkImage` internally and handles placeholders and fallback icons when an image fails to load.
 
-### `app_shimmer.dart`
+### `ds/` — the design system
 
-- **Path**: `lib/common/widgets/app_shimmer.dart`
-- **Responsibility**: Skeleton loading effect.
-- **Details**: A flexible `AppShimmer` widget that creates a moving linear gradient. It can be shaped as a circle or rectangle to mimic different UI components during loading.
+- **Path**: `lib/common/widgets/ds/` (barrel `ds.dart`, exported by `imports.dart`)
+- **Responsibility**: every visual primitive — `app_skeleton.dart` (`SkeletonWidget`, `SkeletonText`, `SkeletonBox`, `SkeletonMore`), `app_motion.dart`, `app_card`, `app_badge`, `app_chip` (+ `AppSectionHeader`), `app_icons` (`AppIcons`, `AppIcon`), `app_thumbnail`, `app_search_field`, `app_top_bar`, `app_rail`, `app_peek_carousel`, `app_lazy_section`, `app_hero_detail_layout`, `app_action_capsule`, `app_settings_tile`, `app_status_banner`, `app_state_parts`.
+- **Details**: see `DESIGN_SYSTEM.md` §6–7. Loading = `SkeletonWidget`, one layout for `.success` and `.loading`.
 
 ### `empty_state_widget.dart`
 

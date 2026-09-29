@@ -2,17 +2,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Stage Tools (Debug)",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "debug",
-      "program": "lib/main.dart",
-      "args": [
-        "--dart-define",
-        "STAGE_TOOLS=true"
-      ]
-    },
-    {
       "name": "App (Debug)",
       "request": "launch",
       "type": "dart",
@@ -20,11 +9,48 @@
       "program": "lib/main.dart"
     },
     {
+      "name": "App (Debug, mock data)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "args": ["--dart-define", "USE_MOCK=true"]
+    },
+    {
+      "name": "App (Debug, mock data, stage tools)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define",
+        "USE_MOCK=true",
+        "--dart-define",
+        "STAGE_TOOLS=true"
+      ]
+    },
+    {
+      "name": "Stage Tools (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "args": ["--dart-define", "STAGE_TOOLS=true"]
+    },
+    {
       "name": "App (Profile)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
       "program": "lib/main.dart"
+    },
+    {
+      "name": "App (Release, mock data)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "program": "lib/main.dart",
+      "args": ["--dart-define", "USE_MOCK=true"]
     },
     {
       "name": "App (Release)",

@@ -1,6 +1,8 @@
 name: {{project_name}}
 description: "{{project_description}}"
 publish_to: "none"
+# `x.y.z+N`. The build number (+N) is what stores and release tools key on:
+# bump it before every release.
 version: 1.0.0+1
 
 environment:
@@ -16,11 +18,9 @@ dependencies:
   # UI / Design system
   cupertino_icons: ^1.0.9
   cached_network_image: ^3.4.1
-  google_fonts: ^8.1.0
   flutter_screenutil: ^5.9.3
   flutter_animate: ^4.5.2
-  animations: ^2.2.0
-  shimmer: ^3.0.0
+  animations: ^3.0.0
   vector_graphics: ^1.2.2
 
   # State management / DI / Routing
@@ -28,13 +28,13 @@ dependencies:
   flutter_bloc: ^9.1.1
   get_it: ^9.2.1
   injectable: ^3.0.0
-  go_router: ^17.3.0
+  go_router: ^18.0.0
 
   # Networking / Session
   dio: ^5.9.2
   dio_refresh_bot: ^2.2.1
   shared_preferences: ^2.5.5
-  flutter_secure_storage: ^10.3.1
+  flutter_secure_storage: ^11.0.0
   jwt_decoder: ^2.0.1
 
   # Localization / Intl
@@ -47,14 +47,16 @@ dependencies:
   reactive_forms: ^18.2.2
 
   # Device / Permissions
-  permission_handler: ^12.0.3
+  permission_handler: ^13.0.1
   vibration: ^3.1.8
-  device_info_plus: ^13.1.0
+  # Pinned: 13.2.0 dropped the Kotlin Gradle Plugin for AGP built-in Kotlin,
+  # which an app on `android.builtInKotlin=false` cannot enable
+  # (docs/ANDROID_RELEASE_SETUP.md).
+  device_info_plus: 13.1.0
   flutter_udid: ^4.1.2
 
   # Codegen annotations
   freezed_annotation: ^3.1.0
-  font_awesome_flutter: ^11.0.0
   flutter_local_notifications: ^22.0.0
   firebase_messaging: ^16.3.0
   firebase_core: ^4.10.0
@@ -67,6 +69,16 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # End-to-end tests that drive a real build on a device or emulator.
+  integration_test:
+    sdk: flutter
+
+  # Testing
+  # mocktail over mockito: no codegen step, so a fake never goes stale after a
+  # signature change — the compiler catches it instead of build_runner.
+  mocktail: ^1.0.4
+  bloc_test: ^10.0.0
 
   # Lints
   flutter_lints: ^6.0.0
@@ -93,6 +105,34 @@ flutter:
       transformers:
         - package: vector_graphics_compiler
     - assets/icons/
+    - assets/fonts/
+    # Fixtures for the local mock layer (--dart-define=USE_MOCK=true).
+    # Flutter does NOT include sub-folders on its own: list every
+    # assets/mock/<feature>/ folder here. `dart run tool/generate_feature.dart
+    # <name> --mock` prints the line to add.
+    - assets/mock/showcase/
+
+  fonts:
+    # Bundled rather than fetched at runtime: a network font means a flash of
+    # unstyled text on the first launch and a silent Roboto fallback offline.
+    # Tajawal covers Arabic and Latin with one rhythm (SIL OFL 1.1, see
+    # assets/fonts/OFL.txt).
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Tajawal-ExtraBold.ttf
+          weight: 800
 
 flutter_gen:
   output: lib/utils/gen/
+
+# Launcher icon and native splash are configured in their own files at the
+# project root — flutter_launcher_icons.yaml and flutter_native_splash.yaml —
+# because both tools prefer a standalone file when it exists.
+#   dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
+#   dart run flutter_native_splash:create --path flutter_native_splash.yaml

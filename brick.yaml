@@ -1,6 +1,6 @@
 name: flutter_app_template
-description: A Flutter Clean Architecture starter template with routing, localization, notifications, in-app stage tools, and code generation.
-version: 0.1.1
+description: A production-ready Flutter starter — clean architecture, design system with skeletons and motion, floating nav bar, mock data, nested routing, auth modes, Arabic/English, tests and release docs.
+version: 0.2.0
 
 vars:
   project_name:

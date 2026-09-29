@@ -64,7 +64,7 @@ class _DefaultPasswordHidden extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.visibility_off, size: 20.sp, color: context.grey);
+    return AppIcon(AppIcons.eyeOff, color: context.grey);
   }
 }
 
@@ -74,6 +74,6 @@ class _DefaultPasswordShown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.visibility, size: 20.sp, color: context.grey);
+    return AppIcon(AppIcons.eye, color: context.grey);
   }
 }

@@ -64,6 +64,18 @@ class NotificationCoordinator {
     );
   }
 
+  bool _askedThisLaunch = false;
+
+  /// The app's one ask per launch, made by the shell (`RootScreen`) once it
+  /// is on screen — never over the splash or onboarding. Granted
+  /// already, it shows nothing; permanently denied,
+  /// the system shows nothing either.
+  Future<bool> requestPermissionFromShell() async {
+    if (_askedThisLaunch) return isNotificationPermissionGranted();
+    _askedThisLaunch = true;
+    return requestNotificationPermission();
+  }
+
   /// Initializes the notification system.
   ///
   /// This is designed to be the **single entry point** called from `bootstrap`.
@@ -126,7 +138,10 @@ class NotificationCoordinator {
           }
         } else {
           try {
-            await _fcmService.initialize(config: config);
+            await _fcmService.initialize(
+              config: config,
+              requestPermission: options.requestPermissionsAtStartup,
+            );
           } catch (e) {
             if (config.enableDebugLogs) {
               printY('[Notifications] FCM configure failed: $e');

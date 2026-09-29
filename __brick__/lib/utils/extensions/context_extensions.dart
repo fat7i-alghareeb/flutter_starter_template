@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../common/widgets/ds/app_icons.dart';
 
 /// Layout and focus utilities for [BuildContext].
 ///
@@ -49,9 +49,14 @@ extension AppContextExtensions on BuildContext {
 
   bool get isLtr => !isRtl;
 
-  FaIconData get chevronStart =>
-      isRtl ? FontAwesomeIcons.chevronRight : FontAwesomeIcons.chevronLeft;
+  /// The chevron pointing at the START edge — back, previous. The app's own
+  /// Lucide glyph (an [AppIcons] asset for `AppIcon`), never a fixed
+  /// left or right: a fixed glyph points backwards in one of the two
+  /// languages, and `AppIcon` does not mirror.
+  String get chevronStart =>
+      isRtl ? AppIcons.chevronRight : AppIcons.chevronLeft;
 
-  FaIconData get chevronEnd =>
-      isRtl ? FontAwesomeIcons.chevronLeft : FontAwesomeIcons.chevronRight;
+  /// The chevron pointing at the END edge — forward, «عرض الكل», a row that
+  /// opens a screen.
+  String get chevronEnd => isRtl ? AppIcons.chevronLeft : AppIcons.chevronRight;
 }

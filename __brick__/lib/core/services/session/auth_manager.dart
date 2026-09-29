@@ -5,6 +5,7 @@ import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../utils/constants/app_flow_constants.dart';
 import '../../../utils/constants/auth_constants.dart';
 import '../../../utils/helpers/colored_print.dart';
 import '../../domain/user_entity.dart';
@@ -97,27 +98,65 @@ class AuthManager {
     printG('${AuthLogTags.authManager} login');
 
     await _persistUser(user);
-    await _setGuest(false);
     await tokenStorage.write(token);
 
-    // Update router-facing status immediately.
+    // Update router-facing status immediately — and BEFORE the guest flag
+    // is cleared.
+    //
+    // The other order leaves one frame where the reader is neither a guest
+    // nor authenticated, and the router's guard reads exactly that pair: it
+    // redirected to `/login` and then to `/root`, which threw away the whole
+    // pushed stack — a reader who signed in from a deep screen landed on
+    // home instead of the screen they were on.
     state.setAuthStatus(AuthStatus.authenticated());
+    await _setGuest(false);
+    state.setSessionExpired(false);
   }
 
-  /// Logs out the current user, clears persisted data and removes tokens.
+  /// Signs the reader out.
+  ///
+  /// With [AuthMode.guestFirst] they keep browsing as a guest; with
+  /// [AuthMode.loginRequired] the router sends them to the sign-in screen.
   Future<void> logout() async {
     printY('${AuthLogTags.authManager} logout');
+    await _endSession(AuthReasons.logout);
+  }
 
+  /// A signed-in session that ended without the reader asking — a refresh
+  /// that failed, or a token the server revoked.
+  ///
+  /// Not a logout: with [AuthMode.guestFirst] the reader keeps browsing as a
+  /// guest and a banner says what happened; with [AuthMode.loginRequired]
+  /// the sign-in screen explains it. A reader who is not signed in has no
+  /// session to lose, so this does nothing for them — which also makes a
+  /// second call, from the interceptor's revoke after its refresh, harmless.
+  Future<void> expireSession() async {
+    if (!state.isAuthenticated) return;
+
+    printY('${AuthLogTags.authManager} session expired');
+    await _endSession(AuthReasons.expired);
+    state.setSessionExpired(true);
+  }
+
+  /// Clears the account and the tokens.
+  Future<void> _endSession(String reason) async {
     await storage.remove(AuthStorageKeys.user);
-    await storage.remove(AuthStorageKeys.guestFlag);
-
     state.setUser(null);
-    state.setGuest(false);
-    state.setAuthStatus(
-      AuthStatus.unauthenticated(message: AuthReasons.logout),
-    );
 
-    await tokenStorage.delete(AuthReasons.logout);
+    if (AppFlowConfig.authMode == AuthMode.guestFirst) {
+      // The guest flag BEFORE the status, for the reason [login] sets them
+      // in the other order: no frame may read «neither a guest nor signed
+      // in», or the guard redirects and drops the stack.
+      await _setGuest(true);
+      state.setAuthStatus(AuthStatus.unauthenticated(message: reason));
+    } else {
+      // Login wall: «neither a guest nor signed in» IS the state that sends
+      // the reader to the sign-in screen.
+      state.setAuthStatus(AuthStatus.unauthenticated(message: reason));
+      await _setGuest(false);
+    }
+
+    await tokenStorage.delete(reason);
   }
 
   /// Updates the persisted user data and notifies listeners.
@@ -137,6 +176,7 @@ class AuthManager {
     state.setUser(null);
     await _setGuest(true);
     state.setAuthStatus(AuthStatus.unauthenticated(message: AuthReasons.guest));
+    state.setSessionExpired(false);
 
     await tokenStorage.delete(AuthReasons.guest);
   }

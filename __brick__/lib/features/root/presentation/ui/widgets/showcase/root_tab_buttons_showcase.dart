@@ -1,16 +1,19 @@
 import '../../../../../../common/imports/imports.dart';
+import '../../../../../../common/widgets/scroll_reveal.dart';
+import '../nav_bar/app_bottom_nav.dart';
 
 class RootTabButtonsShowcase extends StatelessWidget {
   const RootTabButtonsShowcase({super.key});
 
   void _toast(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(milliseconds: 700)),
+      SnackBar(content: AppSnackContent(msg), duration: const Duration(milliseconds: 700)),
     );
   }
 
   Widget _section(BuildContext context, String title, List<Widget> children) {
-    return Column(
+    return ScrollReveal(
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: AppTextStyles.s16w600),
@@ -20,15 +23,18 @@ class RootTabButtonsShowcase extends StatelessWidget {
         const Divider(height: 1),
         AppSpacing.lg.verticalSpace,
       ],
+    ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final icon = IconSource.icon(Icons.arrow_forward_rounded);
+    final icon = IconSource.svg(AppIcons.arrowRight);
 
     return SingleChildScrollView(
-      padding: AppSpacing.standardPadding,
+      padding: AppSpacing.standardPadding.copyWith(
+        bottom: AppBottomNav.listBottomPadding(context),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,7 +62,7 @@ class RootTabButtonsShowcase extends StatelessWidget {
             AppButton.primary(
               onTap: () => _toast(context, 'Icon only pressed'),
               child: AppButtonChild.icon(
-                IconSource.icon(Icons.favorite_rounded),
+                IconSource.svg(AppIcons.heart),
               ),
             ),
             AppSpacing.md.verticalSpace,
@@ -90,7 +96,7 @@ class RootTabButtonsShowcase extends StatelessWidget {
               isLoading: true,
               child: AppButtonChild.labelIcon(
                 label: 'Loading (gradient)',
-                icon: IconSource.icon(Icons.hourglass_bottom_rounded),
+                icon: IconSource.svg(AppIcons.clock),
               ),
             ),
             AppSpacing.md.verticalSpace,
@@ -199,7 +205,7 @@ class RootTabButtonsShowcase extends StatelessWidget {
                     height: 52,
                   ),
                   child: AppButtonChild.icon(
-                    IconSource.icon(Icons.add_rounded),
+                    IconSource.svg(AppIcons.edit),
                     size: 22,
                   ),
                 ),
@@ -213,7 +219,7 @@ class RootTabButtonsShowcase extends StatelessWidget {
                     ),
                     child: AppButtonChild.labelIcon(
                       label: 'Pill shape',
-                      icon: IconSource.icon(Icons.rounded_corner_rounded),
+                      icon: IconSource.svg(AppIcons.grid),
                     ),
                   ),
                 ),
@@ -269,7 +275,7 @@ class RootTabButtonsShowcase extends StatelessWidget {
                 shadowVariant: AppButtonShadowVariant.primary,
                 child: AppButtonChild.labelIcon(
                   label: 'CustomButtonVariant + gradient',
-                  icon: IconSource.icon(Icons.auto_awesome_rounded),
+                  icon: IconSource.svg(AppIcons.star),
                 ),
               ),
               AppSpacing.md.verticalSpace,
