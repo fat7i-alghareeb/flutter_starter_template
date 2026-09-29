@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/common/widgets/app_icon_source.dart';
+import 'app_icon_source.dart';
 
 class AppAffixes {
   const AppAffixes({
