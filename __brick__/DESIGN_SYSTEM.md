@@ -107,7 +107,7 @@ buttons · `lg 18` cards, dialogs · `xl 20` nav bar · `sheet 26` sheet tops ·
 | `AppBadge` | Always carries text — never colour alone. Tones: primary · urgent · subtle · neutral · positive · dashed (sponsored) |
 | `AppChip` / `AppSectionHeader` | Active = colour **and** weight; header has an accent line that draws in and a count that counts up |
 | `AppSearchField` | Floating pill; clear button only while focused and non-empty |
-| `AppTopBar` | Rule + soft shadow once scrolled, never a tint fill |
+| `AppTopBarFrame` | Rule + soft shadow once scrolled, never a tint fill |
 | `AppThumbnail` | Cached image that settles in; with no image, an icon tile — never a stock photo |
 | `AppRail` · `AppPeekCarousel` | Horizontal rows as tall as their tallest card; carousel side slides scaled by distance |
 | `AppLazySection` | A section asks for its data when first built near the viewport; fails alone |
