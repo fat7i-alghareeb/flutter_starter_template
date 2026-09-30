@@ -37,6 +37,12 @@ Read these project guides only when needed:
 - `lib/core/services/session/session_service_guide.md`: auth, JWT, session state.
 - `lib/common/common_folder_guide.md`: before creating reusable widgets or shared UI.
 - `lib/utils/utils_folder_guide.md`: before creating utilities, constants, helpers, or extensions.
+- `DESIGN_SYSTEM.md`: any UI — the visual rules every screen follows.
+- `docs/FEATURE_SPEC_TEMPLATE.md`: before building a new feature (write the spec first).
+- `docs/DECISIONS.md`: before changing how something established works.
+- `assets/mock/README.md`: before adding mock fixtures (`USE_MOCK=true`).
+- `test/README.md`: before writing tests.
+- `docs/AGENT_TASK_PROMPT_TEMPLATE.md`: ready-made task prompts (for the person driving the agent).
 
 ## Non-Negotiable Standards
 

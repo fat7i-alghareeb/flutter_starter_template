@@ -67,7 +67,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/app_affixes.dart`
 - **Responsibility**: Standardizing input decorations.
-- **Details**: Exports `AppTextFieldAffix` which handles the layout for prefix items (icons, labels) and suffix items (clear buttons, visibility toggles) with a standardized 20% alpha on colors.
+- **Details**: Exports `AppAffixes`, which handles the layout for prefix items (icons, labels) and suffix items (clear buttons, visibility toggles) with a standardized 20% alpha on colors.
 
 ### `app_bottom_sheet.dart`
 
@@ -85,7 +85,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/app_icon_source.dart`
 - **Responsibility**: Unified icon type system.
-- **Details**: Defines the `IconSource` class and `IconSourceWidget`. It allows passing an `AppIcons` SVG path (`IconSource.svg`), an asset or a Material `IconData` as a single object, resolved at render time. App UI uses `AppIcons` SVGs only.
+- **Details**: Defines the `IconSource` class. It allows passing an `AppIcons` SVG path (`IconSource.svg`), an asset or a Material `IconData` as a single object, resolved at render time. App UI uses `AppIcons` SVGs only.
 
 ### `app_image_viewer.dart`
 
@@ -169,7 +169,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/custom_scaffold/app_scaffold.dart`
 - **Responsibility**: Orchestrating the screen UI.
-- **Details**: Provides the root layout. It manages safe areas, the persistent search bar, and ensures the `EndDrawer` is accessible across all screens.
+- **Details**: Provides the root layout. It manages safe areas, the persistent search bar, and ensures the end drawer is accessible across all screens.
 
 ### `app_scaffold_app_bar.dart`
 
@@ -199,7 +199,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/custom_scaffold/...`
 - **Responsibility**: Strategy and Configuration.
-- **Details**: Defines the various modes (e.g., `Standard`, `NoAppBar`, `SearchOnly`) and their respective visual configurations.
+- **Details**: Defines the scaffold's options: the `AppScaffold.body` / `.appBar` / `.search` constructors, `ScaffoldFeature`, `AppScaffoldTitleAlignment` and `AppScaffoldSafeArea`.
 
 ---
 
@@ -227,7 +227,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/form/app_reactive_text_field_mixins.dart`
 - **Responsibility**: Shared form logic.
-- **Details**: Defines the `ReactiveTextFieldMixin` which provides core focus and validation behaviors shared across multiple input types.
+- **Details**: Holds the private mixins (`_AppReactiveTextFieldDebounceMixin`, `_AppReactiveTextFieldHelpersMixin`) that keep `AppReactiveTextField`'s debounce and helper behaviour out of its state class.
 
 ### `app_reactive_text_field_phone.dart`
 
@@ -245,7 +245,7 @@ Padding(
 
 - **Path**: `lib/common/widgets/form/app_reactive_validation_messages.dart`
 - **Responsibility**: Localized error strings.
-- **Details**: A static mapping of `ValidationMessages` keys to their localized `AppStrings` values.
+- **Details**: `AppReactiveValidationMessages`: maps reactive_forms' `ValidationMessage` keys to localized strings.
 
 ### 🏗️ 5a. `date_time_field/` (Detailed Sub-Library)
 

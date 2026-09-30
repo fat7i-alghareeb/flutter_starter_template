@@ -39,9 +39,10 @@ class AppSystemUiOverlay {
       statusBarBrightness: surfaceBrightness,
       statusBarIconBrightness: iconBrightness,
       systemStatusBarContrastEnforced: false,
-      systemNavigationBarColor: surface,
+      // Transparent: the app draws edge to edge behind both system bars.
+      systemNavigationBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: iconBrightness,
-      systemNavigationBarDividerColor: surface,
+      systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarContrastEnforced: false,
     );
   }

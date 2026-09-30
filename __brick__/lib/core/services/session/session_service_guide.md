@@ -7,7 +7,7 @@ This document is a **Hard Requirement** for any AI agent interacting with user s
 - **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
 - **Auth Constants**: [lib/utils/constants/auth_constants.dart](lib/utils/constants/auth_constants.dart)
 
-Failure to use the centralized `SessionService` for state checks is a protocol violation.
+Failure to use the centralized `AuthManager` / `AuthStateNotifier` for state checks is a protocol violation.
 
 ---
 

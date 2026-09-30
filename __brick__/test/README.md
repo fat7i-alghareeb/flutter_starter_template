@@ -99,7 +99,7 @@ The working copy for each feature to come:
 
 **A golden must not read the wall clock — and a fixed DATE still does.** `relativeTime` measures from now, so a sample dated `2026-09-23 11:50` drew «منذ ساعات» the day it was captured and «أمس» the next. Date samples a fixed DISTANCE before now (`DateTime.now().subtract(...)`).
 
-**A replica of the shell is not the shell.** `tab_state_test` rebuilt its own `PageView` and passed while `RootScreen`'s transition wrapper remounted every tab on every switch. The test now builds each page inside the real `RootTabPage`. Test the widget the app uses, not a copy of its shape.
+**A replica of the shell is not the shell.** `tab_state_test` rebuilt its own `PageView` and passed while `RootScreen`'s transition wrapper remounted every tab on every switch. The test now builds each page inside the real `RootTabStack`. Test the widget the app uses, not a copy of its shape.
 
 **`tester.getSemantics(find.byType(Widget))` is usually the wrong node.** It returns the node that owns the widget's render object — often a parent with an empty label — while the label sits on a node below. Find the node by its label (`find.bySemanticsLabel(RegExp('^…'))`) and read that one.
 

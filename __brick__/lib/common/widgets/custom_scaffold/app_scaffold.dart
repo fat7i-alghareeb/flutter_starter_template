@@ -27,7 +27,7 @@ final class AppScaffoldConfig {
   const AppScaffoldConfig({
     this.backgroundColor,
     this.resizeToAvoidBottomInset = true,
-    this.safeArea = const [AppScaffoldSafeArea.top],
+    this.safeArea = const <AppScaffoldSafeArea>[],
     this.extendBody = false,
   });
 
@@ -36,6 +36,9 @@ final class AppScaffoldConfig {
 
   /// Passed to [Scaffold.resizeToAvoidBottomInset].
   final bool resizeToAvoidBottomInset;
+  /// Edges kept clear of system UI. Empty by default: screens draw edge to
+  /// edge, behind the transparent status and navigation bars. An app bar
+  /// pads itself; add an edge here only where content must avoid it.
   final List<AppScaffoldSafeArea> safeArea;
 
   /// Passed to [Scaffold.extendBody]: the body runs on under the

@@ -20,8 +20,8 @@ The **Root** feature is the most critical module in the application, serving as 
 
 ### Purpose & Responsibilities
 
-- **Centralized Navigation**: It hosts the main navigation controllers and the `BottomNavBar`, managing the transitions and state persistence between the primary application tabs.
-- **Global UI Shell**: It provides the persistent interface elements — such as the `AppScaffold`, `EndDrawer`, and specialized overlays — that must remain consistent regardless of which functional module is currently visible.
+- **Centralized Navigation**: It hosts the main navigation controllers and the `AppBottomNav`, managing the transitions and state persistence between the primary application tabs.
+- **Global UI Shell**: It provides the persistent interface elements — such as the `AppScaffold`, end drawer, and specialized overlays — that must remain consistent regardless of which functional module is currently visible.
 - **App-Level Side Effects**: It handles global state changes like theme switching (Light/Dark mode) and localization updates that affect the entire application context simultaneously.
 - **Unified Entry Point**: After authentication, the Root feature is the landing zone that initializes the core application environment and establishes the navigation scope for all subsequent user interactions.
 
@@ -173,7 +173,7 @@ To ensure maximum scalability and code clarity, all UI implementation must follo
 - **Decomposed Sections**: Large screens must be divided into logical **Sections** (e.g., `HeaderSection`, `FormSection`, `ActionSection`).
 - **Atomic Widgets**: Each section should be composed of multiple smaller, focused **Widgets**.
 - **File Isolation**: Every single widget and section MUST be placed in its own **separate file**. In-line widget declarations within larger files are not permitted.
-- **Component Reusability**: All standard UI building blocks (spacers, buttons, typography) must be sourced from the global `DesignSystem` and never duplicated locally.
+- **Component Reusability**: All standard UI building blocks (spacers, buttons, typography) must be sourced from the design system (`DESIGN_SYSTEM.md`) and never duplicated locally.
 
 ### 🏛️ Hierarchical UI Decomposition (STRICT)
 
@@ -186,10 +186,10 @@ To ensure maximum scalability and avoid massive build methods, all UI MUST follo
 2. **Sections**: Logical blocks of the screen (in `ui/widgets/`). Responsibilities:
    - Orchestrate multiple atomic widgets.
    - Handle section-specific layout (e.g., a `Column` with specific spacing).
-   - Example: `SellGoldTotalsSection`.
+   - Example: `OrderTotalsSection`.
 3. **Atomic Widgets**: The smallest reusable units (in `ui/widgets/`). Responsibilities:
    - Render a single specific piece of data or an interactive element.
-   - Should be specialized for the feature but follow `DesignSystem` tokens.
+   - Should be specialized for the feature but follow the design-system tokens.
 
 **RULE**: Every section and non-trivial widget **MUST** reside in its own separate file. Inlining is a protocol violation.
 
@@ -197,9 +197,9 @@ To ensure maximum scalability and avoid massive build methods, all UI MUST follo
 
 Typed data passing is mandatory to prevent runtime errors and "string-ly typed" navigation.
 
-1. **Arguments Classes**: Every screen that receives data **MUST** have a corresponding `ScreenArguments` or `ScreenParam` class defined in the same file as the screen.
-2. **GoRouter `extra`**: Use the `extra` parameter in `GoRouter` to pass the typed argument object.
-3. **Explicit Casting**: The destination screen **MUST** cast the `extra` object back to the expected type.
+1. **Pages, not raw routes**: every screen is an `AppPage`, opened with `AppNavigator.push(context, AppPage.x, params: {...})`; it nests under the page that opens it.
+2. **Ids travel in the path**: a screen that shows one thing takes its id as a path parameter and re-reads it, so a deep link or a restored stack works.
+3. **`extra` only when unavoidable**: pass a typed arguments class through `extra` only for data the screen cannot re-read by id, and cast it back explicitly.
 
 ### 🧪 Clean Architecture Data Standards
 
@@ -207,7 +207,7 @@ The separation between Domain and Data layers must be absolute.
 
 1. **Entities (Domain)**: Pure business objects. No JSON annotations, no API-specific fields.
 2. **Models/DTOs (Data)**: API-specific objects. Must include `fromJson` and `toJson`.
-3. **Request Modeling**: Every API call **MUST** have a dedicated `RequestModel` (e.g., `UpdateProfileRequest`) instead of passing raw Maps or multiple primitives.
+3. **Request Modeling**: Every API call **MUST** take a dedicated params class (`…Params` in `data/params/`, e.g. `SignInParams`) instead of raw maps or loose primitives.
 4. **Mappers**: You **MUST** implement mapper logic (often as `toEntity()` on the Model or a dedicated `Mapper` class) to convert between Data and Domain layers. Models must **NEVER** leak into the Domain or Presentation layers.
 
 **Gold Standard Feature Pattern**
