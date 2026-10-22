@@ -50,7 +50,7 @@ Every line is checkable — if you cannot check it, the task is not finished.
 ## Verification
 
 - [ ] `flutter analyze` → **No issues found**, no new `// ignore`.
-- [ ] `flutter test` → green. New behaviour has tests; a visual change has re-recorded goldens that you looked at.
+- [ ] The tests of what you changed → green; the whole suite once, only because this is the end of a feature, a release or a big refactor. New behaviour has tests; a visual change has re-recorded goldens that you looked at.
 - [ ] Works with `--dart-define=USE_MOCK=true`; new endpoints have fixtures in `assets/mock/`.
 - [ ] Generated files were regenerated, not edited, and are included in the change.
 - [ ] No `melos`, `flutter pub run`, or `build_runner watch` was used.

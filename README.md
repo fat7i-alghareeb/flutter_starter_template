@@ -16,11 +16,14 @@ one adaptive layout for phones, tablets, iPads and Windows/macOS windows (floati
 rail → sidebar, custom title bar), a mock-data layer, nested routing with deep links,
 auth modes, Arabic/English, 400+ tests, and release docs down to the Gradle line.
 
+> **Your manual steps** — create, Claude memory (`/first-run`, `/memory`, `/context`), branding, release — are one checklist, in order: [`NEW_PROJECT_CHECKLIST.md`](__brick__/docs/NEW_PROJECT_CHECKLIST.md).
+
 [Quickstart](#-quickstart--zero-to-running-in-9-steps) ·
 [What you get](#-what-you-get) ·
 [Screens](#-screens) ·
 [Architecture](#-architecture) ·
 [Guides](#-guides) ·
+[Configuration](#-configuration-reference) ·
 [Every document, explained](#-every-document-in-the-generated-app) ·
 [Release](#-release)
 
@@ -269,8 +272,8 @@ flutter test
 
 ✅ About 420 tests pass, goldens included (they render with the real font).
 
-**8 · Make it yours** — the app name, colours, font, icon and splash
-([Branding](#-branding)), then your first feature:
+**8 · Make it yours** — the **API base URL** (`lib/core/network/api_config.dart`), the app name, colours, font, icon and splash
+([Branding](#-branding)); every other switch is in [Configuration](#-configuration-reference). Then your first feature:
 
 ```bash
 dart run tool/generate_feature.dart orders --mock
@@ -436,6 +439,49 @@ Firebase (Android: `google-services.json`; iOS: `docs/IOS_SETUP.md` §3). Full g
 
 ---
 
+## ⚙️ Configuration reference
+
+Every switch in one place. A *define* is passed at run or build time (`flutter run --dart-define=NAME=value`); a *constant* is
+edited in the generated app's code. Paths are inside the generated project.
+
+**Build-time defines** (default off / empty)
+
+| Define | Effect |
+| --- | --- |
+| `USE_MOCK=true` | Every request is answered from `assets/mock/` at the Dio layer — develop with this until the API exists |
+| `MOCK_DELAY_MS=600` | Simulated latency (the default clears the 300ms skeleton threshold) |
+| `MOCK_EMPTY=/path,/other` | These paths answer with an empty list |
+| `MOCK_ERROR=/path` | These paths answer with HTTP 500 |
+| `MOCK_OFFLINE=true` | Every request fails as offline (tests the cache and the banner) |
+| `STAGE_TOOLS=true` | QA overlay: device preview, language and theme buttons (compiled out without it; off on desktop by design) |
+| `MACOS_APP_GROUP=TEAMID.group.x` | The App Group a sandboxed macOS app gives ObjectBox; without one the store opens as before (`docs/DESKTOP_SETUP.md`) |
+
+**Constants and files**
+
+| What | Where | Default |
+| --- | --- | --- |
+| **API base URL** — set it before any real network call | `ApiConfig._baseUrl`, `lib/core/network/api_config.dart`; paths in `api_endpoints.dart` | empty (logs a warning) |
+| App title, single-instance id, Windows ids and toast GUID | `lib/core/config/app_config.dart` (the GUID is created by `tool/setup_project.dart`; keep it for the app's lifetime) | from the brick prompts |
+| Onboarding on/off, auth mode (`loginRequired` / `guestFirst`), «Continue as guest» on the wall | `AppFlowConfig`, `lib/utils/constants/app_flow_constants.dart` | on · `loginRequired` · on |
+| Theme on a first launch | `AppThemeConfig.defaultMode`, same file | light |
+| Languages: supported, default, fallback, follow the device on first launch | `AppLocalizationConfig`, `lib/core/config/localization_config.dart` | `en` + `ar` · `ar` · `ar` · off |
+| Splash timing (entrance, hold, ceiling) | `SplashConfig`, `app_flow_constants.dart` | 950ms · 800ms · 8s |
+| Palette (light and dark) | `lib/core/theme/app_colors.dart`, then `flutter_native_splash.yaml` | neutral indigo |
+| Font | `assets/fonts/` + `AppTypography` | Tajawal |
+| Strings | `assets/l10n/*.json`, then `dart run tool/generate_app_strings.dart` | — |
+| Link scheme and web hosts | `AppLinks.scheme`, `AppLinks.hosts` in `lib/core/router/app_links.dart` — also the Android manifest, iOS and macOS plists | `myapp` · `example.com` |
+| Desktop window: first size, minimum size | `AppWindow.defaultSize`, `AppWindow.minimumSize`, `lib/core/window/app_window.dart` | 1280×800 · 500×600 |
+| Version and build number | `version: x.y.z+N` in `pubspec.yaml` — the only source for local builds, CI and Shorebird | `1.0.0+1` |
+| Android id, signing, R8 · iOS bundle id, permissions | `android/` · `ios/` (`docs/ANDROID_RELEASE_SETUP.md`, `docs/IOS_SETUP.md`) | — |
+| Windows MSIX package (name, publisher, capabilities, protocol) | `msix_config:` in `pubspec.yaml` | — |
+| Launcher icon and native splash | `flutter_launcher_icons.yaml`, `flutter_native_splash.yaml` (+ images in `assets/images/`) | — |
+| Mock fixtures, request → fixture table, demo identity | `assets/mock/`, `lib/core/config/mock_routes.dart` (list each folder in `pubspec.yaml`), `mock_config.dart` | — |
+| CI workflows, keystore and App Store Connect names | `codemagic.yaml`, `docs/CODEMAGIC.md` | — |
+| VS Code launch configurations | `.vscode/launch.json` | — |
+| Claude Code behaviour | `CLAUDE.md` (project section filled by `/first-run`), `.claude/settings.json`, `.claude/rules/` | — |
+
+---
+
 ## 🎨 Branding
 
 | What | Where |
@@ -562,5 +608,13 @@ flutter_starter_template/
 ├── docs/readme/          this README's images (never generated into apps)
 └── CHANGELOG.md
 ```
+
+### Two apps on shared packages?
+
+This brick generates **one** app. For a workspace of two apps on four shared packages, use the companion template
+[`mono_repo`](https://github.com/fat7i-alghareeb/mono_repo): clone it (GitHub *Use this template*), run
+`dart run tool/rename_project.dart`, then `dart run tool/setup_project.dart` and `/first-run` — no Mason. It is ported from this
+brick: improvements land here first, then `/port-from-brick` carries them over (the monorepo records the brick commit it has
+caught up with in `.brick-sync`). When you change the brick, the monorepo needs the same change.
 
 Changes: [`CHANGELOG.md`](CHANGELOG.md). Licence: [`LICENSE`](LICENSE). Icons: [Lucide](https://lucide.dev) (ISC). Font: Tajawal (SIL OFL, `assets/fonts/OFL.txt`).

@@ -40,6 +40,7 @@ The steps that are yours, in order, for every new project made from this brick. 
 - [ ] Icon and splash: put the images in place, then
       `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml` and
       `dart run flutter_native_splash:create --path flutter_native_splash.yaml`.
+- [ ] **API base URL:** `ApiConfig._baseUrl` in `lib/core/network/api_config.dart` (empty until you set it; endpoints in `api_endpoints.dart`). Every other switch: the README's *Configuration reference*.
 - [ ] Auth mode and guest button: `AppFlowConfig` in `lib/utils/constants/app_flow_constants.dart`.
 - [ ] Default language and theme: `lib/core/config/localization_config.dart`, `AppThemeConfig`.
 - [ ] Delete the showcase when your own features replace it: `lib/features/showcase_feed/`, the demo tabs in

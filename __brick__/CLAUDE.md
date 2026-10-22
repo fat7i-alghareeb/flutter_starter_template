@@ -20,8 +20,10 @@ Every chat starts empty and everything loaded is paid for on every turn, so: loa
 - **Pick the model once, at the start**, and do not switch mid-task (a switch rebuilds the cache). Default: Sonnet, medium effort;
   Opus / high effort only for architecture or a hard bug; Haiku for simple subagents.
 - **One task per chat.** When a task is done and the next is unrelated, say so and suggest `/clear`. `/compact` only at a natural break.
-- **Do not trade correctness for tokens.** Always run the checks (`flutter analyze`, the relevant tests). Use plan mode for changes that
-  touch several files or when unsure of the approach; skip it for a one-line fix.
+- **Do not trade correctness for tokens, or time for nothing.** Run the smallest check that proves the change: the changed file's own
+  test, then its folder (`.ai/project-rules.md` → «Run the smallest check»). **The whole test suite is not the default** — only when
+  `/finish` ends a feature, before a release, after a many-file refactor, or when I ask; never for a small task. Use plan mode for
+  changes that touch several files or when unsure of the approach; skip it for a one-line fix.
 
 ## Building features (every time)
 

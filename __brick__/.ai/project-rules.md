@@ -116,11 +116,31 @@ flutter pub get
 dart run build_runner build                 # freezed, injectable, assets, ObjectBox
 dart run tool/generate_app_strings.dart     # after editing assets/l10n/*.json
 flutter analyze                             # must report: No issues found (it reads test/ and tool/ too)
-flutter test                                # goldens included; --update-goldens after a deliberate visual change
+flutter test <folder or file>               # while you work — see «Run the smallest check» below
+flutter test                                # the WHOLE suite: only at the end of a feature, a release, a big refactor
 flutter run --dart-define=USE_MOCK=true     # the whole app on mock data
 ```
 
 Everything else: `docs/COMMANDS.md`.
+
+## Run the smallest check that proves the change
+
+The whole suite takes minutes. It is **not** the default; a small task never runs it.
+
+| The change | Run (`flutter test` from the project root) |
+| --- | --- |
+| Docs, comments, Markdown, config text | Nothing. `dart format` on any Dart file you touched |
+| One file: a widget, a bloc, a helper | `flutter analyze <that path>` and **its own test file** (`flutter test test/…/x_test.dart`); if it has none and should, write one |
+| One feature | `flutter test test/features/<name>` |
+| A string (`l10n` JSON) | the strings generator, then `flutter test test/l10n` |
+| A shared widget, helper or the theme | `flutter test test/common test/core/theme`; goldens only if the look changed |
+| A route or guard | `flutter test test/core/router` |
+| A skeleton / `.loading()` | `flutter test test/common/widgets/ds/skeleton_parity_test.dart` |
+
+The **whole suite** (`flutter test`, and `flutter analyze` over everything) runs only: when `/finish` ends a feature, before a
+release, after a rename, upgrade or refactor that touched many files, or when I ask. Once, at the end — never after every edit,
+never twice for the same state. Never run `integration_test` unless asked (it needs a device). While iterating, analyze the path
+you changed, not the tree. If a run fails, re-run only the failing file.
 
 ## Keep the docs true
 

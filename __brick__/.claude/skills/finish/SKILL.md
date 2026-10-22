@@ -28,6 +28,7 @@ look only at what changed (`git diff --stat`, `git status`) and open only the do
    ask whether to make it the reference.
 5. **Memory.** Save to auto memory only what the repo cannot tell the next chat: a decision and its reason, a preference of mine, a
    verified external fact with its URL. One fact per file. Never code structure or paths.
-6. **Verify.** `flutter analyze` → "No issues found"; the new tests; the strings generator if `l10n` changed.
+6. **Verify.** `flutter analyze` → "No issues found"; the new and changed tests, then the whole suite **once** (this is the end of a
+   feature, so it is allowed); the strings generator if `l10n` changed.
 7. **Report in five lines or fewer:** what you updated, what you skipped and why, the duplicate question if any, check results.
    Do not commit.

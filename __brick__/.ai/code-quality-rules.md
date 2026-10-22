@@ -45,7 +45,7 @@ Only the commands in `docs/COMMANDS.md`. Not `melos`, not `flutter pub run …` 
 
 1. `dart format` the files you changed (not the whole tree).
 2. `flutter analyze` → **No issues found**, with no new `// ignore`.
-3. `flutter test` (or the relevant folders) → green. After a deliberate visual change, `flutter test --update-goldens`
+3. The tests of what you changed → green (own file, then its folder). The whole suite only when the feature is finished, before a release or after a big refactor. After a deliberate visual change, `flutter test --update-goldens`
    and look at the new images.
 4. Docs updated for anything reusable (see "Keep the docs true" in `project-rules.md`).
 5. Walk `final-checklist.md`.
