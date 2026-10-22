@@ -593,6 +593,7 @@ Every `.md` the brick generates, what it is for, and when to read it.
 | Import errors mentioning another package name | `dart run build_runner build` (regenerates `injectable.config.dart`) |
 | `AppStrings.x` missing after editing JSON | `dart run tool/generate_app_strings.dart` — read its refusal message |
 | Mock mode shows nothing | Is the folder listed in `pubspec.yaml`? Is the path in `MockRoutes`? |
+| Tests hang, or `vector_graphics_compiler` grows past several GB (Windows) | End that process, delete `build/unit_test_assets`, run `flutter test -j 2` |
 | Goldens fail on CI only | Different OS rasterises text differently: `flutter test --exclude-tags golden` there |
 | A tab list hides under the bar | Bottom padding `AppBottomNav.listBottomPadding(context)` |
 | Sign-in does nothing with a real API | Implement `AuthRemoteDataSource.signIn` for your backend's response shape |
