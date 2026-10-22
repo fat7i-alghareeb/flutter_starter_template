@@ -1,484 +1,130 @@
-# ObjectBox Service (core/services/objectbox)
+# ObjectBox guide (`lib/core/services/objectbox/`)
 
-This folder owns the **app-wide ObjectBox database** integration.
+Read this before you add local persistence, an ObjectBox entity, or a DAO. Layer rules: `.ai/architecture-rules.md`.
 
-Design goals (current project style):
+ObjectBox is the app's on-device database. It runs on Android, iOS, macOS and Windows (kept on every platform on purpose).
+Keep **ObjectBox types (`Store`, `Box`, `Query`) in the data layer** — never in a bloc or a widget.
 
-- Keep **one Store** open for the entire app lifecycle (performance).
-- Keep ObjectBox usage **behind data-layer abstractions** (Clean Architecture).
-- Use **`injectable` only** for dependency injection (no manual registrations).
-- Use existing error patterns:
-  - `rethrowAsAppException(() async { ... })` inside data sources.
-  - `runAsResult(() async { ... })` inside repositories.
+## The pieces
 
-## What does `Store` mean?
+| File | What it is |
+| --- | --- |
+| `objectbox_service.dart` | `ObjectBoxService` — owns the one `Store`. `createDefault()` opens it in `<app-documents>/objectbox`; `box<T>()` gives a `Box<T>`; `runReadTxAsync` / `runWriteTxAsync` run a transaction on a background isolate |
+| `objectbox_dao.dart` | `ObjectBoxDao<T extends ObjectBoxEntity>` — typed CRUD and queries over one box: `getById`, `getAll`, `put`, `putMany`, `removeById`, `removeAll`, `findFirst`, `query`, `withQuery`, `watchQuery` |
+| `objectbox_entity.dart` | The small interface (`objId`) that types the DAO |
+| `entities/objectbox_local_cache_entry_entity.dart` | A generic key/value entity (`key` unique, `value`, `updatedAtMillis`). It also guarantees code generation always has an entity |
+| `lib/objectbox-model.json` | **Commit it.** ObjectBox tracks ids and UIDs across schema changes with it |
+| `lib/objectbox.g.dart` | Generated (`openStore()`); committed |
 
-In ObjectBox, a **`Store`** is the main database handle for your app:
+Relationship: `Store` (the database) → `Box<T>` (one entity type) → `ObjectBoxDao<T>` (typed API). The service provides the
+connection; the DAO provides the entity API.
 
-- **Owns the database connection** (opens the DB files in a directory).
-- **Knows the model** (entities + properties) from the generated `objectbox.g.dart`.
-- **Creates `Box<T>` instances**.
+## What uses it today
 
-A `Box<T>` is like a table/collection for a single entity type `T`.
+Only the **offline response cache** (`lib/core/network/offline/response_cache.dart`, `ObjectBoxResponseCacheStore`): it keeps
+cacheable responses in the generic cache entity so the app can show a saved copy and the offline banner. The tests use an
+in-memory `ResponseCacheStore`, because a widget test has no native library.
 
-So the relationship is:
+## Open the store once
 
-- `Store` (database) -> `Box<T>` (entity storage) -> `ObjectBoxDao<T>` (typed CRUD/query wrapper)
+The store is opened asynchronously, so it is **not** registered at start-up (nothing on the first-frame path opens it). Whoever needs it first
+calls `ObjectBoxService.createDefault()`. ObjectBox offers `Store.isOpen(directory)` and `Store.attach(...)` for a store that is
+already open ([`Store` API](https://pub.dev/documentation/objectbox/latest/objectbox/Store-class.html)) — so do not call
+`createDefault()` a second time for the same directory. If a second place needs the database, share the opened service: hold the
+`Future<ObjectBoxService>` in one `@lazySingleton` and inject it into both (and point the response cache at it).
 
-## Files in this folder (what each file does)
+`close()` is almost never called. Only close the store in a controlled shutdown (a test, or a sign-out that also deletes the database folder).
 
-### `objectbox_service.dart`
+## Add local persistence to a feature
 
-Owns the single ObjectBox `Store` instance for the whole application.
+1. **The entity.** Either a dedicated local entity in `data/models/`, or the domain entity itself when you want one class for
+   remote and local. ObjectBox needs a writable `@Id() int objId` (non-final), so the second option makes that entity non-`const`:
 
-- Created lazily by the feature/local datasource that actually needs local DB access.
-- Provides `box<T>()` for DAOs.
-- Provides transaction helpers (`runWriteTxAsync` / `runReadTxAsync`).
+   ```dart
+   @Entity()
+   class ProductEntity implements ObjectBoxEntity {
+     ProductEntity({this.objId = 0, required this.id, required this.name});
 
-## `ObjectBoxService` vs `ObjectBoxDao` (the difference)
+     @Id()
+     @override
+     int objId;
 
-Think of it in 2 layers:
+     /// The server's id.
+     @Index()
+     String id;
 
-- **`ObjectBoxService` (database layer)**
-  - Owns the **Store** (open/close/lifecycle).
-  - Knows **where** the database directory is.
-  - Exposes `box<T>()` to give you an entity `Box<T>`.
-  - Exposes transaction helpers (`runReadTxAsync` / `runWriteTxAsync`).
+     String name;
+   }
+   ```
 
-- **`ObjectBoxDao<T>` (data-access layer)**
-  - Wraps an entity `Box<T>` and provides **CRUD + query helpers**.
-  - Depends on `ObjectBoxService` to obtain the box.
-  - Is what your local datasource should use (instead of directly using `Store`).
+2. **Regenerate**: `dart run build_runner build` (the entity must be under `lib/`, annotated `@Entity()` with an `@Id()`).
+3. **Access**, in the data layer, with the default DAO or a custom one:
 
-### How they use each other
+   ```dart
+   @lazySingleton
+   class ProductDao extends ObjectBoxDao<ProductEntity> {
+     ProductDao(super.objectBox);
 
-Flow:
+     ProductEntity? findByRemoteId(String id) =>
+         findFirst((b) => b..equal(ProductEntity_.id, id));
+   }
+   ```
 
-1. A local datasource or repository asks for `ObjectBoxService` only when it needs local DB access.
-2. The feature opens and caches the store once.
-3. A DAO receives or reads that service and calls `objectBox.box<T>()` to get the `Box<T>`.
-4. The DAO performs reads/writes/queries using that box.
+   A `dao/` folder only when you need a custom DAO; otherwise use `ObjectBoxDao<T>` straight in the data source.
+4. **The local data source** wraps IO in `rethrowAsAppException`; the **repository** decides online / offline, maps, and wraps in
+   `runAsResult`:
 
-So: **Service provides the database connection; DAO provides the entity API.**
+   ```dart
+   Future<ProductEntity?> getByRemoteId(String id) =>
+       rethrowAsAppException(() async => _dao.findByRemoteId(id));
+   ```
 
-## How to use# 📦 ObjectBox Persistence Guide (`lib/core/services/objectbox/`)
+5. **Offline strategy** (repository): online → fetch, store, return the mapped entity; offline → read the stored one.
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+### Renaming an `@Id` field
 
-This document is a **Hard Requirement** for any AI agent interacting with local persistence or database entities. You **MUST** ensure your internal state is synced with the following data anchors:
+Renaming `id` to `objId` looks like "delete + add" to the generator. Pin the old UID so it is a rename:
+`@Id() @Property(uid: <the old property's uid from lib/objectbox-model.json>) int objId;`, then regenerate.
 
-- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
-- **Data Standards**: [lib/features/features_overview.md](lib/features/features_overview.md)
+## Queries
 
-Failure to separate Entities from DTOs and strictly use Mappers is a protocol violation.
+- A `Query` must be `close()`d. Use `dao.withQuery(...)`, which closes it for you.
+- `@Unique()` on a lookup key (a cache key) makes reads and writes deterministic; `@Index()` on a property you filter on often.
+- `watchQuery(...)` returns `Stream<Query<T>>`; each emitted query must be closed after reading:
 
----
+  ```dart
+  dao.watchQuery((b) => b..equal(Entity_.field, value), triggerImmediately: true)
+     .map((q) { try { return q.find(); } finally { q.close(); } });
+  ```
 
-Register it only in projects/features that need ObjectBox. Opening the store is async, so keep it out of startup DI and initialize it lazily from the feature-local datasource or repository that needs it:
+## Transactions
 
-```dart
-@lazySingleton
-class ProductLocalDataSource {
-  ProductLocalDataSource();
-
-  ObjectBoxService? _objectBox;
-
-  Future<ObjectBoxService> get _db async {
-    return _objectBox ??= await ObjectBoxService.createDefault();
-  }
-}
-```
-
-### 2) Use it inside the data layer (DAO or local datasource)
-
-Keep `Store`/`Box` usage in the **data layer**.
-
-#### Option A: Use `box<T>()` directly in a local datasource
-
-```dart
-@lazySingleton
-class ProductLocalDataSource {
-  ProductLocalDataSource(this._objectBox);
-
-  final ObjectBoxService _objectBox;
-
-  Box<ProductEntity> get _box => _objectBox.box<ProductEntity>();
-
-  Future<void> put(ProductEntity entity) async {
-    _box.put(entity);
-  }
-}
-```
-
-#### Option B: Use it through `ObjectBoxDao<T>`
-
-This keeps all CRUD/query logic inside a DAO and keeps the datasource small.
+Single `Box` operations are fast. For batches or heavy queries use `runWriteTxAsync` / `runReadTxAsync` (a background isolate, no UI jank):
 
 ```dart
-@lazySingleton
-class ProductDao extends ObjectBoxDao<ProductEntity> {
-  ProductDao(super.objectBox);
-}
+final count = await objectBox.runReadTxAsync<int, void>((store, _) => store.box<ProductEntity>().count(), null);
 ```
 
-### 3) Run background transactions when needed
+## Desktop
 
-For heavier reads/writes that you want off the UI isolate, use:
+On macOS a **sandboxed** app must name an App Group so ObjectBox can open its store: set `MACOS_APP_GROUP` (read as
+`AppConfig.macosApplicationGroup`) and the matching entitlement; `ObjectBoxService.createDefault` passes it only on macOS. Windows
+needs nothing. The build notes (including a CMake message from the plugin that the hook hides) are in `docs/DESKTOP_SETUP.md`.
 
-- `runReadTxAsync`
-- `runWriteTxAsync`
+## Versioning cached data
 
-Example:
+When you store JSON or a derived structure, put a version in the key (`home_v1`, `home_v2`). When the API or the mapping changes,
+bump it so old data is never decoded.
 
-```dart
-final count = await objectBox.runReadTxAsync<int, void>(
-  (store, _) => store.box<ProductEntity>().count(),
-  null,
-);
-```
+## Troubleshooting
 
-### 4) When to call `close()`
-
-In most Flutter apps you **do not** call `close()`.
-
-Only close the store if you have a controlled shutdown scenario (tests, explicit logout flow where you also delete the database directory, etc.).
-
-### `objectbox_entity.dart`
-
-A minimal interface (`objId` getter/setter) used to strongly-type the generic DAO.
-
-### `objectbox_dao.dart`
-
-Generic DAO with common CRUD:
-
-- `getById`, `getAll`
-- `put`, `putMany`
-- `removeById`, `removeAll`
-- `query(...)`, `withQuery(...)`, `watchQuery(...)`
-
-### `entities/objectbox_local_cache_entry_entity.dart`
-
-A small example entity used to ensure ObjectBox codegen always has at least one entity.
-
-## Code generation (required)
-
-ObjectBox relies on code generation.
-
-### Must-keep files
-
-- `lib/objectbox-model.json`
-  - **KEEP THIS FILE** and commit it to git.
-  - ObjectBox uses it to track IDs/Uids across schema changes.
-
-- `lib/objectbox.g.dart`
-  - Generated output.
-  - Contains `openStore()` used by `ObjectBoxService`.
-
-### How to regenerate
-
-Run (project root):
-
-```bash
-dart run build_runner build
-```
-
-If code generation fails, check:
-
-- `lib/objectbox-model.json` is valid JSON and contains at least `entities: []`.
-- Your entities are annotated with `@Entity()` and have an `@Id()` field.
-- You are not placing entities in files excluded by build (must be under `lib/`).
-
-## How to use ObjectBox in Clean Architecture
-
-Recommended approach per feature:
-
-- **Domain**
-  - `HomeRepository` (abstract)
-  - entities used by UI (pure Dart classes)
-
-- **Data**
-  - Remote DS: talks to API via Dio
-  - Local DS: talks to ObjectBox via DAO
-  - Repository implementation: decides when to use remote vs local, maps API DTOs into domain entities (or directly uses domain entities if you choose), wraps errors into `Result<T>`.
-
-ObjectBox types (Store/Box/Query) should stay in **data layer**.
-
-## Preferred feature structure (reuse the same domain entity for remote + local)
-
-You said you want **the same Clean Architecture entity** to be used for:
-
-- Remote (API)
-- Local (ObjectBox)
-
-This is supported by ObjectBox as long as you:
-
-- Keep the **remote/server id** as `id` (or any name you like).
-- Add **ObjectBox internal id** as `objId` (annotated with `@Id()`).
-
-This is exactly why the base contract is named `objId`.
-
-### Folder rule (your preference)
-
-- Do **not** create `features/<feature>/data/objectbox/...`.
-- Create a `dao/` folder **only when you need a custom DAO**.
-- Otherwise, use the **default generic DAO** directly inside the datasource.
-
-Example paths (Home feature):
-
-- `lib/features/home/domain/entities/product_entity.dart` (also becomes an ObjectBox entity)
-- `lib/features/home/data/dao/product_dao.dart` (only if you need custom queries)
-- `lib/features/home/data/datasources/product_local_datasource.dart`
-
-## Pattern: add local ObjectBox caching to a feature entity (example: `ProductEntity`)
-
-### 1) Update the domain entity to also be an ObjectBox entity
-
-Example (update your existing file):
-
-- `lib/features/home/domain/entities/product_entity.dart`
-
-```dart
-import 'package:objectbox/objectbox.dart';
-
-import '../../../../core/services/objectbox/objectbox_entity.dart';
-
-@Entity()
-class ProductEntity implements ObjectBoxEntity {
-  ProductEntity({
-    this.objId = 0,
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.currency,
-    required this.imageUrl,
-    this.isFavorite = false,
-    this.isBestSeller = false,
-  });
-
-  @Id()
-  @override
-  int objId;
-
-  /// Remote/server id.
-  @Index()
-  String id;
-
-  String name;
-  double price;
-  String currency;
-  String imageUrl;
-  bool isFavorite;
-  bool isBestSeller;
-}
-```
-
-Important notes:
-
-- ObjectBox needs a writable `@Id()` field. The simplest ObjectBox-compatible shape is: `int objId;` (non-final).
-- If you keep your domain entities `const` + `final`, ObjectBox will not be able to assign IDs.
-
-### Keeping the ObjectBox ID field named `objId` (recommended for your use case)
-
-If you already had an `@Id` field named `id` before, and you rename it to `objId`, ObjectBox codegen can break because the model JSON may treat it as "delete + add".
-
-To make ObjectBox treat it as a **rename**, pin the original UID on the renamed field using `@Property(uid: ...)`.
-
-Example:
-
-```dart
-@Id()
-@Property(uid: 39472402083263112)
-int objId;
-```
-
-Where do you get the UID?
-
-- Look inside `lib/objectbox-model.json` for the old `id` property UID and reuse it.
-
-After applying this, run build_runner again.
-
-### 2) Regenerate ObjectBox code
-
-After adding/changing `@Entity()` or `@Id()`, run:
-
-```bash
-dart run build_runner build
-```
-
-### 3) DAO options (two styles)
-
-You asked for two options:
-
-#### Option A: Default DAO (no DAO file)
-
-If you do not need custom queries, you do not need a DAO class at all.
-Use `ObjectBoxDao<T>` directly inside your local datasource (see Example 2 below).
-
-#### Option B: Custom DAO (adds feature-specific queries)
-
-Same file, but add your custom queries:
-
-```dart
-import 'package:injectable/injectable.dart';
-
-import '../../../../core/services/objectbox/objectbox_dao.dart';
-import '../../../../core/services/objectbox/objectbox_service.dart';
-import '../../domain/entities/product_entity.dart';
-
-@lazySingleton
-class ProductDao extends ObjectBoxDao<ProductEntity> {
-  ProductDao(super.objectBox);
-
-  ProductEntity? findByRemoteId(String id) {
-    return findFirst((b) => b..equal(ProductEntity_.id, id));
-  }
-
-  Stream<ProductEntity?> watchByRemoteId(String id) {
-    return watchQuery(
-      (b) => b..equal(ProductEntity_.id, id),
-      triggerImmediately: true,
-    ).map((q) {
-      try {
-        return q.findFirst();
-      } finally {
-        q.close();
-      }
-    });
-  }
-}
-```
-
-### 4) Local datasource examples (two styles)
-
-#### Example 1: Local datasource using the **custom DAO**
-
-Create:
-
-- `lib/features/home/data/datasources/product_local_datasource.dart`
-
-```dart
-import 'package:injectable/injectable.dart';
-
-import '../../../../core/error/global_error_handler.dart';
-import '../dao/product_dao.dart';
-import '../../domain/entities/product_entity.dart';
-
-@lazySingleton
-class ProductLocalDataSource {
-  const ProductLocalDataSource(this._dao);
-
-  final ProductDao _dao;
-
-  Future<ProductEntity?> getByRemoteId(String id) {
-    return rethrowAsAppException(() async {
-      return _dao.findByRemoteId(id);
-    });
-  }
-
-  Future<void> upsert(ProductEntity entity) {
-    return rethrowAsAppException(() async {
-      _dao.put(entity);
-    });
-  }
-}
-```
-
-#### Example 2: Local datasource using the **default DAO** (no custom DAO)
-
-In this style you do not create a DAO file.
-You use the generic `ObjectBoxDao<T>` directly.
-
-```dart
-import 'package:injectable/injectable.dart';
-
-import '../../../../core/error/global_error_handler.dart';
-import '../../../../core/services/objectbox/objectbox_dao.dart';
-import '../../../../core/services/objectbox/objectbox_service.dart';
-import '../../domain/entities/product_entity.dart';
-
-@lazySingleton
-class ProductLocalDataSource {
-  ProductLocalDataSource(this._objectBox)
-      : _dao = ObjectBoxDao<ProductEntity>(_objectBox);
-
-  final ObjectBoxService _objectBox;
-  final ObjectBoxDao<ProductEntity> _dao;
-
-  Future<ProductEntity?> getByRemoteId(String id) {
-    return rethrowAsAppException(() async {
-      return _dao.findFirst((b) => b..equal(ProductEntity_.id, id));
-    });
-  }
-
-  Future<void> upsert(ProductEntity entity) {
-    return rethrowAsAppException(() async {
-      _dao.put(entity);
-    });
-  }
-}
-```
-
-### 5) Repository use case (online/offline)
-
-Your repository decides the strategy:
-
-- If online: fetch remote, persist locally, return mapped domain entity.
-- If offline: read local, return mapped domain entity.
-
-Keep your existing error handling pattern:
-
-- Local DS uses `rethrowAsAppException`.
-- Repository uses `runAsResult`.
-
-## Query patterns (best practices)
-
-### Use `withQuery()` to avoid leaks
-
-When you build a `Query`, always `close()` it.
-The base DAO provides `withQuery(...)` to guarantee closure.
-
-### Use `@Unique()` for lookup keys
-
-For cache tables, use `@Unique()` on a `cacheKey` property.
-This makes reads/writes deterministic and fast.
-
-### Use indexes for frequent filters
-
-If you do frequent searches/filters on a property, index it (`@Index()`) to speed up queries.
-
-## Watching (reactive streams)
-
-ObjectBox supports watching queries.
-
-- `watchQuery(...)` returns `Stream<Query<T>>`.
-- Each emitted `Query` must be closed after reading results.
-
-Pattern:
-
-```dart
-dao.watchQuery((b) => b..equal(Entity_.field, value), triggerImmediately: true)
-  .map((q) {
-    try { return q.find(); } finally { q.close(); }
-  });
-```
-
-## Transactions and isolates
-
-- Most simple Box operations are fast.
-- For heavier work (batch updates, expensive queries), prefer using:
-
-- `ObjectBoxService.runWriteTxAsync(...)`
-- `ObjectBoxService.runReadTxAsync(...)`
-
-This runs in a background isolate and avoids UI jank.
-
-## Versioning strategy for local cache
-
-When you store JSON blobs or derived structures, version your keys:
-
-- `home_v1`, `home_v2`, ...
-
-When the API response or mapping changes, bump the key to avoid decoding old data.
+| Symptom | Fix |
+| --- | --- |
+| `Target of URI hasn't been generated: objectbox.g.dart` | Run `dart run build_runner build`; make sure at least one `@Entity()` exists under `lib/` |
+| The generator crashes reading `objectbox-model.json` | The file must be valid JSON with an `entities` key |
+| `openStore` is missing | Code generation has not run, or failed |
+| A second place cannot open the store | Share the opened `ObjectBoxService` (see "Open the store once") |
+nges, bump the key to avoid decoding old data.
 
 ## Troubleshooting
 

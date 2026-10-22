@@ -1,119 +1,50 @@
-# 🧩 Utilities & Design Tokens Guide (`lib/utils/`)
+# Utilities and tokens (`lib/utils/`)
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+**Check here before you write a constant, an extension or a helper.** If one exists, use it; if two features need something new,
+add it here and add a line to this file. Rules: `.ai/project-rules.md`.
 
-This document is an **Exhaustive Technical Encyclopedia** for the utilities layer. You **MUST** refer to this document before using any constant, extension, or helper in the application.
+## Constants (`constants/`)
 
-- **Global Protocol**: [.ai/project-rules.md](.ai/project-rules.md)
-- **Hierarchy Protocol**: [lib/features/features_overview.md](lib/features/features_overview.md)
+| File | Holds |
+| --- | --- |
+| `design_constants.dart` | The design tokens. **`AppSpacing`** (`xxs 2 · xs 4 · xs2 6 · sm 8 · sm2 10 · md 12 · lg 16 · lg2 20 · xl 24 · xxl 32 · xxxl 40 · huge 48`, plus `screenMargin`, `cardGap`, `sectionGap`), **`AppRadii`** (`xs 7 · sm 12 · md 14 · lg 18 · xl 20 · sheet 26 · full`), **`AppBorders`** (`hairline`, `emphasis`, `focusRing`), **`AppIconSizes`** (`inline 16 · list 20 · bar 24`, touch targets), **`AppDurations`** (`press`, `toggle`, `fast`, `normal`, `sheetIn/Out`, `routeIn/Out`, `listItem`, `tabSwitch`, `scrollReveal`, `reducedMotion`, …), **`AppCurves`**, **`AppStates`** (hover, focus). Never a bare number for any of these |
+| `app_flow_constants.dart` | **`AppFlowConfig`** (`onboardingEnabled`, `authMode`, `guestOnLoginWall`, `offersGuest`), **`AuthMode`** (`loginRequired`, `guestFirst`), **`SplashConfig`** (`initialDelay`, `maxWait`), **`AppThemeConfig`** (`defaultMode`), `OnboardingStorageKeys`, `RouterLogTags` |
+| `auth_constants.dart` | `AuthStorageKeys` (`user`, `guestFlag`, `jwtToken`), `AuthReasons` (`logout`, `guest`, `expired`), `AuthLogTags` — the one source for the auth layer |
+| `localization_constants.dart` | Language-related constants |
 
-Failure to use the existing tools described here and instead duplicating logic is a protocol violation.
+## Extensions (`extensions/`)
 
----
+| File | Gives you |
+| --- | --- |
+| `context_extensions.dart` | `context.layout` (the `AppLayout` of this frame), `context.isTablet`, `screenWidth`/`screenHeight`, insets, `isRtl`/`isLtr`, `chevronStart`/`chevronEnd` (directional glyphs), `leadingWindowControlsInset` (macOS traffic lights) |
+| `theme_extensions.dart` | `context.colorScheme`, `textTheme`, `semantic` (`AppSemanticColors`), `shadows`, `gradients`, colour shortcuts (`primary`, `surface`, `onSurface`, `grey` = a control's edge, `error`, …) and text roles (`context.titleMedium`, `bodyMedium`, …) |
+| `num_spacing_extensions.dart` | `AppSpacing.md.verticalSpace`, `12.horizontalSpace` — spacing-only gaps |
+| `widget_extensions.dart` | `paddingAll`, `symmetricPadding`, `center()`, `onTap`, `sized` — use sparingly |
+| `date_time_extensions.dart` | **Every date shown to a person** goes through these (Latin digits): `toYmd`, `toDayMonthYearDash`, `toWeekdayDayMonthYear`, `toFullDateTime`, `toMonthYearShort`, `toSmartDateTime`, … Never a raw `DateFormat` in a widget |
+| `string_extensions.dart` | `isNullOrEmpty`, `isNullOrBlank`, `orEmpty`, `capitalizeFirst`, `capitalizeWords`, `ellipsis`, `toColor` |
+| `reactive_forms_extensions.dart` | `formGroup.valueOf<T>(key)` — the way to read a form value |
+| `text_direction_extensions.dart`, `int_extensions.dart`, `double_extensions.dart`, `iterable_extensions.dart`, `enum_extensions.dart` | Small conveniences; read the file before adding a sibling |
 
-## 🏛️ 1. Constants Encyclopedia (`lib/utils/constants/`)
+## Helpers (`helpers/`)
 
-### `app_flow_constants.dart`
+| File | Use it for |
+| --- | --- |
+| `app_strings.dart` | `AppStrings` — every visible string (the generated getters plus the plural resolver). Only this file calls `.tr()` |
+| `app_formats.dart` | `AppFormats.number`, `price`, `relativeTime`, `fullDate`, `dayMonth`, `time`, `isolate` — **every number and date shown to a person** (one digit system app-wide) |
+| `colored_print.dart` | Logging — never `print` or a bare `debugPrint`. Debug builds only. Convention: `printC` flow, `printG` success, `printY` warnings and redirects, `printR` errors, `printM` network responses; start with a tag constant |
+| `input_formatters.dart` | `ArabicToEnglishDigitsFormatter` (required on every numeric input), `AppNumericTextFormatter`, `AppStringOnlyFormatter` |
+| `device_helper.dart` | Device details and a stable device id (`device_info_plus`, `flutter_udid`); call this, not the packages |
+| `jwt_token_utils.dart` | Read a JWT's payload and expiry (no signature check) |
+| `build_svg_icon.dart` | The standard SVG icon builder behind `AppIcon` |
+| `arabic_text.dart` | Arabic letter folding for search |
 
-Contains global flow config and storage keys for application-level flows.
+## Generated (`gen/`)
 
-- **`OnboardingStorageKeys`**: `finished` (tracks if onboarding is done).
-- **`SplashConfig`**: `initialDelay` (minimum splash duration).
-- **`AppFlowConfig`**: `onboardingEnabled` (toggle onboarding only; auth routing is always enabled).
-- **`RouterLogTags`**: Standardized tags for routing logs.
+`assets.gen.dart` (FlutterGen `Assets`) and `fonts.gen.dart` are regenerated by `dart run build_runner build`;
+`app_strings.g.dart` by `dart run tool/generate_app_strings.dart`. Never edit them. They are committed.
 
-### `auth_constants.dart` (HARD PATH)
+## Adding something
 
-The single source of truth for Authentication infrastructure.
-
-- **`AuthStorageKeys`**: `user`, `guestFlag`, `jwtToken`.
-- **`AuthReasons`**: Shared reasons for logout and guest transitions.
-- **`AuthLogTags`**: Use these for all `colored_print` calls in the auth layer.
-
-### `design_constants.dart` (DESIGN SYSTEM)
-
-Mandatory tokens for layout. No raw `double` literals allowed.
-
-- **`AppSpacing`**: `xs(4)`, `sm(8)`, `md(12)`, `lg(16)`, `xl(24)`, `xxl(32)`.
-- **`AppRadii`**: Standard corner rounding tokens. Use `.lg` (16) for cards.
-- **`AppDurations`**: `fast(150ms)`, `normal(250ms)`, `slow(350ms)`.
-
----
-
-## 🧩 2. Extensions Encyclopedia (`lib/utils/extensions/`)
-
-### `context_extensions.dart`
-
-Ergonomic shortcuts for `BuildContext`.
-
-- **Theme**: `context.theme`, `context.colorScheme`.
-- **Colors**: `context.primary`, `context.surface`, `context.onSurfaceError`.
-- **Typography**: `context.displayLarge` through `context.bodyMedium`.
-
-### `date_time_extensions.dart` (MANDATORY FORMATTING)
-
-Every date in the UI must use these extensions to ensure Arabic-to-English digit normalization via `toLatinDigits()`.
-
-- **Formatting**: `toYmd()`, `toTime24()`, `toTime12Compact()`, `toSmartDateTime()`.
-- **Calendar**: `isToday`, `startOfDay`, `copyWith()`.
-- **Parsing**: `String.toDateTimeOrNull()`.
-
-### `string_extensions.dart`
-
-- **Nullable**: `isNullOrEmpty`, `isNullOrBlank`.
-- **Transform**: `capitalizeFirst()`, `capitalizeWords()`, `ellipsis(length)`.
-- **Color**: `toColor()` (Parses hex strings like `#FF0000` to Flutter `Color`).
-
-### `widget_extensions.dart`
-
-- **Spacing**: `widget.paddingAll(8.w)`, `widget.paddingOnly(bottom: 12.h)`.
-- **Logic**: `.paddingSymmetric` using `.w` and `.h` responsive tokens.
-
-### `reactive_forms_extensions.dart`
-
-- **Access**: `formGroup.valueOf<T>(key)` - The mandatory way to extract values from reactive forms.
-
----
-
-## 🏗️ 3. Generators Encyclopedia (`lib/utils/gen/`)
-
-- **`app_strings.g.dart`**: Contains all localized strings. Access via `AppStrings.xxx`.
-- **`assets.gen.dart`**: Type-safe asset access. Use `Assets.images.xxx` or `Assets.icons.xxx`.
-
----
-
-## 🛠️ 4. Helpers Encyclopedia (`lib/utils/helpers/`)
-
-### `build_svg_icon.dart`
-
-Standard icon builder. Ensures consistent sizing and coloring for SVGs.
-
-### `colored_print.dart` (MANDATORY LOGGING)
-
-Never use `print()` or `debugPrint()` directly. Use the colored variants:
-
-- `printC(msg)`: Cyan (General Info)
-- `printM(msg)`: Magenta (State/Bloc)
-- `printY(msg)`: Yellow (Network/API)
-
-### `input_formatters.dart` (HARD REQUIREMENT)
-
-Mandatory for use in `AppReactiveTextField`.
-
-- **`ArabicToEnglishDigitsFormatter`**: Forces all numeric input to English digits.
-- **`AppNumericTextFormatter`**: Standard numeric mask.
-
-### `device_helper.dart`
-
-Uses `device_info_plus` and `flutter_udid` to expose device details and a consistent device identifier.
-
-- Do not use deprecated identifier plugins such as `mobile_device_identifier`.
-- Prefer the centralized helper instead of calling identifier packages directly from features.
-
-### `jwt_token_utils.dart`
-
-Helper to parse JWT payload without validating signature. Use to check token expiry or basic user fields.
-
----
-
-_For architectural integration rules, see [.ai/project-rules.md](.ai/project-rules.md)._
+1. Search this folder and `lib/common/` for it first.
+2. Put it in the file that matches its kind; a new file only for a new kind.
+3. Document it here in one line, and write a test if it has logic.

@@ -1,105 +1,113 @@
-# Flutter UI Rules
+# Flutter UI rules
 
-Read this file when touching UI, widgets, screens, theme, visual states, assets, or animations.
+Read this when you touch a screen, a widget, a colour, spacing, an icon, a loading state or an animation.
+Values and the reasons behind them: `DESIGN_SYSTEM.md`. Window sizes and desktop: `docs/RESPONSIVE.md`.
 
-## Typography
+## Type
 
-- Use `AppTextStyles.sXXwXXX` only.
-- Do not create inline `TextStyle(fontSize: ..., fontWeight: ...)` in widgets.
-- Do not use context text-theme shortcuts such as `context.titleMedium` or `context.bodySmall`.
-- Apply colors with `.copyWith(color: context.semanticColor)` when needed.
-- Text styles should not introduce hardcoded colors.
+- Take a role from the theme: `Theme.of(context).textTheme.titleMedium` (or `context.titleMedium`).
+  The roles and sizes are the table in `DESIGN_SYSTEM.md` §2 — `headlineSmall` for a page title, `titleMedium` for a
+  section, `bodyMedium` for text, `labelLarge` for a button.
+- Change **colour only**: `style?.copyWith(color: scheme.onSurfaceVariant)`. Never `TextStyle(fontSize: …)`,
+  never a font weight outside 400 / 500 / 700 / 800, never body text under 14.
+- `AppTextStyles.sXXwXXX` are aliases kept for the older shared widgets in `lib/common/`. Do not use them in new code.
+- Do not fix the height of anything that holds text: the reader's text size (85–130%) and, in large windows, a
+  further step (×1.05 / ×1.10 / ×1.15, `AppTextScaleHost`) both change it.
 
-## Dimensions, Spacing, and Radius
+## Colour
 
-- Avoid raw layout numbers.
-- Use `AppSpacing` for gaps, padding, and margins.
-- Use `AppRadii` for corner radius.
-- Use `flutter_screenutil` suffixes for UI dimensions:
-  - `.sp` for font sizes and text-scaled controls.
-  - `.h` for vertical layout sizes.
-  - `.w` for horizontal layout sizes.
-  - `.r` for icon sizes and radius values.
-- Use `x.verticalSpace` and `y.horizontalSpace` for simple gaps.
-- Do not use `SizedBox(height: x)` or `SizedBox(width: y)` for spacing-only gaps.
-- Use `REdgeInsets` instead of standard `EdgeInsets` for responsive padding and margin.
+- From `Theme.of(context).colorScheme` and `context.semantic` (`AppSemanticColors`: `background`, `success`,
+  `warning`, `urgent`, `info`). Never `Colors.*` (except `Colors.transparent`), never `Color(0x…)`.
+- The **page** colour is `context.semantic.background`; the **card** colour is `colorScheme.surface`. They differ on purpose.
+- Secondary text and idle icons: `colorScheme.onSurfaceVariant`. Never `outline` for text or an icon — it is a hairline colour.
+- The edge of a control (field border, ghost button): `colorScheme.outlineVariant` (`context.grey`), 3:1 against a card.
+  Dividers and card hairlines: `colorScheme.outline`.
+- Alpha: `.withValues(alpha: …)`. Shadows and gradients: `context.shadows.*`, `context.gradients.*`; a new reusable one
+  goes into `core/theme/app_theme_effects.dart`, not inline.
+- A colour you add goes in `core/theme/app_colors.dart` with its contrast asserted in `test/core/theme/app_theme_test.dart`.
 
-Reasonable exceptions are allowed for values that are not visual layout dimensions:
+## Spacing and size
 
-- `0`
-- `1` pixel borders or dividers
-- flex values
-- opacity values
-- indexes, counts, and item lengths
-- animation curve/tween values
-- `double.infinity`
+- `AppSpacing` (gaps, padding), `AppRadii`, `AppIconSizes`. Allowed bare numbers: `0`, 1-pixel lines, flex, opacity,
+  indexes, animation values, `double.infinity`.
+- Sizes are plain logical pixels. There is no `flutter_screenutil`: never `.sp .h .w .r`, never `REdgeInsets`.
+- A gap is `AppSpacing.md.verticalSpace` / `.horizontalSpace`, not `SizedBox(height: x)`.
+- Touch targets are at least 44 (48 in navigation). Use `AppBarAction` for an icon button.
 
-## Colors and Effects
+## Layout follows the window, not the device
 
-- Use semantic context colors such as `context.primary`, `context.surface`, `context.onSurface`, and `context.onSurfaceError`.
-- Use named `AppColors` constants only for approved fixed meanings such as success, warning, or error.
-- Do not use `Colors.*`, raw `Color(0x...)`, direct `Theme.of(context)`, or direct `context.colorScheme.*` in UI.
-- Use `.withValues(alpha: ...)`; do not use `.withOpacity()`.
-- Use `context.shadows.*` and `context.gradients.*` from the theme effects system.
-- If a new reusable shadow or gradient is needed, add it to the theme effects layer instead of defining it inline.
+- Read the size class: `context.layout` (rebuilds on any size change), `AppLayoutScope.windowSizeOf(context)`
+  (rebuilds only when the class changes), or `AdaptiveLayout(compact:, medium:, expanded:)`.
+  Never `MediaQuery.of(context).size.width < 600`, never an orientation check, never `Platform.isX`.
+- Margins: `context.layout.gutter` (16 · 24 · 32). Columns: `AppLayout.columnsFor(width)` (1 · 2 · 3).
+  A column that stops growing: `AppContentWidth` (`AppLayout.contentMaxWidth` 1200, reading width 640, forms 840).
+- Navigation is chosen by the shell (`NavLayout`: bar → rail → sidebar); a screen never draws its own.
+- Sheets become centred dialogs from 840dp: open them with `AppBottomSheet.showAdaptive`.
+- Never lock orientation. Every screen works in portrait, landscape and a resized window.
+- Platform **capabilities** (`AppPlatform.supportsPush`, `supportsVibration`, `isDesktop`, `hasDesktopWindow`,
+  `rendersFlagEmoji`) are checked through `AppPlatform` — not `dart:io`, not `defaultTargetPlatform` inline. A mobile-only
+  plugin is called behind a capability or a DI service (`HapticsService`).
+- Pointer and keyboard are first-class: hover and a cursor on tappable things, a `Tooltip` on icon-only buttons,
+  `AppFocusRing` (shown for keyboard only), shortcuts through `AppShortcuts`, `AppContextMenu` where a mouse user
+  expects one.
+- Check every screen at **390 · 820 · 1280** wide, portrait and landscape, light and dark, Arabic and English, 1.3× text.
 
-## Screens and Decomposition
+## Screens
 
-- Every screen uses `AppScaffold`, never standard `Scaffold`.
-- Every screen defines:
+- Build a screen on `AppScaffold.body|appBar|search|all`. A hero or sliver page whose own scroll view needs the whole
+  `Scaffold` may use `Scaffold` directly (the item-detail and settings pages do) — add a one-line comment why.
+- Every screen defines `pagePath` and `pageName`: **relative** (`'settings'`, `'items/:id'`) for a page pushed over the
+  shell, absolute (`'/splash'`) only for a top-level route. Register it as an `AppPage`.
+- Decompose: screen → section → atomic widget, each non-trivial one in its own file. No big private widget classes
+  inside a screen.
+- A tab is not a screen: no `Scaffold`, bottom padding `AppBottomNav.listBottomPadding(context)`.
 
-```dart
-static const String pagePath = '/feature_name';
-static const String pageName = 'FeatureNameScreen';
-```
+## Components
 
-- UI should follow the hierarchy: Screen -> Section -> Atomic Widget.
-- Put sections and non-trivial widgets in separate files.
-- Avoid inline private widget classes inside screens or large sections.
+- **Buttons** are `AppButton` (`primary`, `success`, `warning`, `error`, `*Gradient`, `variant`).
+  - Grey means **inactive, and only that**. "Cancel", "Exit", "Close", "Reset" are `AppButton.error` (or `primary`),
+    never grey. `AppButton.variant(variant: grey, isActive: true)` fails an assertion; a test scans `lib/` for it.
+  - To disable, keep the variant and pass `isActive: false` (or leave `onTap` null): the button turns grey by itself.
+    `onTapWhenInactive` says why. `AppButton.grey` is for a button that is always inactive.
+  - One primary button per screen. Never `ElevatedButton`/`TextButton`/a bare `GestureDetector` for an app action.
+- **Dialogs and sheets**: `AppDialog` (`AppDialogAction.primary|secondary|danger|success` — `secondary`, the way out, is
+  red), `AppBottomSheet.showAdaptive`.
+- **Fields**: `AppReactiveTextField` (+ `.email .password .phone .decimal .integer`), `AppReactiveDropdownField`,
+  `AppReactiveDateTimeField`, laid out two to a row in wide windows with `AppFormFieldGrid`. They draw their own
+  container — never put a second fill inside one. Field height is 44 (40 on desktop).
+- **Counts** (unread, cart): `AppCountBadge` — a circle for one digit, a pill beyond; never a hand-made `Container`.
+- **Badges** (words): `AppBadge`. **Status**: `AppStatusBanner`. **Empty**: `EmptyStateWidget`. **Error**: `FailedStateWidget`.
+- A reusable piece goes in `lib/common/widgets/` (check `lib/common/common_folder_guide.md` first); a piece used by one
+  feature stays in that feature.
 
-## Buttons and Interactions
+## Icons and images
 
-- Use `AppButton` variants for buttons.
-- Do not use raw `ElevatedButton`, `TextButton`, or ad-hoc tappable containers for app actions.
-- Disable buttons with `isActive: false`; do not pass `null` to `onPressed`.
+- Lucide SVGs: `AppIcon(AppIcons.x)` (or `IconSource.svg(AppIcons.x)` where a widget takes an `IconSource`).
+  A missing glyph: add the SVG to `assets/svgIcons/` and a constant to `AppIcons`. Never `Icons.*` or an icon font.
+- Directional glyphs follow the text direction (`context.chevronStart` / `chevronEnd`).
+- Assets: generated `Assets` (FlutterGen) after `dart run build_runner build`; no raw path strings.
+- Reserve an image's space before it loads (`AppCover`, `AppThumbnail`).
 
-## Icons
+## Loading, empty, error
 
-- One family: Lucide SVGs through `AppIcons.*`, drawn with `AppIcon` (or `IconSource.svg` where a widget takes an `IconSource`).
-- Do not use Flutter's `Icons.*` or any icon font in app UI.
-- A missing glyph: add the Lucide SVG to `assets/svgIcons/` and a constant to `AppIcons`.
-- Directional glyphs follow the text direction (`context.chevronEnd`).
+- Content loading: `SkeletonWidget` — `.success(...)` and `.loading()` over **one** `buildBody`, leaves wrapped in
+  `SkeletonText` / `SkeletonBox`. Never a second "skeleton version". A new `.loading()` needs a line in
+  `test/common/widgets/ds/skeleton_parity_test.dart`.
+- The next page of a list: `SkeletonMore`. A section that loads on its own: `AppLazySection`.
+- Async state in a screen: `StatusBuilder<T>` over a `BlocStatus<T>`.
+- Spinners (`LoadingDots` in a button, `MainLoadingProgress` for a blocking action) mean "an action is running".
+  No raw `CircularProgressIndicator` in feature UI.
+- Empty and error states say what happened and offer one action, in words a person would use.
 
-## Loading, Empty, and Error States
+## Motion
 
-- Content loading states use `SkeletonWidget`: `.success(...)` and `.loading()` over ONE `buildBody`, leaves wrapped in `SkeletonText` / `SkeletonBox`. Never a second "skeleton version" of a widget.
-- Every new `.loading()` gets a line in `test/common/widgets/ds/skeleton_parity_test.dart`.
-- The next page of a list is `SkeletonMore`, not a spinner.
-- A section of a page loads on its own (`AppLazySection`) and fails on its own.
-- Full-screen blocking loading should use `MainLoadingProgress`.
-- Inline or button loading should use `LoadingDots`.
-- Do not use raw `CircularProgressIndicator` directly in feature UI.
-- Empty states use `EmptyStateWidget`.
-- Error states use `FailedStateWidget`.
-- Do not create ad-hoc inline empty/error columns.
+- Use the motion kit first: `.revealOnScroll()` / `ScrollReveal`, `AppIntro` + `AppIntroSlot`, `AppCountUp`,
+  `AppAccentLine`, `AppGlint`, `AppKenBurns`, `AppParallax`, `AppPopIn`, `AppRefresh`, `AppBackToTop`.
+  Then implicit animations; then `flutter_animate`; an `AnimationController` last, with a comment saying why.
+- Every animation is finite and honours `MediaQuery.disableAnimations`; anything that repeats stops when unseen.
+- No decorative motion on admin, dashboard or table screens.
 
-## Animations
+## Accessibility
 
-- Use animations where they improve UX and clarity.
-- Screen/list entry animations are required when appropriate for user-facing content.
-- Use the motion kit first: `.revealOnScroll()` / `ScrollReveal` for list items, `AppIntro` + `AppIntroSlot` for a once-per-run opening, `AppCountUp`, `AppAccentLine`, `AppGlint`, `AppKenBurns`, `AppParallax`, `AppPopIn`, `AppRefresh` (pull to refresh), `AppBackToTop`.
-- Every animation is finite and honours `MediaQuery.disableAnimations`; anything repeating stops when unseen (`TickerMode`).
-- `flutter_animate` is available for one-off effects the kit does not cover.
-- Use built-in implicit animations for simple state-driven transitions.
-- Avoid useless animations on static, admin, dashboard, or table-heavy screens.
-- If using a manual `AnimationController`, document why simpler options were not enough.
-
-## Assets
-
-- Use generated FlutterGen `Assets` references.
-- Do not use raw string asset paths in app code.
-- After adding assets, run:
-
-```bash
-dart run build_runner build
-```
+- Every icon-only control has a label (`Semantics` / `Tooltip`). Never signal by colour alone — badges carry words.
+- Text contrast: primary ≥ 7:1, secondary ≥ 4.5:1; the edge of a control ≥ 3:1 (asserted in `app_theme_test.dart`).

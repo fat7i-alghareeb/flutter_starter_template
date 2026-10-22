@@ -108,7 +108,7 @@ Current behavior:
 - `AnnotatedRegion<SystemUiOverlayStyle>` carries the overlay style.
 - The builder no longer performs a platform side effect on each rebuild.
 
-### 9. ScreenUtil added an async gate before rendering children
+### 9. ScreenUtil added an async gate before rendering children *(historical: flutter_screenutil was removed in 0.3.0)*
 
 `ScreenUtilInit(ensureScreenSize: true)` uses an async validation path and can briefly return an empty widget before children are built.
 

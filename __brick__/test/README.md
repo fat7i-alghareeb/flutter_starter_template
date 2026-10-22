@@ -3,7 +3,8 @@
 Every feature built from here follows this file. It is not a suggestion.
 
 ```bash
-flutter test                            # everything — seconds
+flutter test                            # everything (about 420 tests, goldens included)
+flutter test test/features/root         # one folder — use while you work
 flutter test --update-goldens           # regenerate the reference images
 flutter test --exclude-tags golden      # on CI with a different OS (see below)
 flutter test integration_test --dart-define=USE_MOCK=true   # needs a device
@@ -20,7 +21,7 @@ test/
 │   ├── golden_helper.dart  goldenTest · loads the real font
 │   ├── fixtures.dart       reads the real assets/mock
 │   └── mocks.dart          the shared fakes
-├── core/               theme · network · settings · services
+├── core/               theme · network · settings · services · layout · platform · window · router
 ├── common/widgets/ds/  design-system components + reference images
 ├── features/<name>/    each feature tested beside its name
 ├── l10n/               translation parity
@@ -65,7 +66,7 @@ The working copy for each feature to come:
 
 **`EasyLocalization` cannot be created twice in one file.** It keeps process-level state and never resets it, so the second instance builds an empty tree and every `find` after it returns nothing — the widget looks broken when it is fine. Hence: `pumpApp` **without localisation**, and [`pumpLocalizedApp`](helpers/test_app.dart) for what needs it, **one test per file**.
 
-**`setSurfaceSize` alone is not enough.** `ScreenUtil` reads the view directly, not `MediaQuery`, so it keeps measuring against the default `800×600` and every `.sp` comes out roughly twice too large. The result: a sound widget overflows in the test. `pumpApp` sets `tester.view` for this reason.
+**`setSurfaceSize` alone is not enough.** The window size classes (`AppLayout`) come from the `MediaQuery` the *view* produces, so a bare surface size leaves the app laid out for the default `800×600` test window — a medium window, not a phone. `pumpApp` sets `tester.view` for this reason, and `TestDevices` names the sizes the layout is specified at (`reference`, `tablet`, `phoneLandscape`, `tabletLandscape`, `desktop`). To test a resize, set `tester.view.physicalSize` again and pump.
 
 **A screen is pumped with `fullScreen: true`.** A component is centred so it takes its natural size, but a screen takes the whole surface — centring it leaves the `Stack` unbounded, so every `Positioned` falls outside the frame and silently disappears from the accessibility tree.
 
@@ -82,6 +83,25 @@ The working copy for each feature to come:
 **Auth-mode rules run only in their own mode.** `AppFlowConfig.authMode` is a compile-time switch, so the guest-first groups (`skip: !guestFirst`) and the login-wall groups (`skip: guestFirst`) take turns: flipping the switch flips which rules are checked. `flutter test` reports the other mode's tests as skipped — that is expected.
 
 **A screen or widget with a shimmer is pumped with `settle: false`.** `SkeletonScope` wraps its tree in a repeating shimmer that never settles, exactly like `LoadingDots`.
+
+**Pretend to be another platform inside the test, and put it back inside the test.** `debugDefaultTargetPlatformOverride = TargetPlatform.windows`
+must be reset in a `try/finally` in the test body: Flutter checks it is unset *before* `tearDown` runs, so resetting there fails the test.
+`test/core/window/app_title_bar_test.dart` has a `testOn(platform, …)` helper that does this.
+
+**A widget that sits above the navigator needs its own `Overlay`.** The desktop title bar is mounted above the `Navigator`, so a `Tooltip`
+inside it finds no overlay («No Overlay widget found»). A test that pumps the bar *inside a page* hides this; mount it the way `App`
+does (`AppDesktopFrame`) and hover an icon with a mouse pointer.
+
+**A `Container` with `alignment` grows to fill the space it is given.** In a bounded row or a `Positioned` it becomes a stripe the height of
+the row — an unread badge was a 48dp red bar. Measure the thing (`tester.getSize`); do not only look for its text.
+
+**A tap on an `AppButton` leaves a ~90ms timer pending.** End the test with `await tester.pump(const Duration(milliseconds: 300))`.
+
+**A golden must not contain the project's name.** A sidebar golden drew «My App» and failed in every generated project with another title.
+
+**A static scan is a test.** `app_strings_discipline_test.dart` reads every file in `lib/` for hard-coded Arabic or English text and for
+`.tr()` outside the generated file; `button_variants_test.dart` scans `lib/` for grey on an active button. When a rule is about what the
+source says, enforce it by reading the source — and prove the scan bites by planting one offender once.
 
 **Never run `dart format` over `lib/utils/gen/app_strings.g.dart`.** The discipline test reads the generated file line by line and expects each template key on ONE line with its `args:`; formatting wraps the long ones and the test fails on a file that is otherwise correct. Regenerate it with `dart run tool/generate_app_strings.dart` instead.
 
@@ -136,9 +156,15 @@ The real font is loaded before the image is captured. Without it every glyph is 
 Written down because they are the answer to "is this worth the trouble?"
 
 1. **A generic mock pattern shadowed a specific one** — two different screens read the same fixture. [`mock_routes_test.dart`](core/config/mock_routes_test.dart) pins the order.
-2. **`AppTheme.light` crashed outside `ScreenUtilInit`** — the type scale was not inspectable without booting the whole app.
+2. **`AppTheme.light` crashed outside `ScreenUtilInit`** — the type scale was not inspectable without booting the whole app. (flutter_screenutil has since been removed; the type scale is plain pixels.)
 3. **The label «Opening the app» was never spoken** — it merged into the app name until the `Semantics` got `container: true`.
 4. **A skeleton drifted from its card** — one line added to the card and not to the loading state; the parity test fails on exactly that.
 5. **Rails with a height computed from font metrics overflowed** by 11–44dp at 320dp and at 1.3× — caught by the responsive tests, fixed by letting a `Row` size to its cards.
 6. **The «See all» chevron pointed backwards in one direction** — a fixed `chevron_left`; the direction-aware `context.chevronEnd` fixed it.
 7. **Signing in passed through one frame of «neither a guest nor signed in»** — the router redirected to `/login` and threw the pushed stack away. [`auth_transition_test.dart`](core/services/auth_transition_test.dart) watches every frame.
+8. **The desktop title bar threw «No Overlay widget found» on hover** — it sits above the navigator.
+9. **Every form field drew a second box inside its own container** — the theme's `filled: true` reached the inner text field; visible in dark mode. [`form_field_fill_test.dart`](common/widgets/form_field_fill_test.dart).
+10. **The unread badge was a full-height red stripe** — a `Container(alignment:)` in a bounded row. [`app_count_badge_test.dart`](common/widgets/ds/app_count_badge_test.dart).
+11. **The grey button looked disabled and a disabled one was unreadable.** Grey now *means* inactive. [`button_variants_test.dart`](common/widgets/button_variants_test.dart).
+12. **The phone field printed «EG» on Windows** — no flag emoji in the system font. [`phone_flag_test.dart`](common/widgets/phone_flag_test.dart).
+13. **A demo tab shipped in English only** — the Arabic-literal rule cannot see English; the discipline test now checks both.

@@ -43,7 +43,9 @@ void main() {
     final controller = ScrollController();
     addTearDown(controller.dispose);
     // Pumped by hand: `pumpApp` waits out every entrance before returning.
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: list(controller))));
+    await tester.pumpWidget(
+      MaterialApp(home: Scaffold(body: list(controller))),
+    );
 
     // Started, not finished.
     await tester.pump();

@@ -1,6 +1,5 @@
 import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -18,7 +17,7 @@ import 'package:{{project_name}}/core/theme/app_theme.dart';
 import 'package:{{project_name}}/features/auth/presentation/ui/screens/login_screen.dart';
 import 'package:{{project_name}}/features/onboarding/presentation/ui/screens/onboarding_screen.dart';
 import 'package:{{project_name}}/utils/constants/app_flow_constants.dart';
-import 'package:{{project_name}}/utils/constants/design_constants.dart';
+import 'package:{{project_name}}/core/layout/app_layout_scope.dart';
 import 'package:{{project_name}}/utils/helpers/app_strings.dart';
 
 class _MockStorage extends Mock implements StorageService {}
@@ -50,9 +49,7 @@ void main() {
     final tokenStorage = _MockTokenStorage();
     onboardingDone = false;
 
-    when(
-      () => storage.readBool(any()),
-    ).thenAnswer((_) async => onboardingDone);
+    when(() => storage.readBool(any())).thenAnswer((_) async => onboardingDone);
     when(() => storage.writeBool(any(), any())).thenAnswer((_) async {});
     when(() => storage.remove(any())).thenAnswer((_) async {});
     when(() => tokenStorage.delete(any())).thenAnswer((_) async {});
@@ -129,12 +126,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ScreenUtilInit(
-        designSize: AppDesign.designSize,
-        builder: (_, _) => MaterialApp.router(
-          theme: AppTheme.light,
-          routerConfig: router,
-        ),
+      MaterialApp.router(
+        theme: AppTheme.light,
+        routerConfig: router,
+        builder: (context, child) => AppLayoutHost(child: child!),
       ),
     );
     await tester.pumpAndSettle();
@@ -157,7 +152,10 @@ void main() {
     final (router, _) = await boot(tester);
     AppNavigator.pushTarget<void>(
       router,
-      const AppTarget(AppPage.feedItem, params: <String, String>{'id': 'item_008'}),
+      const AppTarget(
+        AppPage.feedItem,
+        params: <String, String>{'id': 'item_008'},
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('feedItem item_008'), findsOneWidget);
@@ -181,9 +179,7 @@ void main() {
       expect(auth.isGuest, isFalse);
     });
 
-    testWidgets('signing in on the wall moves on to the shell', (
-      tester,
-    ) async {
+    testWidgets('signing in on the wall moves on to the shell', (tester) async {
       onboardingDone = true;
       await onboarding.initialize();
       auth.setAuthStatus(AuthStatus.unauthenticated());

@@ -15,10 +15,7 @@ void main() {
   setUp(() {
     server = _Server();
     session = AuthStateNotifier()..setGuest(true);
-    registrar = PushTokenRegistrar(
-      Dio()..interceptors.add(server),
-      session,
-    );
+    registrar = PushTokenRegistrar(Dio()..interceptors.add(server), session);
   });
 
   test('a guest\'s device is registered, once', () async {
@@ -27,10 +24,7 @@ void main() {
 
     expect(server.sent, hasLength(1));
     expect(server.sent.single.path, ApiEndpoints.devices);
-    expect(
-      (server.sent.single.data as Map<String, dynamic>)['token'],
-      'tok_1',
-    );
+    expect((server.sent.single.data as Map<String, dynamic>)['token'], 'tok_1');
   });
 
   test('signing in sends it again — the device now has an account', () async {
@@ -71,6 +65,8 @@ class _Server extends Interceptor {
         DioException.connectionError(requestOptions: options, reason: 'x'),
       );
     }
-    handler.resolve(Response<dynamic>(requestOptions: options, statusCode: 200));
+    handler.resolve(
+      Response<dynamic>(requestOptions: options, statusCode: 200),
+    );
   }
 }

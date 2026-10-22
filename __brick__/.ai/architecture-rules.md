@@ -1,81 +1,106 @@
-# Architecture Rules
+# Architecture rules
 
-Read this file when touching features, BLoC, repositories, datasources, models, entities, forms, routing, services, storage, or session behavior.
+Read this when you touch a feature, a bloc, a repository, a data source, a model, a form, routing, a service,
+storage, or session behaviour. Deeper guides: `lib/features/features_overview.md`, `lib/core/core_architecture_overview.md`.
 
-## Feature Structure
+## Where a thing goes
 
-Each feature follows this shape:
+| It is… | It goes in |
+| --- | --- |
+| Behaviour of one product area | `lib/features/<name>/` |
+| Used by two or more features: a widget | `lib/common/widgets/` (`ds/` for design-system primitives) |
+| Used by two or more features: a helper, extension, constant | `lib/utils/` |
+| Infrastructure with no product meaning: config, DI, network, router, theme, layout, platform, window, shortcuts, notifications, services | `lib/core/` |
+| A visible string | `assets/l10n/ar.json` + `en.json`, read as `AppStrings.x` |
+| A fixture for mock mode | `assets/mock/<feature>/` |
+
+`core/` is feature-agnostic. Only three places in it know the features, because they wire them together: the router
+(`router_config.dart`, `app_routes.dart`), the generated `injectable.config.dart`, and `mock_config.dart` (`MockRoutes`).
+A feature never imports another feature — share through `core/`, `common/`, or a domain entity both can reach.
+
+## Feature structure
+
+`dart run tool/generate_feature.dart <name> --mock` creates this; `lib/features/auth/` is the full example.
 
 ```text
-lib/features/feature_name/
-├── constants/
-│   └── forms/
+lib/features/<name>/
+├── constants/            # route constants, forms/ (FormGroup definitions + static field keys)
 ├── data/
-│   ├── datasources/
-│   ├── models/
-│   ├── mappers/
-│   └── repositories/
+│   ├── datasources/      # IO only: remote / local
+│   ├── models/           # DTOs: fromJson / toJson
+│   ├── mappers/          # Model → Entity
+│   ├── params/           # one `…Params` class per API call (e.g. SignInParams)
+│   └── repositories/     # implementations
 ├── domain/
-│   ├── entities/
-│   ├── repositories/
-│   └── facade/
+│   ├── entities/         # pure objects, no JSON
+│   ├── repositories/     # contracts
+│   └── facade/           # orchestration used by the bloc
 └── presentation/
-    ├── states/
-    └── ui/
-        ├── screens/
-        └── widgets/
+    ├── states/           # bloc, event, state (Freezed)
+    └── ui/{screens,widgets}/
 ```
 
-Existing template features may contain transitional folders such as `data/params/`. For new API input payloads, use a dedicated RequestModel naming pattern unless a local feature convention already exists and should be migrated deliberately.
+`features/showcase_feed/` is the **behaviour** reference (lazy sections, paging, search, detail page, skeletons, mock
+data, tests). It keeps each layer in one file for readability — copy how it behaves, not how it is laid out.
 
-## State Management
+## Layers
 
-- Use BLoC and Freezed for feature state.
-- Each meaningful async operation gets its own `BlocStatus<T>` field.
-- Do not manually switch on status enums in UI.
-- Use `StatusBuilder<T>` for async UI states.
-- BLoC events should accept typed entities or request models, not raw maps or loosely related primitives.
+- **Entity** — what the app means. No JSON annotations, no API field names.
+- **Model** — what the API sends. `fromJson` / `toJson` only. Never imported by a bloc or a widget.
+- **Mapper** — `Model → Entity` (`toEntity()` or a mapper class). The only place the two meet.
+- **Params** — the typed input of one API call. No raw maps, no loose primitives scattered through calls.
+- **DataSource** — performs IO and wraps it: `rethrowAsAppException(() async { … })`. No presentation logic.
+- **Repository** — domain-facing contract returning `Result<T>`; wraps each operation in `runAsResult(() async { … })`.
+- **Facade** — combines repository calls into one business result for the bloc.
 
-## Clean Data Layer
+## State
 
-- Domain entities are pure app/business objects.
-- Data models/DTOs contain API serialization such as `fromJson` and `toJson`.
-- Mappers convert Models to Entities.
-- Models must not leak into BLoC or Presentation.
-- Repositories expose domain-facing contracts and return `Result<T>` patterns.
-- Remote/local datasources perform IO only and do not own presentation logic.
-- Every API call should use a dedicated request model instead of raw maps or scattered primitive parameters.
-
-## Error Handling
-
-- Datasource methods wrap throwing IO work with `rethrowAsAppException(() async { ... })`.
-- Repository methods wrap operations with `runAsResult(() async { ... })`.
-- Keep mapping and error boundaries explicit.
+- `bloc` + `freezed`. Events take typed entities or params classes, not maps.
+- One `BlocStatus<T>` field per meaningful async operation (`listState`, `loadMoreState`, `saveState`) — one shared status
+  puts a sign-out spinner on the sign-in button.
+- The UI renders status through `StatusBuilder<T>`, never by switching on the status by hand.
+- A bloc is `@injectable` (a factory). Provide it with `BlocProvider(create: (_) => getIt<X>())`. Never ask `getIt` for a
+  factory inside `build` — each rebuild would get a new bloc. Use `.value` only for one you own and keep alive.
+- A bloc used by several screens (the sign-in bloc) is provided once, above `MaterialApp` (see `lib/app.dart`).
 
 ## Forms
 
-- `FormGroup` definitions belong in `constants/forms/`.
-- Use an `abstract class` with static field keys and a static factory for the form.
-- Do not define form field keys as raw strings in widgets, screens, or BLoCs.
-- Use `formGroup.valueOf<T>(key)` where available.
+- Field keys are constants, never raw strings repeated in widgets or blocs. A form used by more than one file lives in
+  `constants/forms/` as an `abstract class` with static keys and a static factory; a form owned by one screen may keep
+  private constants in that file (`login_screen.dart` does).
+- Read values with `formGroup.valueOf<T>(key)` where available. Validate on the device before anything is sent.
 
 ## Routing
 
-- Every screen defines `pagePath` and `pageName`.
-- Register screens in the central route registry.
-- Pass route data with typed argument classes through GoRouter `extra`.
-- Destination screens must cast `extra` to the expected typed argument.
-- Read `lib/core/router/router_guide.md` before changing navigation, route guards, redirects, splash flow, onboarding flow, or deep links.
+- Every screen has `pagePath` and `pageName` and is an `AppPage` (`lib/core/router/app_routes.dart`).
+  Pushed pages use a **relative** `pagePath` (`'settings'`, `'items/:id'`); only top-level routes are absolute.
+- Open pages with `AppNavigator.push(context, AppPage.x, params: {'id': id})`; without a context,
+  `AppNavigator.pushTarget(router, AppTarget(...))`. Pages nest under the page that opens them, and back pops one.
+- Ids travel in the path so a deep link or a restored stack works. Use `extra` only for data a page cannot re-read by id,
+  as a typed arguments class cast explicitly.
+- `context.go` replaces the whole stack — only for sign-out and the login wall.
+- Read `lib/core/router/router_guide.md` before changing a guard, a redirect, splash, onboarding or links.
 
-## Services
+## Services and DI
 
-- Read `lib/core/services/session/session_service_guide.md` before changing auth, JWT, token refresh, logout, guest mode, or session state.
-- Read `lib/core/services/objectbox/objectbox_service_guide.md` before changing local persistence or ObjectBox entities.
-- Keep cross-cutting services in `lib/core/services/`.
-- Feature-specific orchestration belongs in feature facades, repositories, or BLoCs.
+- Cross-cutting services live in `lib/core/services/` and are injected (constructor injection, `@injectable`,
+  `@lazySingleton`). No ad-hoc service locators outside the existing GetIt setup.
+- Session and tokens: `lib/core/services/session/session_service_guide.md`. ObjectBox and local persistence:
+  `lib/core/services/objectbox/objectbox_service_guide.md`. Notifications: `lib/core/notification/notification.md`.
+- A platform-only plugin is called through a capability (`AppPlatform`) or a DI service (`HapticsService`,
+  `LinkDispatcher`), never directly from a widget.
 
-## Dependency Injection
+## The shell, window and platform
 
-- Use the existing GetIt and Injectable patterns.
-- Prefer constructor injection for services, repositories, facades, datasources, and BLoCs.
-- Do not introduce manual service locators outside existing project patterns.
+- `RootScreen` owns navigation: the capsule (`AppBottomNav`) on a compact window, the 80dp rail (`AppSideNav`,
+  not extended) on a medium one or a phone on its side, the 256dp sidebar (`AppSideNav`, extended) on an expanded one.
+  A tab never draws its own navigation.
+- Layout reads `AppLayout` (`core/layout/`); the desktop window, title bar and shortcuts are `core/window/` and
+  `core/shortcuts/`; platform capabilities are `core/platform/app_platform.dart`. Details: `docs/RESPONSIVE.md`,
+  `docs/DESKTOP_SETUP.md`.
+
+## Start-up
+
+Keep work before `runApp` minimal: bindings, DI registration, the saved theme and language (each within a 250 ms budget),
+and on desktop the window set-up. Storage reads for onboarding and session, notifications, Firebase and ObjectBox opens
+run after the first frame. See `lib/lib_overview.md`.

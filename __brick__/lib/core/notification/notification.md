@@ -1,13 +1,22 @@
 # Notifications
 
+Read this before you change notifications, the permission flow, push (FCM), or the native setup they need.
+Code: `lib/core/notification/`. Entry point: `NotificationCoordinator`.
+
 This module wraps:
 
-- `flutter_local_notifications` for local display and scheduling.
-- `firebase_messaging` for optional FCM push notifications.
-- `permission_handler` for the user-facing notification permission prompt.
+- `flutter_local_notifications` for local display and scheduling — Android, iOS, macOS and **Windows** (toasts).
+- `firebase_messaging` for optional FCM push — **Android and iOS only** (`AppPlatform.supportsPush`).
+- `permission_handler` for the notification permission prompt on Android, iOS and Windows; on macOS the plugin's own request is used
+  (`permission_handler` has no macOS code), and Windows toasts need no runtime permission (the reader switches them off in Windows Settings).
 - `timezone` + `flutter_timezone` for timezone-aware scheduling.
 
-Notifications are initialized from `lib/bootstrap.dart` after the first Flutter frame and after `SplashConfig.initialDelay`. That keeps the custom splash visible before any notification permission prompt appears.
+**When things happen.** `bootstrap.dart` initialises notifications after the first frame and after `SplashConfig.initialDelay`
+(zero on desktop). It does **not** ask for permission: behind the splash, on a first launch, the prompt would land on top of
+onboarding. `RootScreen` asks once the reader is in the app (`NotificationCoordinator.requestPermissionFromShell`).
+
+**A tapped notification** opens its page over the shell through `LinkDispatcher` (`_handleNotificationNavigation` in
+`bootstrap.dart`), held until the shell is up on a cold start — never `context.go`, which would replace the stack.
 
 Official references used for this checklist:
 
@@ -18,21 +27,22 @@ Official references used for this checklist:
 
 ## Default Behavior
 
-By default, `bootstrap.dart` initializes the local notification module only:
+Push is **off** until you configure a Firebase project: in `bootstrap.dart`, `const bool _fcmEnabled = false`. With it off
+(and on every desktop platform, where `AppPlatform.supportsPush` is false):
+
+- Firebase is not initialised and no FCM listener is registered.
+- Local notifications and scheduling work once the native setup below is done.
+- `requestPermissionsAtStartup` is `false` — the shell asks, see above.
+
+The initialisation call:
 
 ```dart
-options: const NotificationInitOptions(
-  initializeFirebase: false,
-  enableFcm: false,
+options: NotificationInitOptions(
+  initializeFirebase: pushOn,      // _fcmEnabled && AppPlatform.supportsPush
+  enableFcm: pushOn,
+  requestPermissionsAtStartup: false,
 ),
 ```
-
-This means:
-
-- Firebase does not initialize during startup.
-- FCM listeners are not registered.
-- Permission requests are still delayed until after the splash duration.
-- Local notifications and scheduling are available once the native setup below is completed.
 
 ## Android Setup
 
@@ -191,6 +201,17 @@ if (canSchedule == false) {
 ```
 
 Use this before calling `scheduleLocal` with `AndroidScheduleMode.exact` or `AndroidScheduleMode.exactAllowWhileIdle`.
+
+## Windows and macOS
+
+- **Windows** (`flutter_local_notifications` 22): `NotificationLocalService` initialises `WindowsInitializationSettings` with the app
+  name, `AppConfig.windowsAppUserModelId` and `AppConfig.windowsToastGuid`. The GUID is generated per project by the brick's
+  `pre_gen` hook; Windows files toasts under it and Inno Setup uses it to recognise an earlier install, so keep it for the app's
+  lifetime. Toasts need no permission. Cancelling or listing shown toasts needs *package identity*, which the MSIX build has and
+  `flutter run` does not. **Repeating notifications are not supported on Windows.**
+- **macOS**: the plugin's own permission request (`NotificationPermissionService`); a sandboxed app needs its entitlements
+  (`docs/DESKTOP_SETUP.md`).
+- Push (FCM) is not offered on desktop: `firebase_messaging` has no Windows code, and the template keeps push to Android and iOS.
 
 ## iOS / macOS Setup
 

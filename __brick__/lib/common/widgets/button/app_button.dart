@@ -1,16 +1,30 @@
 import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../../core/injection/injectable.dart';
+import '../../../core/services/haptics/haptics_service.dart';
 import '../../../utils/constants/design_constants.dart';
 import '../../../utils/extensions/context_extensions.dart';
-import 'package:vibration/vibration.dart';
 
 import 'app_button_child.dart';
 import '../loading_dots.dart';
 import 'app_button_variants.dart';
 
 /// A pressable, animated button.
+///
+/// **Grey means inactive, and only that.** [AppButtonVariant.grey] is the look
+/// of a button that cannot be pressed right now. It is never the colour of a
+/// button that works, so a button cannot be grey AND active:
+///
+/// - "Cancel", "Exit", "Close" and "Reset" are real actions: use
+///   [AppButton.error] (or [AppButton.primary]), never grey.
+/// - To show a button as unavailable, keep its real variant and pass
+///   `isActive: false`. It is drawn grey by itself and ignores taps; use
+///   `onTapWhenInactive` to say why ("Fill in the form first").
+/// - [AppButton.grey] is for a button that is ALWAYS inactive, and
+///   `AppButton.variant(variant: AppButtonVariant.grey, isActive: true)`
+///   fails an assertion in debug builds.
 ///
 /// Features:
 /// - Styling via [AppButtonVariant] + [AppButtonFill]
@@ -48,6 +62,12 @@ class AppButton extends StatefulWidget {
     AppButtonShadowVariant? shadowVariant,
     List<BoxShadow>? customShadows,
   }) {
+    assert(
+      !identical(variant, AppButtonVariant.grey) || !isActive,
+      'AppButtonVariant.grey is only the look of an INACTIVE button. For '
+      '"Cancel", "Exit" or "Reset" use AppButton.error (or primary); to show '
+      'a button as unavailable, keep its variant and pass isActive: false.',
+    );
     return AppButton._(
       key: key,
       child: child,
@@ -93,14 +113,16 @@ class AppButton extends StatefulWidget {
     );
   }
 
-  /// Convenience factory for a grey (disabled-style) solid button.
+  /// A button that is ALWAYS inactive: grey, and deaf to taps.
+  ///
+  /// Grey is only ever the look of "not available" (see the class doc), so
+  /// there is no `onTap` and no `isActive` here. For a button that is
+  /// sometimes unavailable, use its real variant with `isActive: false`.
   factory AppButton.grey({
     Key? key,
     required AppButtonChild child,
-    required VoidCallback? onTap,
     VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
-    bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
     AppButtonShadowVariant? shadowVariant,
@@ -111,10 +133,10 @@ class AppButton extends StatefulWidget {
       variant: AppButtonVariant.grey,
       fill: AppButtonFill.solid,
       child: child,
-      onTap: onTap,
+      onTap: null,
       onTapWhenInactive: onTapWhenInactive,
       layout: layout,
-      isActive: isActive,
+      isActive: false,
       isLoading: isLoading,
       noShadow: noShadow,
       shadowVariant: shadowVariant,
@@ -122,13 +144,13 @@ class AppButton extends StatefulWidget {
     );
   }
 
+  /// [AppButton.grey] with the gradient fill, which the inactive look keeps
+  /// flat. Always inactive.
   factory AppButton.greyGradient({
     Key? key,
     required AppButtonChild child,
-    required VoidCallback? onTap,
     VoidCallback? onTapWhenInactive,
     AppButtonLayout layout = const AppButtonLayout(),
-    bool isActive = true,
     bool isLoading = false,
     bool noShadow = false,
     AppButtonShadowVariant? shadowVariant,
@@ -139,10 +161,10 @@ class AppButton extends StatefulWidget {
       variant: AppButtonVariant.grey,
       fill: AppButtonFill.gradient,
       child: child,
-      onTap: onTap,
+      onTap: null,
       onTapWhenInactive: onTapWhenInactive,
       layout: layout,
-      isActive: isActive,
+      isActive: false,
       isLoading: isLoading,
       noShadow: noShadow,
       shadowVariant: shadowVariant,
@@ -364,9 +386,6 @@ class AppButton extends StatefulWidget {
 
 class _AppButtonState extends State<AppButton>
     with SingleTickerProviderStateMixin {
-  static bool? _cachedHasVibrator;
-  static Future<bool>? _hasVibratorFuture;
-
   late final AnimationController _pressController;
   late final Animation<double> _scale;
 
@@ -437,41 +456,16 @@ class _AppButtonState extends State<AppButton>
     }
   }
 
-  void _vibratePress() {
-    unawaited(() async {
-      try {
-        if (!await _hasVibrator()) return;
-        await Vibration.vibrate(duration: 10, amplitude: 40);
-      } catch (_) {}
-    }());
-  }
+  /// Through [HapticsService]: a buzz on phones, nothing on desktop. A test
+  /// with no DI gets the platform's own choice.
+  static HapticsService get _haptics => getIt.isRegistered<HapticsService>()
+      ? getIt<HapticsService>()
+      : _fallbackHaptics;
+  static final HapticsService _fallbackHaptics = HapticsService.forPlatform();
 
-  void _vibrateTap() {
-    unawaited(() async {
-      try {
-        if (!await _hasVibrator()) return;
-        await Vibration.vibrate(duration: 15, amplitude: 70);
-      } catch (_) {}
-    }());
-  }
+  void _vibratePress() => _haptics.press();
 
-  Future<bool> _hasVibrator() {
-    final cached = _cachedHasVibrator;
-    if (cached != null) return Future<bool>.value(cached);
-
-    return _hasVibratorFuture ??= () async {
-      try {
-        final hasVibrator = await Vibration.hasVibrator();
-        _cachedHasVibrator = hasVibrator;
-        return hasVibrator;
-      } catch (_) {
-        _cachedHasVibrator = false;
-        return false;
-      } finally {
-        _hasVibratorFuture = null;
-      }
-    }();
-  }
+  void _vibrateTap() => _haptics.tap();
 
   //  simulate press when onTapDown is skipped
   Future<void> _simulateQuickTapPress() async {
@@ -487,11 +481,15 @@ class _AppButtonState extends State<AppButton>
   @override
   Widget build(BuildContext context) {
     /// Resolve colors/gradients/shadows based on variant + fill + active state.
+    ///
+    /// A button that cannot be pressed is drawn grey, automatically: because it
+    /// was told `isActive: false`, or because it has no `onTap` (and is not
+    /// busy loading, which keeps its own colour). Nobody has to ask for grey.
     final style = AppButtonStyleResolver.resolve(
       context,
       variant: widget.variant,
       fill: widget.fill,
-      isActive: widget.isActive,
+      isActive: widget.isActive && (widget.onTap != null || widget.isLoading),
       noShadow: widget.noShadow,
       shadowVariant: widget.shadowVariant,
       customShadows: widget.customShadows,
@@ -500,7 +498,7 @@ class _AppButtonState extends State<AppButton>
     /// Optional fixed width. When null, the button wraps to content width.
     final width = widget.layout.percentageWidth != null
         ? context.screenWidth * widget.layout.percentageWidth!
-        : widget.layout.width?.w;
+        : widget.layout.width;
 
     final isCircle = widget.layout.shape == AppButtonShape.circle;
 
@@ -510,20 +508,20 @@ class _AppButtonState extends State<AppButton>
     /// - Else → shrink-wrap to child + padding (subject to parent constraints).
     final double? height = widget.layout.percentageHeight != null
         ? context.screenHeight * widget.layout.percentageHeight!
-        : widget.layout.height?.h;
+        : widget.layout.height;
 
     /// Circle buttons always render square. If no explicit height is provided,
     /// we fall back to a sensible minimum size.
-    final circleSize = height ?? 48.h;
+    final circleSize = height ?? 48.0;
 
     final borderRadiusValue = switch (widget.layout.shape) {
       AppButtonShape.circle => circleSize / 2,
-      AppButtonShape.pill => 999,
+      AppButtonShape.pill => 999.0,
       // DESIGN_SYSTEM.md: buttons use radius.md (14), not the icon radius.
       AppButtonShape.rounded => widget.layout.borderRadius ?? AppRadii.md,
     };
 
-    final borderRadius = BorderRadius.circular(borderRadiusValue.r);
+    final borderRadius = BorderRadius.circular(borderRadiusValue);
 
     final padding =
         widget.layout.contentPadding ?? widget.child.defaultPadding(context);

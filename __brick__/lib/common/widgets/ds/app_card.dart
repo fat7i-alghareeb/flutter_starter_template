@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../utils/constants/design_constants.dart';
 import '../../../utils/extensions/theme_extensions.dart';
+import 'app_context_menu.dart';
+import 'app_focus_ring.dart';
 
 /// The card of the system — `DESIGN_SYSTEM.md`.
 ///
@@ -22,6 +24,7 @@ class AppCard extends StatefulWidget {
     this.color,
     this.clipBehavior,
     this.semanticLabel,
+    this.menuActions = const <AppMenuAction>[],
   });
 
   final Widget child;
@@ -44,12 +47,25 @@ class AppCard extends StatefulWidget {
   /// reader should hear; inner text is then excluded.
   final String? semanticLabel;
 
+  /// A context menu: right click with a mouse, long press on touch.
+  final List<AppMenuAction> menuActions;
+
   @override
   State<AppCard> createState() => _AppCardState();
 }
 
 class _AppCardState extends State<AppCard> {
   bool _pressed = false;
+
+  void _menuAtCentre() {
+    final box = context.findRenderObject();
+    if (box is! RenderBox) return;
+    AppContextMenu.show(
+      context,
+      globalPosition: box.localToGlobal(box.size.center(Offset.zero)),
+      actions: widget.menuActions,
+    );
+  }
 
   void _setPressed(bool value) {
     if (_pressed == value) return;
@@ -75,6 +91,18 @@ class _AppCardState extends State<AppCard> {
             child: InkWell(
               onTap: widget.onTap,
               onHighlightChanged: _setPressed,
+              onSecondaryTapUp: widget.menuActions.isEmpty
+                  ? null
+                  : (details) => AppContextMenu.show(
+                      context,
+                      globalPosition: details.globalPosition,
+                      actions: widget.menuActions,
+                    ),
+              onLongPress: widget.menuActions.isEmpty ? null : _menuAtCentre,
+              // A pointer resting on the card: a 3% tint (AppStates).
+              hoverColor: colors.onSurface.withValues(
+                alpha: AppStates.hoverOverlay,
+              ),
               borderRadius: borderRadius,
               splashColor: colors.primary.withValues(alpha: AppStates.cardInk),
               highlightColor: colors.primary.withValues(
@@ -130,7 +158,8 @@ class _AppCardState extends State<AppCard> {
       );
     }
 
-    return card;
+    if (widget.onTap == null) return card;
+    return AppFocusRing(borderRadius: borderRadius, child: card);
   }
 }
 

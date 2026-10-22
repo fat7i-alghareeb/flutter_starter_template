@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/injection/injectable.dart';
@@ -277,7 +276,9 @@ class StageToolsRegistry {
 
                   return ListTile(
                     title: Text(label.toUpperCase()),
-                    trailing: current == mode ? const AppIcon(AppIcons.check) : null,
+                    trailing: current == mode
+                        ? const AppIcon(AppIcons.check)
+                        : null,
                     onTap: () {
                       themeController.setThemeMode(mode);
                       Navigator.of(context).pop();
@@ -305,7 +306,7 @@ class StageToolsOverlay extends StatefulWidget {
 }
 
 class _StageToolsOverlayState extends State<StageToolsOverlay> {
-  double get _buttonSize => 44.w;
+  double get _buttonSize => 44;
 
   final Map<String, Offset> _positions = <String, Offset>{};
 
@@ -403,7 +404,7 @@ class _DraggableStageToolButton extends StatelessWidget {
         child: AppButtonChild.icon(
           icon,
           size: 18,
-          padding: REdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
         ),
         onTap: onTap,
       ),

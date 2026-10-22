@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze *)",
+      "Bash(flutter test *)",
+      "Bash(flutter pub get)",
+      "Bash(dart format *)",
+      "Bash(dart run build_runner build *)",
+      "Bash(dart run tool/generate_app_strings.dart)",
+      "Bash(dart run tool/generate_feature.dart *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "Read(build/**)",
+      "Read(.dart_tool/**)",
+      "Read(pubspec.lock)",
+      "Read(**/*.freezed.dart)",
+      "Read(**/injectable.config.dart)",
+      "Read(**/objectbox.g.dart)",
+      "Read(**/assets.gen.dart)",
+      "Read(**/fonts.gen.dart)",
+      "Edit(**/*.freezed.dart)",
+      "Edit(**/*.g.dart)",
+      "Edit(**/injectable.config.dart)",
+      "Edit(**/assets.gen.dart)",
+      "Edit(**/fonts.gen.dart)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(flutter test *)",
+            "command": "dart",
+            "args": ["run", "${CLAUDE_PROJECT_DIR}/tool/claude_test_filter.dart"]
+          }
+        ]
+      }
+    ]
+  }
+}

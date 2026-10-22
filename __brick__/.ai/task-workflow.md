@@ -1,61 +1,46 @@
-# Task Workflow
+# Task workflow
 
-Use this workflow for every coding-agent task.
+How to carry out any task in this repository. Follow it in order.
 
-## Standard Flow
+## Decide the mode
 
-1. Read required docs.
-   - Always read `.ai/project-rules.md`, `.ai/task-workflow.md`, `docs/PROJECT_MAP.md`, and `docs/COMMANDS.md`.
-   - Load conditional rule files based on the touched layer.
-2. Understand the task.
-   - Identify whether it is planning-only, implementation, review, debugging, or documentation.
-3. Inspect related files only.
-   - Read the files directly involved and their closest examples.
-4. Search for similar implementations.
-   - Prefer existing app patterns over new abstractions.
-   - Audit `lib/common/common_folder_guide.md` before creating reusable UI.
-   - Audit `lib/utils/utils_folder_guide.md` before creating helpers, constants, or extensions.
-5. Create a short plan before editing code.
-   - Mention likely files and commands.
-   - Keep the plan practical and task-sized.
-6. Implement.
-   - Ask for approval before editing when the user requested a plan first.
-   - If the user explicitly asked for direct implementation, proceed after the short plan.
-   - If the user asked for planning only, stop before editing.
-7. Run required commands.
-   - Use `docs/COMMANDS.md`.
-   - Run generation only when the related files changed.
-8. Final cleanup.
-   - Remove unused imports, dead code, debug leftovers, and duplicate patterns.
-   - Read `.ai/code-quality-rules.md` before final cleanup.
-9. Confirm completion.
-   - Read `.ai/final-checklist.md`.
-   - Summarize changed files, verification commands, and any skipped checks.
+| The request says… | Mode | You may edit files? |
+| --- | --- | --- |
+| a plan, a design, "what would you do", a review, an explanation | **Plan only** | No |
+| build, add, fix, change, refactor, update | **Implement** | Yes, after the short plan |
+| "plan first, then wait" | **Plan, then wait** | Only after the person approves |
 
-## Planning Only Mode
+If you cannot tell, ask one short question instead of guessing.
 
-Use this mode when the user asks for a plan, design, explanation, review, or "what would you do?"
+## Steps
 
-- Read the relevant docs and files.
-- Explain the implementation approach.
-- List affected files and commands.
-- Do not edit files.
+1. **Read.** `project-rules.md`, then the files its table sends you to for this task. List them in your first reply.
+2. **Inspect.** Read the files directly involved and the closest existing example. Search for something that already does
+   what you need (`lib/common/common_folder_guide.md`, `lib/utils/utils_folder_guide.md`, `docs/PROJECT_MAP.md`).
+   Prefer an existing pattern to a new abstraction.
+3. **Plan.** A few lines: files you will change, commands you will run, anything risky or undecided. Task-sized, not an essay.
+4. **Implement.** Change only what the task needs. No drive-by refactors, no unrelated formatting. Keep each change small enough
+   to review.
+5. **Run.** The commands in `docs/COMMANDS.md`, only the ones the change calls for (strings generator after editing `l10n`,
+   `build_runner` after changing generated-code inputs, then analyze and tests).
+6. **Clean up.** `code-quality-rules.md`.
+7. **Check.** `final-checklist.md`.
+8. **Report.** What changed (files), which commands you ran and their result, anything you skipped and why, anything the person
+   must decide. If a check failed, say so with the failing line — do not describe a partial result as done.
 
-## Implementation Mode
+## Before you edit anything, confirm
 
-Use this mode when the user asks to build, fix, refactor, update, or otherwise change the project.
+- The change belongs in this file and layer (`.ai/architecture-rules.md` → "Where a thing goes").
+- Nothing already exists that does the same job (widget, helper, extension, form, route pattern).
+- You know which rule files apply (UI, architecture, localisation).
+- You can say how you will verify it.
 
-- Read the required docs.
-- Make a short plan.
-- Edit only the necessary files.
-- Run the required command or explain why it could not be run.
-- Update docs when the change creates or changes reusable behavior.
+## Debugging
 
-## Before Editing
+Reproduce first. Find the cause before you change code; if the fix is not obvious, say what the cause is. Add a test that
+fails without the fix. Do not refactor around the bug.
 
-Always verify:
+## Things that need a person's decision
 
-- The requested change belongs in the file or layer you plan to edit.
-- A similar implementation does not already exist.
-- The edit will not duplicate common widgets, helpers, form definitions, request models, or route patterns.
-- The relevant localization, UI, architecture, and code-quality rules are loaded.
+Deleting a feature or a dependency, changing the auth mode, changing a route or a stored key (users have data), changing
+signing, release or CI configuration, anything irreversible or visible outside the repository. Propose it; do not do it.

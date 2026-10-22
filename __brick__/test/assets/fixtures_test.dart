@@ -95,8 +95,13 @@ void main() {
     test('every highlight and pick is also in the feed, so it opens', () {
       // A card opens `/showcase/feed/{id}`, answered from feed.json. An id
       // that lives only in highlights.json would open the «gone» page.
-      final feed = Fixtures.list('showcase/feed.json').map((e) => e['id']).toSet();
-      for (final name in <String>['showcase/highlights.json', 'showcase/picks.json']) {
+      final feed = Fixtures.list(
+        'showcase/feed.json',
+      ).map((e) => e['id']).toSet();
+      for (final name in <String>[
+        'showcase/highlights.json',
+        'showcase/picks.json',
+      ]) {
         for (final item in Fixtures.list(name)) {
           expect(feed, contains(item['id']), reason: '$name: ${item['id']}');
         }

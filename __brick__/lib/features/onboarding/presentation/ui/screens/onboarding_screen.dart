@@ -8,7 +8,9 @@ import '../../../../../core/services/onboarding/onboarding_service.dart';
 import '../../../../../core/services/session/auth_manager.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../utils/constants/app_flow_constants.dart';
+import '../../../../../core/layout/app_layout.dart';
 import '../../../../../utils/constants/design_constants.dart';
+import '../../../../../utils/extensions/context_extensions.dart';
 import '../../../../../utils/helpers/app_strings.dart';
 import '../widgets/onboarding_collage.dart';
 import '../widgets/onboarding_slide.dart';
@@ -43,8 +45,14 @@ class OnboardingScreen extends StatefulWidget {
       icon: AppIcons.home,
       headline: AppStrings.onboardingSlide1,
       supports: <OnboardingSupport>[
-        OnboardingSupport(icon: AppIcons.news, label: AppStrings.onboardingTopicNews),
-        OnboardingSupport(icon: AppIcons.calendar, label: AppStrings.onboardingTopicEvents),
+        OnboardingSupport(
+          icon: AppIcons.news,
+          label: AppStrings.onboardingTopicNews,
+        ),
+        OnboardingSupport(
+          icon: AppIcons.calendar,
+          label: AppStrings.onboardingTopicEvents,
+        ),
         OnboardingSupport(
           icon: AppIcons.alert,
           label: AppStrings.onboardingTopicAlerts,
@@ -56,17 +64,32 @@ class OnboardingScreen extends StatefulWidget {
       icon: AppIcons.search,
       headline: AppStrings.onboardingSlide2,
       supports: <OnboardingSupport>[
-        OnboardingSupport(icon: AppIcons.search, label: AppStrings.onboardingTopicSearch),
-        OnboardingSupport(icon: AppIcons.tag, label: AppStrings.onboardingTopicOffers),
-        OnboardingSupport(icon: AppIcons.pin, label: AppStrings.onboardingTopicPlaces),
+        OnboardingSupport(
+          icon: AppIcons.search,
+          label: AppStrings.onboardingTopicSearch,
+        ),
+        OnboardingSupport(
+          icon: AppIcons.tag,
+          label: AppStrings.onboardingTopicOffers,
+        ),
+        OnboardingSupport(
+          icon: AppIcons.pin,
+          label: AppStrings.onboardingTopicPlaces,
+        ),
       ],
     ),
     OnboardingSlideData(
       icon: AppIcons.bookmark,
       headline: AppStrings.onboardingSlide3,
       supports: <OnboardingSupport>[
-        OnboardingSupport(icon: AppIcons.bookmark, label: AppStrings.onboardingTopicSaved),
-        OnboardingSupport(icon: AppIcons.heart, label: AppStrings.onboardingTopicFavorites),
+        OnboardingSupport(
+          icon: AppIcons.bookmark,
+          label: AppStrings.onboardingTopicSaved,
+        ),
+        OnboardingSupport(
+          icon: AppIcons.heart,
+          label: AppStrings.onboardingTopicFavorites,
+        ),
       ],
     ),
   ];
@@ -136,6 +159,60 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final semantic =
         theme.extension<AppSemanticColors>() ?? AppSemanticColors.light;
 
+    final layout = context.layout;
+    final wide = layout.isExpandedUp;
+
+    // The words and the button: a sheet fixed at the bottom on phones and
+    // tablets, so the button never moves under the thumb; a card beside the
+    // collage in an expanded window.
+    Widget panel({required bool wide}) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: wide
+              ? BorderRadius.circular(28)
+              : const BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: colors.shadow.withValues(alpha: 0.08),
+              blurRadius: 30,
+              offset: const Offset(0, -10),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.screenMargin,
+            AppSpacing.xxl,
+            AppSpacing.screenMargin,
+            AppSpacing.xl +
+                (wide ? 0 : MediaQuery.viewPaddingOf(context).bottom),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              OnboardingHeadline(text: _slides[_index].headline),
+              const SizedBox(height: AppSpacing.xl),
+              OnboardingDots(count: _slides.length, index: _index),
+              const SizedBox(height: AppSpacing.xl),
+              FilledButton(
+                onPressed: _next,
+                child: Text(
+                  // One primary button per screen. On the last slide
+                  // it says «Start», not «Next» — the label has to tell
+                  // the reader they are about to leave, not advance.
+                  _isLast
+                      ? AppStrings.onboardingStart
+                      : AppStrings.onboardingNext,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return AppScaffold.body(
       scaffoldConfig: AppScaffoldConfig(backgroundColor: semantic.background),
       child: GestureDetector(
@@ -158,63 +235,60 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screenMargin,
-                  AppSpacing.sm,
-                  AppSpacing.screenMargin,
-                  AppSpacing.xl,
-                ),
-                child: OnboardingCollage(slides: _slides, index: _index),
-              ),
-            ),
-
-            // The sheet: fixed, so the button never moves under the thumb.
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
-                ),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: colors.shadow.withValues(alpha: 0.08),
-                    blurRadius: 30,
-                    offset: const Offset(0, -10),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.screenMargin,
-                  AppSpacing.xxl,
-                  AppSpacing.screenMargin,
-                  AppSpacing.xl + MediaQuery.viewPaddingOf(context).bottom,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    OnboardingHeadline(text: _slides[_index].headline),
-                    const SizedBox(height: AppSpacing.xl),
-                    OnboardingDots(count: _slides.length, index: _index),
-                    const SizedBox(height: AppSpacing.xl),
-                    FilledButton(
-                      onPressed: _next,
-                      child: Text(
-                        // One primary button per screen. On the last slide
-                        // it says «Start», not «Next» — the label has to tell
-                        // the reader they are about to leave, not advance.
-                        _isLast
-                            ? AppStrings.onboardingStart
-                            : AppStrings.onboardingNext,
+            if (wide)
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: AppLayout.contentMaxWidth,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: layout.gutter,
+                        vertical: AppSpacing.xl,
+                      ),
+                      // Expanded windows: the collage beside the words
+                      // rather than over a sheet stretched edge to edge.
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: OnboardingCollage(
+                              slides: _slides,
+                              index: _index,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.xxxl),
+                          Expanded(
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 480,
+                                ),
+                                child: panel(wide: true),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
+                ),
+              )
+            else ...<Widget>[
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenMargin,
+                    AppSpacing.sm,
+                    AppSpacing.screenMargin,
+                    AppSpacing.xl,
+                  ),
+                  child: OnboardingCollage(slides: _slides, index: _index),
                 ),
               ),
-            ),
+
+              panel(wide: false),
+            ],
           ],
         ),
       ),

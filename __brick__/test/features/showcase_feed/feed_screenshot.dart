@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:{{project_name}}/common/widgets/ds/app_icons.dart';
@@ -14,7 +13,7 @@ import 'package:{{project_name}}/features/showcase_feed/domain/feed_entities.dar
 import 'package:{{project_name}}/features/showcase_feed/presentation/states/feed_bloc.dart';
 import 'package:{{project_name}}/features/showcase_feed/presentation/ui/widgets/feed_body.dart';
 import 'package:{{project_name}}/features/showcase_feed/presentation/ui/widgets/feed_header.dart';
-import 'package:{{project_name}}/utils/constants/design_constants.dart';
+import 'package:{{project_name}}/core/layout/app_layout_scope.dart';
 import 'package:{{project_name}}/utils/helpers/app_strings.dart';
 
 import '../../helpers/golden_helper.dart';
@@ -97,57 +96,54 @@ void feedScreenshot({required Locale locale, required Brightness brightness}) {
         useOnlyLangCode: true,
         ignorePluralRules: false,
         child: Builder(
-          builder: (context) => ScreenUtilInit(
-            designSize: AppDesign.designSize,
-            builder: (context, _) => MaterialApp(
-              debugShowCheckedModeBanner: false,
-              locale: locale,
-              supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
-              localizationsDelegates: context.localizationDelegates,
-              theme: brightness == Brightness.dark
-                  ? AppTheme.dark
-                  : AppTheme.light,
-              // Still: a golden of a half-played entrance is a flaky golden.
-              builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(disableAnimations: true),
-                child: child!,
-              ),
-              home: NavigationScope(
-                controller: controller,
-                child: Scaffold(
-                  extendBody: true,
-                  bottomNavigationBar: Builder(
-                    builder: (context) => AppBottomNav(
-                      controller: controller,
-                      destinations: <AppNavDestination>[
-                        AppNavDestination(
-                          icon: AppIcons.home,
-                          label: AppStrings.navFeed,
-                        ),
-                        AppNavDestination(
-                          icon: AppIcons.grid,
-                          label: AppStrings.navButtons,
-                        ),
-                        AppNavDestination(
-                          icon: AppIcons.edit,
-                          label: AppStrings.navForms,
-                        ),
-                        AppNavDestination(
-                          icon: AppIcons.comment,
-                          label: AppStrings.navDialogs,
-                        ),
-                        AppNavDestination(
-                          icon: AppIcons.bell,
-                          label: AppStrings.navAlerts,
-                        ),
-                      ],
-                    ),
+          builder: (context) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            locale: locale,
+            supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
+            localizationsDelegates: context.localizationDelegates,
+            theme: brightness == Brightness.dark
+                ? AppTheme.dark
+                : AppTheme.light,
+            // Still: a golden of a half-played entrance is a flaky golden.
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: true),
+              child: AppLayoutHost(child: child!),
+            ),
+            home: NavigationScope(
+              controller: controller,
+              child: Scaffold(
+                extendBody: true,
+                bottomNavigationBar: Builder(
+                  builder: (context) => AppBottomNav(
+                    controller: controller,
+                    destinations: <AppNavDestination>[
+                      AppNavDestination(
+                        icon: AppIcons.home,
+                        label: AppStrings.navFeed,
+                      ),
+                      AppNavDestination(
+                        icon: AppIcons.grid,
+                        label: AppStrings.navButtons,
+                      ),
+                      AppNavDestination(
+                        icon: AppIcons.edit,
+                        label: AppStrings.navForms,
+                      ),
+                      AppNavDestination(
+                        icon: AppIcons.comment,
+                        label: AppStrings.navDialogs,
+                      ),
+                      AppNavDestination(
+                        icon: AppIcons.bell,
+                        label: AppStrings.navAlerts,
+                      ),
+                    ],
                   ),
-                  body: BlocProvider<FeedBloc>(
-                    create: (_) =>
-                        FeedBloc(repository)..add(const FeedEvent.started()),
-                    child: const FeedBody(),
-                  ),
+                ),
+                body: BlocProvider<FeedBloc>(
+                  create: (_) =>
+                      FeedBloc(repository)..add(const FeedEvent.started()),
+                  child: const FeedBody(),
                 ),
               ),
             ),

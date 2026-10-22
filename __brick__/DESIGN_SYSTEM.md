@@ -20,12 +20,13 @@ A neutral palette with one accent. Take every colour from `colorScheme` or
 | Role | Light | Dark | Use |
 | --- | --- | --- | --- |
 | `primary` | `#3B5BDB` | `#9DB0FF` | The one accent: primary button, active tab, links |
-| `background` (semantic) | `#F5F6F8` | `#0F1115` | The screen ground — also the native splash |
+| `background` (semantic) | `#EDF0F5` | `#0F1115` | The screen ground — also the native splash. A cool grey that reads as grey beside white cards |
 | `surface` | `#FFFFFF` | `#171A21` | Cards, sheets, the nav bar |
-| `surfaceVariant` | `#EEF0F4` | `#20242D` | Fields, chips, image placeholders |
+| `surfaceVariant` | `#E3E8EF` | `#20242D` | Chips, image placeholders, disabled fields |
 | `onSurface` | `#1B1F27` | `#E8EAF0` | Primary text |
 | `onSurfaceVariant` | `#5B6272` | `#A0A7B6` | Secondary text, idle icons |
-| `outline` | `#E3E6EC` | `#2A2F3A` | Dividers, dark-mode card borders |
+| `outline` | `#D0D6E1` | `#363C49` | Dividers, card hairlines |
+| `outlineVariant` | `#8893A8` | `#636C7E` | **The edge of a control**: field borders, ghost buttons, quiet icons — 3:1 against a card (WCAG 1.4.11) |
 | `error` | `#B3261E` | `#F2B8B5` | Errors only |
 | `urgent` (semantic) | `#B4402A` | `#F0A48F` | Urgent badges — never an error |
 | `success` · `warning` · `info` | semantic | semantic | Status banners, toasts |
@@ -35,7 +36,26 @@ by colour and a soft shadow, not by borders.
 
 **Contrast is measured, not assumed** (`app_theme_test.dart`): primary text on
 a card ≥ 7:1; secondary text ≥ 4.5:1 on the card **and** on the ground; a
-button label ≥ 4.5:1; meaningful icons ≥ 3:1.
+button label ≥ 4.5:1; the edge of a field or other control ≥ 3:1; the ground
+visibly a different grey from a white card.
+
+**Fields** are the card colour with a 3:1 border (`outlineVariant`) — white on
+the grey page — and a primary border when focused. Placeholder text is
+`onSurfaceVariant`; a disabled field steps back to the quiet plate. Never draw a
+placeholder or an icon in `outline`: it is a hairline colour and nearly
+vanishes. `context.grey` is `outlineVariant`, for the edge of a control and its
+quiet icons — not for text and not for a button plate.
+
+**Buttons**: **grey means inactive, and only that.** It is the flat plate with
+muted text a button gets when it cannot be pressed (`isActive: false`, or
+`AppButton.grey`, which is always inactive) — never the colour of a button that
+works. «Cancel», «Exit», «Close» and «Reset» are real actions: `AppButton.error`
+(dialogs: `AppDialogAction.secondary`, which is red) or `AppButton.primary`. An
+active button cannot be grey: `AppButton.variant(variant: grey, isActive: true)`
+fails an assertion, and a test scans `lib/` for grey on anything else. Success,
+warning and error follow the theme (deep colours with white text in light, pale
+ones with dark text in dark), and a gradient's far end is the colour mixed with
+black, never made transparent.
 
 ## 2. Type
 
@@ -71,7 +91,10 @@ A 4dp scale — `AppSpacing`: `2 · 4 · 6 · 8 · 10 · 12 · 16 · 20 · 24 ·
   section **24**.
 - A tab list's bottom padding clears the floating bar:
   `AppBottomNav.listBottomPadding(context)`.
-- Content is capped at **640dp** and centred on tablets and in landscape.
+- Side margin by window size: **16** compact (under 600) · **24** medium
+  (600–839) · **32** expanded and wider (`context.layout.gutter`).
+- Content is capped at **1200dp** (`AppLayout.contentMaxWidth`), long text and
+  single-column screens at **640dp**, forms at **840dp**, and centred beyond.
 
 ## 4. Shape
 
@@ -203,8 +226,8 @@ No literal text in widgets, no hand-written `.tr()`. Keys in
 
 ## 10. Layout, direction, accessibility
 
-- `flutter_screenutil` with a 390×844 design size; nothing with text gets a
-  fixed height.
+- Plain logical pixels — no screen-width scaling. The reader's text size is
+  followed, clamped to 85–130%; nothing with text gets a fixed height.
 - **`EdgeInsetsDirectional` and `start`/`end` only** — `left`/`right` are
   wrong in Arabic.
 - Checked at 320dp wide and 1.3× text (tested), in both themes and both
@@ -212,7 +235,33 @@ No literal text in widgets, no hand-written `.tr()`. Keys in
 - Touch targets ≥ 44, 8dp apart; a `Semantics` label on every icon button;
   nothing carried by colour alone; screen-reader order = visual order.
 
-## 11. Do / don't
+## 11. Adaptive layout and desktop
+
+Full rules in `docs/RESPONSIVE.md` and `docs/DESKTOP_SETUP.md`; the values:
+
+- **Size classes** (Material 3, by WINDOW width): compact < 600 · medium
+  600–839 · expanded 840–1199 · large 1200–1599 · extra-large ≥ 1600. Under
+  480dp tall is compact height (a phone on its side).
+- **Navigation**: capsule (compact) · rail 80dp (medium, compact height) ·
+  sidebar 256dp (expanded and wider, collapsible). Floating card, `AppRadii.xl`,
+  the nav shadow in light and a hairline in dark — never both. The open
+  destination: pill **and** bold text.
+- **Content**: gutter 16 · 24 · 32; cards 1 → 2 → 3 columns; column capped at
+  1200, reading width 640, forms 840.
+- **Sheets** become centred dialogs from 840dp, at most 720dp wide, `AppRadii.lg`.
+- **Type**: headings +4 (display, headline) and +2 (two larger titles) from
+  840dp, and every size a little larger with the window — ×1.05, ×1.10, ×1.15
+  at expanded, large, extra-large (`AppTextScaleHost`, on top of the reader's own
+  text size, which is capped at 130% before the boost).
+- **Title bar** (desktop): the screen's own ground; 32 tall, 48 with the search
+  field (Microsoft's sizes); Windows caption buttons 46 wide, full bar height,
+  Segoe Fluent glyphs, Close red on hover; the real traffic lights on macOS.
+  Content dims while the window is inactive.
+- **Pointer**: hover tint `AppStates.hoverOverlay`; the focus ring
+  (`AppBorders.focusRing`, offset `focusRingOffset`) only for keyboard use;
+  `VisualDensity.compact` on desktop.
+
+## 12. Do / don't
 
 **Do** take every colour and style from the theme · reserve an image's space
 before it loads · write empty and error text for people · test both

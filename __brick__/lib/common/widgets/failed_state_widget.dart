@@ -98,7 +98,7 @@ class FailedStateWidget extends StatelessWidget {
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: (maxWidth ?? 560).w),
+                constraints: BoxConstraints(maxWidth: maxWidth ?? 560),
                 child: Padding(
                   padding: padding ?? AppSpacing.standardPadding,
                   child: Column(

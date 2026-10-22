@@ -40,8 +40,11 @@ void main() {
 
   tearDown(() => getIt.reset());
 
-  Widget opener(ProtectedAction action, void Function(bool) onResult,
-      {Future<void> Function()? onGranted}) {
+  Widget opener(
+    ProtectedAction action,
+    void Function(bool) onResult, {
+    Future<void> Function()? onGranted,
+  }) {
     return Builder(
       builder: (context) => TextButton(
         onPressed: () async => onResult(

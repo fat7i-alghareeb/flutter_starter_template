@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../config/app_config.dart';
 import 'notification_background.dart';
 import 'notification_config.dart';
 import 'notification_payload.dart';
@@ -55,6 +56,15 @@ class NotificationLocalService {
         android: androidInit,
         iOS: darwinInit,
         macOS: darwinInit,
+        // Windows toasts (flutter_local_notifications 22): the name the
+        // Action Center shows, the app's AUMID and a GUID that is the
+        // app's own. Cancelling and listing shown toasts also needs package
+        // identity — the MSIX build has it (`docs/DESKTOP_SETUP.md`).
+        windows: const WindowsInitializationSettings(
+          appName: AppConfig.appTitle,
+          appUserModelId: AppConfig.windowsAppUserModelId,
+          guid: AppConfig.windowsToastGuid,
+        ),
       );
 
       await _local.initialize(

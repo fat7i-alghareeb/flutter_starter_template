@@ -60,7 +60,10 @@ extension AppThemeContextX on BuildContext {
   /// Color used for content on top of [surface].
   Color get onSurface => colorScheme.onSurface;
 
-  Color get grey => colorScheme.outline;
+  /// The grey of a control's edge and of its quiet icons: `outlineVariant`,
+  /// 3:1 against a card. It is NOT a text colour — secondary text is
+  /// [ColorScheme.onSurfaceVariant] — and not a button fill.
+  Color get grey => colorScheme.outlineVariant;
 
   /// Error color from the current [ColorScheme].
   Color get error => colorScheme.error;

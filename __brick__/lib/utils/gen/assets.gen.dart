@@ -170,6 +170,9 @@ class $AssetsSvgIconsGen {
   /// File path: assets/svgIcons/info.svg
   String get info => 'assets/svgIcons/info.svg';
 
+  /// File path: assets/svgIcons/keyboard.svg
+  String get keyboard => 'assets/svgIcons/keyboard.svg';
+
   /// File path: assets/svgIcons/language.svg
   String get language => 'assets/svgIcons/language.svg';
 
@@ -196,6 +199,9 @@ class $AssetsSvgIconsGen {
 
   /// File path: assets/svgIcons/offline.svg
   String get offline => 'assets/svgIcons/offline.svg';
+
+  /// File path: assets/svgIcons/panel_left.svg
+  String get panelLeft => 'assets/svgIcons/panel_left.svg';
 
   /// File path: assets/svgIcons/phone.svg
   String get phone => 'assets/svgIcons/phone.svg';
@@ -245,6 +251,12 @@ class $AssetsSvgIconsGen {
   /// File path: assets/svgIcons/views.svg
   String get views => 'assets/svgIcons/views.svg';
 
+  /// File path: assets/svgIcons/zoom_in.svg
+  String get zoomIn => 'assets/svgIcons/zoom_in.svg';
+
+  /// File path: assets/svgIcons/zoom_out.svg
+  String get zoomOut => 'assets/svgIcons/zoom_out.svg';
+
   /// List of all assets
   List<String> get values => [
     alert,
@@ -277,6 +289,7 @@ class $AssetsSvgIconsGen {
     home,
     image,
     info,
+    keyboard,
     language,
     lightMode,
     link,
@@ -286,6 +299,7 @@ class $AssetsSvgIconsGen {
     more,
     news,
     offline,
+    panelLeft,
     phone,
     pin,
     power,
@@ -302,6 +316,8 @@ class $AssetsSvgIconsGen {
     tag,
     user,
     views,
+    zoomIn,
+    zoomOut,
   ];
 }
 
@@ -321,9 +337,7 @@ class $AssetsMockShowcaseGen {
   List<String> get values => [feed, highlights, picks];
 }
 
-class Assets {
-  const Assets._();
-
+abstract final class Assets {
   static const $AssetsFontsGen fonts = $AssetsFontsGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();

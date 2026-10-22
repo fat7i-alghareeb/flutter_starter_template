@@ -179,15 +179,15 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
   _ResolvedOuterFieldConfig _resolveOuter(BuildContext context) {
     final width = widget.layout.percentageWidth != null
         ? context.screenWidth * widget.layout.percentageWidth!
-        : widget.layout.width?.w;
+        : widget.layout.width;
 
     final heightFromLayout = widget.layout.percentageHeight != null
         ? context.screenHeight * widget.layout.percentageHeight!
-        : widget.layout.height?.h;
+        : widget.layout.height;
 
     final borderRadiusValue =
         widget.layout.borderRadius ?? AppFormFieldDefaults.borderRadiusValue();
-    final borderRadius = BorderRadius.circular(borderRadiusValue.r);
+    final borderRadius = BorderRadius.circular(borderRadiusValue);
 
     final contentPadding =
         widget.layout.contentPadding ?? AppFormFieldDefaults.contentPadding();
@@ -196,7 +196,7 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
 
     final hintStyle = widget.hintText.isNullOrBlank
         ? null
-        : baseTextStyle.copyWith(color: context.grey.withValues(alpha: 0.8));
+        : baseTextStyle.copyWith(color: AppFormFieldDefaults.hintColor(context));
 
     final validationMessages = AppReactiveValidationMessages.merge(
       AppReactiveValidationMessages.defaults(),
@@ -215,7 +215,7 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
         (widget.maxLines != null && widget.maxLines! > 1) ||
         (widget.minLines != null && widget.minLines! > 1);
 
-    final defaultHeight = isMultiline ? null : 48.h;
+    final double? defaultHeight = isMultiline ? null : AppFormFieldDefaults.height;
     final heightCandidate = heightFromLayout ?? defaultHeight;
 
     final effectiveHeight = heightCandidate == null
@@ -349,7 +349,7 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
 
           final resolvedFillColor =
               widget.decoration.fillColor ??
-              AppFormFieldDefaults.fillColor(context);
+              AppFormFieldDefaults.fillColor(context, enabled: widget.enabled);
 
           final decoration = BoxDecoration(
             color: resolvedFillColor,
@@ -458,6 +458,10 @@ class _AppReactiveTextFieldState extends State<AppReactiveTextField>
   }) {
     final inputDecoration = InputDecoration(
       isDense: true,
+      // The container around the field owns the fill. Without this the
+      // theme's `filled: true` paints a second, differently coloured box
+      // inside it — plainly visible in dark mode.
+      filled: false,
       hintText: widget.hintText.isNullOrBlank ? null : widget.hintText,
       hintStyle: hintStyle,
       border: InputBorder.none,

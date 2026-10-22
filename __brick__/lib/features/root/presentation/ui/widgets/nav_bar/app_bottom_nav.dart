@@ -1,4 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../../../core/layout/app_layout.dart';
+import '../../../../../../core/layout/app_layout_scope.dart';
 import '../../../../../../utils/helpers/app_strings.dart';
 
 import '../../../../../../common/widgets/ds/app_icons.dart';
@@ -8,15 +12,23 @@ import '../../../../../../utils/extensions/theme_extensions.dart';
 import '../../../../../../common/widgets/nav_bar_visibility.dart';
 import 'navigation_controller.dart';
 
-/// One destination in [AppBottomNav].
+/// One destination in [AppBottomNav] and the side navigation.
 @immutable
 class AppNavDestination {
-  const AppNavDestination({required this.icon, required this.label});
+  const AppNavDestination({
+    required this.icon,
+    required this.label,
+    this.badge,
+  });
 
   /// A constant from [AppIcons].
   final String icon;
 
   final String label;
+
+  /// An unread count, shown as text on the rail and the sidebar — never
+  /// colour alone. Zero or null shows nothing.
+  final ValueListenable<int>? badge;
 }
 
 /// The floating navigation capsule.
@@ -80,11 +92,18 @@ class AppBottomNav extends StatefulWidget {
   static double heightOf(BuildContext context) =>
       isShort(context) ? shortBarHeight : barHeight;
 
-  static double listBottomPadding(BuildContext context) =>
-      AppSpacing.lg +
-      heightOf(context) +
-      bottomMargin +
-      MediaQuery.viewPaddingOf(context).bottom;
+  /// What the last row of a tab's list must leave free at the bottom.
+  ///
+  /// The floating capsule only exists in compact windows; with the rail or
+  /// the sidebar the list just keeps clear of the home indicator.
+  static double listBottomPadding(BuildContext context) {
+    final inset = MediaQuery.viewPaddingOf(context).bottom;
+    final layout = AppLayoutScope.maybeOf(context);
+    if (layout != null && layout.nav != NavLayout.bar) {
+      return AppSpacing.lg + inset;
+    }
+    return AppSpacing.lg + heightOf(context) + bottomMargin + inset;
+  }
 
   @override
   State<AppBottomNav> createState() => _AppBottomNavState();

@@ -171,11 +171,7 @@ class AppLogoTile extends StatelessWidget {
               ),
             ),
           )
-        : AppThumbnail(
-            imageUrl: url,
-            iconKey: 'store',
-            iconSize: size * 0.4,
-          );
+        : AppThumbnail(imageUrl: url, iconKey: 'store', iconSize: size * 0.4);
 
     return ExcludeSemantics(
       child: Container(

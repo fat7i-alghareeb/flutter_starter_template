@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Typography — `DESIGN_SYSTEM.md`.
 ///
@@ -35,23 +34,6 @@ class AppTypography {
   /// [AppTextStyles]. Null until [buildTextTheme] has run once.
   static TextTheme? get textTheme => _cachedTextTheme;
 
-  /// Scales a size through `ScreenUtil`, falling back to the raw value when
-  /// `ScreenUtilInit` has not run.
-  ///
-  /// `.sp` throws a `LateInitializationError` before `ScreenUtilInit` builds.
-  /// At runtime that never happens — `bootstrap.dart` wraps the app — but the
-  /// theme is also built by tests and tooling that have no widget tree, and a
-  /// type scale that cannot be inspected without booting a whole app is a
-  /// scale nobody checks. The fallback keeps the design-size values, which is
-  /// exactly right on the reference device.
-  static double _scaled(double size) {
-    try {
-      return size.sp;
-    } on Error {
-      return size;
-    }
-  }
-
   static TextStyle _style({
     required double size,
     required FontWeight weight,
@@ -61,7 +43,7 @@ class AppTypography {
     return TextStyle(
       fontFamily: fontFamily,
       fontFamilyFallback: fontFamilyFallback,
-      fontSize: _scaled(size),
+      fontSize: size,
       fontWeight: weight,
       height: height,
       // Tracking is expressed in `em` in the spec; multiply by the size.
@@ -70,10 +52,9 @@ class AppTypography {
     );
   }
 
-  /// The scale from `DESIGN_SYSTEM.md`.
-  ///
-  /// Sizes go through `.sp` so the global `ScreenUtilInit.fontSizeResolver`
-  /// keeps control of scaling behavior.
+  /// The scale from `DESIGN_SYSTEM.md`, in plain logical pixels. The
+  /// reader's own text size still applies on top (clamped to 85–130% in
+  /// `App`), and expanded windows step the headings up ([expandedFrom]).
   static TextTheme get buildTextTheme {
     const tight = -0.01; // headings >= 18
     const wide = 0.02; // small badges
@@ -147,5 +128,27 @@ class AppTypography {
 
     _cachedTextTheme = theme;
     return theme;
+  }
+
+  /// The headings one step larger, for expanded windows (840dp and wider).
+  ///
+  /// Display and headline +4, the two larger titles +2: a 28 large title
+  /// reads small across a desktop window. Body, small titles and labels keep
+  /// their size — lines stay a comfortable length because content is capped
+  /// in width, not because the text grows.
+  static TextTheme expandedFrom(TextTheme base) {
+    TextStyle? up(TextStyle? style, double by) => style?.copyWith(
+      fontSize: style.fontSize == null ? null : style.fontSize! + by,
+    );
+    return base.copyWith(
+      displayLarge: up(base.displayLarge, 4),
+      displayMedium: up(base.displayMedium, 4),
+      displaySmall: up(base.displaySmall, 4),
+      headlineLarge: up(base.headlineLarge, 4),
+      headlineMedium: up(base.headlineMedium, 4),
+      headlineSmall: up(base.headlineSmall, 4),
+      titleLarge: up(base.titleLarge, 2),
+      titleMedium: up(base.titleMedium, 2),
+    );
   }
 }

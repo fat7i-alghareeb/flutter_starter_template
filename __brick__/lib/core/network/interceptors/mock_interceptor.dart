@@ -255,7 +255,8 @@ class MockInterceptor extends Interceptor {
     if (term != null && term.isNotEmpty) {
       items = items.where((item) {
         if (item is! Map) return false;
-        final haystack = '${item['name'] ?? item['title'] ?? ''} '
+        final haystack =
+            '${item['name'] ?? item['title'] ?? ''} '
             '${item['categoryName'] ?? ''}';
         return haystack.toLowerCase().contains(term);
       }).toList();
@@ -264,7 +265,8 @@ class MockInterceptor extends Interceptor {
     items = _sorted(items, query['sort']?.toString());
 
     final page = int.tryParse(query['page']?.toString() ?? '') ?? 1;
-    final limit = int.tryParse(query['limit']?.toString() ?? '') ?? items.length;
+    final limit =
+        int.tryParse(query['limit']?.toString() ?? '') ?? items.length;
     final start = ((page - 1) * limit).clamp(0, items.length);
     final end = (start + limit).clamp(0, items.length);
 

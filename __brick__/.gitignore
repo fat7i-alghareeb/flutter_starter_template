@@ -221,3 +221,9 @@ migrate_working_dir/
 *.bak
 *.orig
 *.rej
+
+# =============================================================================
+# Claude Code — personal files (the shared CLAUDE.md and .claude/ ARE committed)
+# =============================================================================
+CLAUDE.local.md
+.claude/settings.local.json

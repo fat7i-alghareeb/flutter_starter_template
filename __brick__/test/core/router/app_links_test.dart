@@ -16,7 +16,10 @@ void main() {
     });
 
     test('a bare location and a custom-scheme link read the same', () {
-      expect(AppLinks.locationOf(Uri.parse('/items/item_001')), '/items/item_001');
+      expect(
+        AppLinks.locationOf(Uri.parse('/items/item_001')),
+        '/items/item_001',
+      );
       expect(
         AppLinks.locationOf(Uri.parse('$scheme://items/item_004')),
         '/items/item_004',
@@ -51,10 +54,7 @@ void main() {
 
   group('AppLinks.locationOfTarget — what a notification opens', () {
     test('an item has its page', () {
-      expect(
-        AppLinks.locationOfTarget(type: 'item', id: 'i1'),
-        '/items/i1',
-      );
+      expect(AppLinks.locationOfTarget(type: 'item', id: 'i1'), '/items/i1');
     });
 
     test('no id, or an unknown type, is no page', () {

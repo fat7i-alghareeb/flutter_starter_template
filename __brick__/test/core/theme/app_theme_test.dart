@@ -82,6 +82,62 @@ void main() {
     });
   });
 
+  group('the edges of things can be seen', () {
+    const light = AppColorSchemes.light;
+    const dark = AppColorSchemes.dark;
+
+    test('a field border is 3:1 against the card it sits on (WCAG 1.4.11)', () {
+      expect(contrast(light.outlineVariant, light.surface), greaterThan(3));
+      expect(contrast(dark.outlineVariant, dark.surface), greaterThan(3));
+    });
+
+    test('the page is visibly a different grey from the white cards', () {
+      // #F5F6F8 against white measured 1.08 and read as white.
+      expect(
+        contrast(AppSemanticColors.light.background, light.surface),
+        greaterThan(1.12),
+      );
+      expect(
+        contrast(AppSemanticColors.dark.background, dark.surface),
+        greaterThan(1.05),
+      );
+    });
+
+    test('a card hairline shows against the page', () {
+      expect(
+        contrast(light.outline, AppSemanticColors.light.background),
+        greaterThan(1.2),
+      );
+      expect(contrast(dark.outline, dark.surface), greaterThan(1.3));
+    });
+
+    test('the quiet (grey) plate carries dark text', () {
+      expect(
+        contrast(light.onSecondaryContainer, light.secondaryContainer),
+        greaterThan(4.5),
+      );
+      expect(
+        contrast(dark.onSecondaryContainer, dark.secondaryContainer),
+        greaterThan(4.5),
+      );
+    });
+
+    test('white text reads on the deep success, warning and error colours', () {
+      for (final plate in <Color>[
+        AppColors.successLight,
+        AppColors.warningLight,
+        AppColors.errorLight,
+      ]) {
+        expect(contrast(AppColors.onPrimaryLight, plate), greaterThan(4.5));
+      }
+    });
+
+    test('warning text reads on a card', () {
+      expect(contrast(AppColors.warningLight, light.surface), greaterThan(4.5));
+      expect(contrast(AppColors.warningDark, dark.surface), greaterThan(4.5));
+    });
+  });
+
   group('typography', () {
     test('the family is the bundled Tajawal, not a network font', () {
       expect(AppTypography.fontFamily, 'Tajawal');
@@ -120,7 +176,8 @@ void main() {
         expect(
           allowed.contains(entry.value?.fontWeight),
           isTrue,
-          reason: '${entry.key} uses ${entry.value?.fontWeight}, which the type scale does not use',
+          reason:
+              '${entry.key} uses ${entry.value?.fontWeight}, which the type scale does not use',
         );
       }
     });
@@ -154,8 +211,14 @@ void main() {
     test('urgent stands apart from the primary and the error colour', () {
       // An urgent badge that looks like a button, or like a failed field,
       // says the wrong thing.
-      expect(AppSemanticColors.light.urgent, isNot(AppColorSchemes.light.primary));
-      expect(AppSemanticColors.light.urgent, isNot(AppColorSchemes.light.error));
+      expect(
+        AppSemanticColors.light.urgent,
+        isNot(AppColorSchemes.light.primary),
+      );
+      expect(
+        AppSemanticColors.light.urgent,
+        isNot(AppColorSchemes.light.error),
+      );
     });
 
     test('every radius in the scale is one of the seven allowed values', () {

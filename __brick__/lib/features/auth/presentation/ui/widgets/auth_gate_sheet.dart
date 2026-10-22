@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../../common/widgets/app_bottom_sheet.dart';
 import '../../../../../common/widgets/ds/ds.dart';
 import '../../../../../core/injection/injectable.dart';
 import '../../../../../core/router/app_navigator.dart';
@@ -59,10 +60,11 @@ class AuthGateSheet extends StatelessWidget {
   }) async {
     getIt<PendingActionQueue>().remember(action, onGranted);
 
-    final granted = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
+    // A sheet on phones and tablets, a dialog in expanded windows.
+    final granted = await AppBottomSheet.showAdaptive<bool>(
+      context,
       useSafeArea: true,
+      maxDialogWidth: 560,
       builder: (_) => AuthGateSheet._(action: action),
     );
 

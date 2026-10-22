@@ -1,7 +1,8 @@
 ---
-description: "Core architectural rules and guidelines for this project. Always load this skill before generating code."
+name: global_rules
+description: "The rules every change to this Flutter project must follow: text and language, look and layout, architecture, tests and commands. Load before writing, changing or reviewing code."
 ---
 
-# Global Project Rules Skill
+# Project rules
 
-Read the rules defined in `/.ai/project-rules.md` and apply them strictly.
+Read `/.ai/project-rules.md` and apply it. Follow its "What to read for which task" table and read only the files your task touches. Finish with `/.ai/final-checklist.md`.

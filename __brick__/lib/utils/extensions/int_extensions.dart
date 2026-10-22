@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../helpers/app_strings.dart';
+import 'num_spacing_extensions.dart';
 
 /// Localization helpers for [int] values that represent calendar parts.
 extension AppIntMonthNameExtensions on int {

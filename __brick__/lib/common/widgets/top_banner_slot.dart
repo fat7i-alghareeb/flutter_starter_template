@@ -114,9 +114,7 @@ class OfflineBanner extends StatelessWidget {
                   AppStrings.stateOfflineCached(
                     AppFormats.relativeTime(context, savedAt),
                   ),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: foreground,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: foreground),
                 ),
               ),
             ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,7 +12,8 @@ import 'package:{{project_name}}/core/utils/result.dart';
 import 'package:{{project_name}}/features/auth/data/params/auth_params.dart';
 import 'package:{{project_name}}/features/auth/presentation/states/auth_bloc.dart';
 import 'package:{{project_name}}/features/auth/presentation/ui/screens/login_screen.dart';
-import 'package:{{project_name}}/utils/constants/design_constants.dart';
+import 'package:{{project_name}}/core/layout/app_layout_scope.dart';
+import 'package:{{project_name}}/utils/constants/app_flow_constants.dart';
 import 'package:{{project_name}}/utils/helpers/app_strings.dart';
 
 import '../../helpers/mocks.dart';
@@ -69,17 +69,14 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ScreenUtilInit(
-        designSize: AppDesign.designSize,
-        builder: (_, _) => MaterialApp.router(
-          theme: brightness == Brightness.dark ? AppTheme.dark : AppTheme.light,
-          routerConfig: router,
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(
-              context,
-            ).copyWith(textScaler: TextScaler.linear(textScale)),
-            child: child!,
-          ),
+      MaterialApp.router(
+        theme: brightness == Brightness.dark ? AppTheme.dark : AppTheme.light,
+        routerConfig: router,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(textScale)),
+          child: AppLayoutHost(child: child!),
         ),
       ),
     );
@@ -89,7 +86,8 @@ void main() {
     return router;
   }
 
-  Finder signInButton() => find.widgetWithText(FilledButton, AppStrings.authSignIn);
+  Finder signInButton() =>
+      find.widgetWithText(FilledButton, AppStrings.authSignIn);
 
   testWidgets('✕ closes it — back to the page underneath', (tester) async {
     await pumpOverPage(tester);
@@ -159,6 +157,75 @@ void main() {
     expect(find.byType(TextField), findsNWidgets(2));
     expect(signInButton(), findsOneWidget);
     expect(find.text(AppStrings.authTerms), findsOneWidget);
+  });
+
+  Finder guestButton() =>
+      find.widgetWithText(TextButton, AppStrings.authBrowseAsGuest);
+
+  testWidgets('«Continue as guest» is on the page and closes it', (
+    tester,
+  ) async {
+    await pumpOverPage(tester);
+
+    expect(guestButton(), findsOneWidget);
+    await tester.tap(guestButton());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LoginScreen), findsNothing);
+    expect(find.text('underneath'), findsOneWidget);
+    verifyNever(() => facade.continueAsGuest());
+  });
+
+  group('as the login wall', () {
+    // The wall is the app's first screen: nothing under it to close to, so
+    // «Continue as guest» starts a guest session instead.
+    Future<void> pumpWall(WidgetTester tester) async {
+      final router = GoRouter(
+        initialLocation: LoginScreen.wallPath,
+        routes: <RouteBase>[
+          GoRoute(
+            path: LoginScreen.wallPath,
+            builder: (_, _) => const LoginScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      tester.view
+        ..devicePixelRatio = 1
+        ..physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: AppTheme.light,
+          routerConfig: router,
+          builder: (context, child) => AppLayoutHost(child: child!),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('«Continue as guest» is there from the first launch', (
+      tester,
+    ) async {
+      await pumpWall(tester);
+
+      expect(AppFlowConfig.offersGuest, isTrue);
+      expect(guestButton(), findsOneWidget);
+    });
+
+    testWidgets('tapping it starts a guest session', (tester) async {
+      when(
+        () => facade.continueAsGuest(),
+      ).thenAnswer((_) async => const Result<void>.success(null));
+      await pumpWall(tester);
+
+      await tester.tap(guestButton());
+      await tester.pumpAndSettle();
+
+      verify(() => facade.continueAsGuest()).called(1);
+    });
   });
 
   for (final brightness in Brightness.values) {

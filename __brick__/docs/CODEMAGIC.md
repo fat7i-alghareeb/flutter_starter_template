@@ -1,7 +1,7 @@
 # Codemagic CI
 
-`codemagic.yaml` at the project root builds signed releases on Codemagic's
-Macs — Android APK/AAB and iOS TestFlight — without a Mac of your own.
+`codemagic.yaml` at the project root builds releases on Codemagic's machines — Android APK/AAB, iOS TestFlight, and the
+Windows and macOS desktop apps — without a Mac or a Windows PC of your own.
 
 | Workflow | Produces |
 | --- | --- |
@@ -9,6 +9,8 @@ Macs — Android APK/AAB and iOS TestFlight — without a Mac of your own.
 | `android-release` | APK, real network |
 | `android-bundle` | AAB for Google Play |
 | `ios-release` | IPA uploaded to TestFlight |
+| `windows-release` | A zip of the release folder and an MSIX (signed with the `msix` test certificate; the Store build is `dart run msix:create --store`) |
+| `macos-release` | A `.dmg` (`tool/build_macos_dmg.sh`) and a zipped `.app`, unsigned |
 
 Every workflow runs `flutter analyze` and `flutter test --exclude-tags golden`
 first, and is started by hand (add a `triggering:` block for tags/pushes).

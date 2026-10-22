@@ -1,8 +1,11 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../core/layout/app_layout_scope.dart';
+
 import '../../../utils/constants/design_constants.dart';
 import '../scroll_reveal.dart';
 import 'app_motion.dart';
+import 'app_pointer_arrows.dart';
 
 /// A horizontally scrolling rail of cards.
 ///
@@ -14,7 +17,7 @@ import 'app_motion.dart';
 ///
 /// The first card lines up with the screen margin, and the rail runs from the
 /// start edge, so it flips with the language on its own.
-class AppRail extends StatelessWidget {
+class AppRail extends StatefulWidget {
   const AppRail({
     super.key,
     required this.children,
@@ -36,13 +39,50 @@ class AppRail extends StatelessWidget {
   final String? nudgeId;
 
   @override
+  State<AppRail> createState() => _AppRailState();
+}
+
+class _AppRailState extends State<AppRail> {
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// One arrow click moves most of a screenful, keeping a card in view so
+  /// the reader does not lose their place.
+  void _page(int direction) {
+    if (!_scroll.hasClients) return;
+    final position = _scroll.position;
+    final target =
+        (position.pixels + direction * position.viewportDimension * 0.8).clamp(
+          position.minScrollExtent,
+          position.maxScrollExtent,
+        );
+    _scroll.animateTo(
+      target,
+      duration: AppDurations.slow,
+      curve: AppCurves.enter,
+    );
+  }
+
+  bool get _hasMoreBefore => _scroll.hasClients && _scroll.position.pixels > 0;
+
+  bool get _hasMoreAfter =>
+      !_scroll.hasClients ||
+      _scroll.position.pixels < _scroll.position.maxScrollExtent;
+
+  @override
   Widget build(BuildContext context) {
+    final children = widget.children;
     Widget row = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         for (var i = 0; i < children.length; i++) ...<Widget>[
-          if (i > 0) SizedBox(width: spacing),
-          if (revealItems)
+          if (i > 0) SizedBox(width: widget.spacing),
+          if (widget.revealItems)
             ScrollReveal(
               key: children[i].key == null
                   ? null
@@ -54,17 +94,33 @@ class AppRail extends StatelessWidget {
         ],
       ],
     );
-    if (nudgeId != null) row = AppRailNudge(id: nudgeId!, child: row);
+    if (widget.nudgeId != null) {
+      row = AppRailNudge(id: widget.nudgeId!, child: row);
+    }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      // Cards and chips cast shadows past the rail's own height; clipped,
-      // they would be cut flat along the top and bottom.
-      clipBehavior: Clip.none,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.screenMargin,
+    // The first card lines up with the page's gutter, which widens with the
+    // window (`AppLayout.gutter`).
+    final gutter =
+        AppLayoutScope.maybeOf(context)?.gutter ?? AppSpacing.screenMargin;
+
+    return AppPointerArrows(
+      // Scroll offsets grow towards the END edge in both directions, so
+      // «next» is always +1.
+      onPrevious: () => _page(-1),
+      onNext: () => _page(1),
+      canPrevious: () => _hasMoreBefore,
+      canNext: () => _hasMoreAfter,
+      child: AppDragScroll(
+        child: SingleChildScrollView(
+          controller: _scroll,
+          scrollDirection: Axis.horizontal,
+          // Cards and chips cast shadows past the rail's own height; clipped,
+          // they would be cut flat along the top and bottom.
+          clipBehavior: Clip.none,
+          padding: EdgeInsetsDirectional.symmetric(horizontal: gutter),
+          child: row,
+        ),
       ),
-      child: row,
     );
   }
 }

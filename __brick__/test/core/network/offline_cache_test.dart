@@ -36,8 +36,13 @@ void main() {
 
   test('a list is kept when it arrives, and answers when the network does '
       'not', () async {
-    server.answer = <String, dynamic>{'data': <String>['a', 'b']};
-    await get(ApiEndpoints.showcaseFeed, <String, dynamic>{'page': 1, 'limit': 20});
+    server.answer = <String, dynamic>{
+      'data': <String>['a', 'b'],
+    };
+    await get(ApiEndpoints.showcaseFeed, <String, dynamic>{
+      'page': 1,
+      'limit': 20,
+    });
     await pumpEventQueue();
 
     server.offline = true;
@@ -47,7 +52,9 @@ void main() {
       <String, dynamic>{'limit': 20, 'page': 1},
     );
 
-    expect(response.data, <String, dynamic>{'data': <String>['a', 'b']});
+    expect(response.data, <String, dynamic>{
+      'data': <String>['a', 'b'],
+    });
     expect(notice.isShowing, isTrue, reason: 'the reader is told it is old');
   });
 
@@ -82,19 +89,30 @@ void main() {
     expect(cacheable(ApiEndpoints.showcaseFeed, method: 'POST'), isFalse);
   });
 
-  test('a server that answers with an error is not hidden behind a copy', () async {
-    server.answer = <String, dynamic>{'data': <String>['a']};
-    await get(ApiEndpoints.showcasePicks);
-    await pumpEventQueue();
+  test(
+    'a server that answers with an error is not hidden behind a copy',
+    () async {
+      server.answer = <String, dynamic>{
+        'data': <String>['a'],
+      };
+      await get(ApiEndpoints.showcasePicks);
+      await pumpEventQueue();
 
-    server.failWith = 500;
-    await expectLater(get(ApiEndpoints.showcasePicks), throwsA(isA<DioException>()));
-    expect(notice.isShowing, isFalse);
-  });
+      server.failWith = 500;
+      await expectLater(
+        get(ApiEndpoints.showcasePicks),
+        throwsA(isA<DioException>()),
+      );
+      expect(notice.isShowing, isFalse);
+    },
+  );
 
   test('with no copy, the failure stands', () async {
     server.offline = true;
-    await expectLater(get(ApiEndpoints.showcaseHighlights), throwsA(isA<DioException>()));
+    await expectLater(
+      get(ApiEndpoints.showcaseHighlights),
+      throwsA(isA<DioException>()),
+    );
     expect(notice.isShowing, isFalse);
   });
 

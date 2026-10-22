@@ -1,42 +1,25 @@
 import 'package:reactive_forms/reactive_forms.dart';
 
 import '../../../../../../common/imports/imports.dart';
-import '../../../../../../common/widgets/scroll_reveal.dart';
-import '../nav_bar/app_bottom_nav.dart';
+import 'showcase_layout.dart';
 
 class RootTabDialogsSheetsShowcase extends StatelessWidget {
   const RootTabDialogsSheetsShowcase({super.key});
-
-  Widget _section(BuildContext context, String title, List<Widget> children) {
-    return ScrollReveal(
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyles.s16w600),
-        AppSpacing.sm.verticalSpace,
-        ...children,
-        AppSpacing.lg.verticalSpace,
-        const Divider(height: 1),
-        AppSpacing.lg.verticalSpace,
-      ],
-    ),
-    );
-  }
 
   Future<void> _showBasicDialog(BuildContext context) {
     return AppDialog.show(
       context,
       dialog: AppDialog.basic(
         icon: IconSource.svg(AppIcons.info),
-        title: 'Basic dialog',
-        message: 'This is a basic AppDialog with primary/secondary actions.',
+        title: AppStrings.showcaseDialogsBasicTitle,
+        message: AppStrings.showcaseDialogsBasicMessage,
         primaryAction: AppDialogAction.primary(
-          label: 'OK',
+          label: AppStrings.showcaseDialogsOk,
           icon: IconSource.svg(AppIcons.check),
           onPressed: () => Navigator.of(context).pop(),
         ),
         secondaryAction: AppDialogAction.secondary(
-          label: 'Cancel',
+          label: AppStrings.cancel,
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -48,20 +31,22 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
       context,
       barrierDismissible: false,
       dialog: AppDialog.basic(
-        title: 'Custom child',
-        message: 'This dialog uses the child slot (barrierDismissible=false).',
+        title: AppStrings.showcaseDialogsCustomTitle,
+        message: AppStrings.showcaseDialogsCustomMessage,
         primaryAction: AppDialogAction.primary(
-          label: 'Close',
+          label: AppStrings.actionClose,
           onPressed: () => Navigator.of(context).pop(),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             AppReactiveTextField.text(
-              formGroup: FormGroup({'a': FormControl<String>()}),
+              formGroup: FormGroup(<String, AbstractControl<dynamic>>{
+                'a': FormControl<String>(),
+              }),
               formControlName: 'a',
-              title: 'Inline field',
-              hintText: 'type here...',
+              title: AppStrings.showcaseDialogsCustomField,
+              hintText: AppStrings.showcaseDialogsCustomHint,
             ),
           ],
         ),
@@ -73,24 +58,24 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
     return AppDialog.show(
       context,
       dialog: AppDialog.basic(
-        title: 'Multiple actions',
-        message: 'Primary/secondary + extra actions list.',
+        title: AppStrings.showcaseDialogsManyTitle,
+        message: AppStrings.showcaseDialogsManyMessage,
         secondaryAction: AppDialogAction.secondary(
-          label: 'Back',
+          label: AppStrings.actionBack,
           onPressed: () => Navigator.of(context).pop(),
         ),
         primaryAction: AppDialogAction.primary(
-          label: 'Confirm',
+          label: AppStrings.showcaseDialogsConfirm,
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          AppDialogAction.secondary(
-            label: 'Extra 1',
+        actions: <AppDialogAction>[
+          AppDialogAction.success(
+            label: AppStrings.showcaseDialogsExtra1,
             icon: IconSource.svg(AppIcons.star),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          AppDialogAction.secondary(
-            label: 'Extra 2',
+          AppDialogAction.primary(
+            label: AppStrings.showcaseDialogsExtra2,
             icon: IconSource.svg(AppIcons.power),
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -103,20 +88,20 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
     return AppBottomSheet.show(
       context,
       sheet: AppBottomSheet.basic(
-        title: 'Bottom sheet',
+        title: AppStrings.showcaseDialogsSheetTitle,
         child: SizedBox(
           width: double.maxFinite,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
-                'This is AppBottomSheet.basic',
-                style: AppTextStyles.s14w400,
+                AppStrings.showcaseDialogsSheetBody,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               AppSpacing.md.verticalSpace,
               AppButton.primary(
                 onTap: () => Navigator.of(context).pop(),
-                child: AppButtonChild.label('Close'),
+                child: AppButtonChild.label(AppStrings.actionClose),
               ),
             ],
           ),
@@ -131,12 +116,15 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
       isDismissible: false,
       enableDrag: false,
       sheet: AppBottomSheet.basic(
-        title: 'Header + actions',
+        title: AppStrings.showcaseDialogsLockedTitle,
         showDragHandle: false,
         header: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Custom header', style: AppTextStyles.s16w600),
+          children: <Widget>[
+            Text(
+              AppStrings.showcaseDialogsLockedHeader,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             AppButton.primary(
               onTap: () => Navigator.of(context).pop(),
               layout: const AppButtonLayout(
@@ -148,22 +136,22 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
           ],
         ),
         scrollable: false,
-        actions: [
-          AppButton.grey(
+        actions: <Widget>[
+          AppButton.error(
             onTap: () => Navigator.of(context).pop(),
-            child: AppButtonChild.label('Cancel'),
+            child: AppButtonChild.label(AppStrings.cancel),
             layout: const AppButtonLayout(width: 100),
           ),
           AppSpacing.sm.verticalSpace,
           AppButton.primaryGradient(
             onTap: () => Navigator.of(context).pop(),
-            child: AppButtonChild.label('Apply'),
+            child: AppButtonChild.label(AppStrings.showcaseDialogsApply),
             layout: const AppButtonLayout(width: 100),
           ),
         ],
         child: Text(
-          'Dismiss is disabled for this modal. Use the close button.',
-          style: AppTextStyles.s14w400,
+          AppStrings.showcaseDialogsLockedMessage,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
     );
@@ -171,61 +159,47 @@ class RootTabDialogsSheetsShowcase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: AppSpacing.standardPadding.copyWith(
-        bottom: AppBottomNav.listBottomPadding(context),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Dialogs & Bottom Sheets Showcase',
-            style: AppTextStyles.s22w700,
-          ),
-          AppSpacing.sm.verticalSpace,
-          Text(
-            'Buttons below demonstrate different AppDialog and AppBottomSheet configurations.',
-            style: AppTextStyles.s14w400.copyWith(
-              color: context.onSurface.withValues(alpha: 0.75),
-            ),
-          ),
-          AppSpacing.lg.verticalSpace,
-
-          _section(context, 'AppDialog', [
+    return ShowcasePage(
+      title: AppStrings.showcaseDialogsTitle,
+      subtitle: AppStrings.showcaseDialogsSubtitle,
+      children: <Widget>[
+        ShowcaseSection(
+          title: AppStrings.navDialogs,
+          children: <Widget>[
             AppButton.primary(
               onTap: () => _showBasicDialog(context),
               child: AppButtonChild.labelIcon(
-                label: 'Show basic dialog',
+                label: AppStrings.showcaseDialogsShowBasic,
                 icon: IconSource.svg(AppIcons.externalLink),
               ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.success(
               onTap: () => _showCustomChildDialog(context),
-              child: AppButtonChild.label('Dialog with custom child'),
+              child: AppButtonChild.label(AppStrings.showcaseDialogsShowCustom),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.warning(
               onTap: () => _showMultiActionsDialog(context),
-              child: AppButtonChild.label('Dialog with many actions'),
+              child: AppButtonChild.label(AppStrings.showcaseDialogsShowMany),
             ),
-          ]),
+          ],
+        ),
 
-          _section(context, 'AppBottomSheet', [
+        ShowcaseSection(
+          title: AppStrings.showcaseDialogsSectionSheets,
+          children: <Widget>[
             AppButton.primaryGradient(
               onTap: () => _showBasicSheet(context),
-              child: AppButtonChild.label('Show basic bottom sheet'),
+              child: AppButtonChild.label(AppStrings.showcaseDialogsShowSheet),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.errorGradient(
               onTap: () => _showSheetWithHeaderActions(context),
-              child: AppButtonChild.label('Bottom sheet (no dismiss, no drag)'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseDialogsShowSheetLocked,
+              ),
             ),
-          ]),
-
-          AppSpacing.xl.verticalSpace,
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

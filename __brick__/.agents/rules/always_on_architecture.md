@@ -1,3 +1,3 @@
-# Always-On Architecture Rules
+# Always-on project rules
 
-Always read and strictly apply the rules defined in `/.ai/project-rules.md` before starting any task or writing any code. Do not ignore this.
+Before any task or any code change, read `/.ai/project-rules.md` and apply it. It is the single source of truth for this project's rules and tells you which other files to read for your task. This file only points to it.

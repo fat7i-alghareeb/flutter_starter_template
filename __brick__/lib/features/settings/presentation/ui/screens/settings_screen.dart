@@ -5,10 +5,15 @@ import '../../../../../common/widgets/app_dialog.dart';
 import '../../../../../common/widgets/ds/ds.dart';
 import '../../../../../common/widgets/scroll_reveal.dart';
 import '../../../../../core/injection/injectable.dart';
+import '../../../../../core/layout/app_layout.dart';
+import '../../../../../core/notification/notification_permission_service.dart';
+import '../../../../../core/platform/app_platform.dart';
+import '../../../../../core/shortcuts/app_shortcut_catalog.dart';
 import '../../../../../core/services/session/auth_manager.dart';
 import '../../../../../core/services/session/auth_state_notifier.dart';
 import '../../../../../utils/constants/app_flow_constants.dart';
 import '../../../../../utils/constants/design_constants.dart';
+import '../../../../../utils/extensions/context_extensions.dart';
 import '../../../../../utils/helpers/app_strings.dart';
 import '../widgets/settings_pickers.dart';
 
@@ -33,7 +38,7 @@ import '../widgets/settings_pickers.dart';
 /// Neither theme nor language is kept in a bloc: `ThemeController` and
 /// `easy_localization` already own them for the whole app, and a copy here
 /// would be a second answer that could disagree with the first.
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   static const String pageName = 'SettingsScreen';
@@ -43,32 +48,236 @@ class SettingsScreen extends StatelessWidget {
 
   static const double maxContentWidth = 640;
 
+  /// The groups' list in the two-pane layout.
+  static const double paneWidth = 300;
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+/// One group of the page: its row in the two-pane list, and its content.
+class _Group {
+  const _Group(this.icon, this.title, this.content);
+
+  final String icon;
+  final String title;
+  final Widget content;
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  int _selected = 0;
+
+  List<_Group> _groups(BuildContext context) {
+    final layout = context.layout;
+    return <_Group>[
+      _Group(
+        AppIcons.darkMode,
+        AppStrings.settingsAppearance,
+        const _AppearanceGroup(),
+      ),
+      _Group(
+        AppIcons.bell,
+        AppStrings.settingsNotifications,
+        const _NotificationsGroup(),
+      ),
+      // A phone has no keyboard to speak of; a tablet with one and a
+      // desktop do.
+      if (layout.deviceType != DeviceType.phone)
+        _Group(
+          AppIcons.keyboard,
+          AppStrings.shortcutsTitle,
+          const _ShortcutsGroup(),
+        ),
+      _Group(AppIcons.info, AppStrings.settingsAbout, const _AboutGroup()),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final layout = context.layout;
+    final groups = _groups(context);
+    final selected = _selected.clamp(0, groups.length - 1);
+    final bottom = AppSpacing.lg + MediaQuery.viewPaddingOf(context).bottom;
+
+    // Expanded windows: the groups on the start side, the chosen one beside
+    // them — the shape of System Settings on macOS and Windows.
+    if (layout.isExpandedUp) {
+      return Scaffold(
+        appBar: AppBar(title: Text(AppStrings.settingsTitle)),
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              width: SettingsScreen.paneWidth,
+              child: ListView(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  layout.gutter,
+                  AppSpacing.sm,
+                  AppSpacing.md,
+                  bottom,
+                ),
+                children: <Widget>[
+                  for (var i = 0; i < groups.length; i++)
+                    _PaneItem(
+                      icon: groups[i].icon,
+                      title: groups[i].title,
+                      selected: i == selected,
+                      onTap: () => setState(() => _selected = i),
+                    ),
+                  const _AccountGroup(),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.topStart,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: SettingsScreen.maxContentWidth,
+                  ),
+                  child: ListView(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      AppSpacing.md,
+                      AppSpacing.sm,
+                      layout.gutter,
+                      bottom,
+                    ),
+                    children: <Widget>[
+                      KeyedSubtree(
+                        key: ValueKey<int>(selected),
+                        child: groups[selected].content,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(AppStrings.settingsTitle)),
       body: Align(
         alignment: AlignmentDirectional.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: maxContentWidth),
+          constraints: const BoxConstraints(
+            maxWidth: SettingsScreen.maxContentWidth,
+          ),
           child: ListView(
             padding: EdgeInsetsDirectional.fromSTEB(
-              AppSpacing.screenMargin,
+              layout.gutter,
               AppSpacing.sm,
-              AppSpacing.screenMargin,
-              AppSpacing.lg + MediaQuery.viewPaddingOf(context).bottom,
+              layout.gutter,
+              bottom,
             ),
             children: ScrollReveal.each(<Widget>[
-              const _AppearanceGroup(),
-              const SizedBox(height: AppSpacing.lg2),
-              const _NotificationsGroup(),
-              const SizedBox(height: AppSpacing.lg2),
-              const _AboutGroup(),
+              for (var i = 0; i < groups.length; i++) ...<Widget>[
+                if (i > 0) const SizedBox(height: AppSpacing.lg2),
+                groups[i].content,
+              ],
               const _AccountGroup(),
             ]),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A group's row in the two-pane list: the pill marks the open group, with
+/// bold text — never colour alone.
+class _PaneItem extends StatelessWidget {
+  const _PaneItem({
+    required this.icon,
+    required this.title,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String icon;
+  final String title;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
+      child: AppFocusRing(
+        borderRadius: BorderRadius.circular(AppRadii.full),
+        child: Semantics(
+          selected: selected,
+          button: true,
+          child: Material(
+            color: selected ? colors.primaryContainer : Colors.transparent,
+            shape: const StadiumBorder(),
+            child: InkWell(
+              customBorder: const StadiumBorder(),
+              onTap: onTap,
+              child: SizedBox(
+                height: AppIconSizes.navTouchTarget,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      AppIcon(
+                        icon,
+                        color: selected
+                            ? colors.primary
+                            : colors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: selected
+                                ? colors.onPrimaryContainer
+                                : colors.onSurface,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A row that opens the list of keyboard shortcuts — the same list `?`
+/// opens from anywhere.
+class _ShortcutsGroup extends StatelessWidget {
+  const _ShortcutsGroup();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSettingsGroup(
+      title: AppStrings.shortcutsTitle,
+      children: <Widget>[
+        AppSettingsTile(
+          icon: AppIcons.keyboard,
+          label: AppStrings.shortcutsTitle,
+          value: AppStrings.shortcutsSubtitle,
+          showChevron: true,
+          onTap: () => AppShortcutCatalog.showHelp(context),
+        ),
+      ],
     );
   }
 }
@@ -114,6 +323,11 @@ class _NotificationsGroupState extends State<_NotificationsGroup>
     with WidgetsBindingObserver {
   PermissionStatus? _status;
 
+  /// Desktop has no `permission_handler`: a plain yes/no from
+  /// `NotificationPermissionService` (macOS asks; Windows needs no
+  /// permission for toasts).
+  bool? _desktopGranted;
+
   @override
   void initState() {
     super.initState();
@@ -134,6 +348,16 @@ class _NotificationsGroupState extends State<_NotificationsGroup>
   }
 
   Future<void> _refresh() async {
+    if (!AppPlatform.isMobile) {
+      try {
+        final granted = await getIt<NotificationPermissionService>()
+            .isNotificationPermissionGranted();
+        if (mounted) setState(() => _desktopGranted = granted);
+      } on Object {
+        // No plugin (a test): the row stays without a value.
+      }
+      return;
+    }
     try {
       final status = await Permission.notification.status;
       if (mounted) setState(() => _status = status);
@@ -143,6 +367,12 @@ class _NotificationsGroupState extends State<_NotificationsGroup>
   }
 
   Future<void> _onTap() async {
+    if (!AppPlatform.isMobile) {
+      await getIt<NotificationPermissionService>()
+          .requestNotificationPermission(enableDebugLogs: false);
+      await _refresh();
+      return;
+    }
     final status = _status;
     if (status == null) return;
     if (status.isGranted) {
@@ -157,13 +387,18 @@ class _NotificationsGroupState extends State<_NotificationsGroup>
   @override
   Widget build(BuildContext context) {
     final status = _status;
+    final desktop = _desktopGranted;
     return AppSettingsGroup(
       title: AppStrings.settingsNotifications,
       children: <Widget>[
         AppSettingsTile(
           icon: AppIcons.bell,
           label: AppStrings.settingsNotifications,
-          value: status == null
+          value: desktop != null
+              ? (desktop
+                    ? AppStrings.settingsNotificationsOn
+                    : AppStrings.settingsNotificationsOff)
+              : status == null
               ? null
               : status.isGranted || status.isProvisional
               ? AppStrings.settingsNotificationsOn

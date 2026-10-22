@@ -3,10 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../common/widgets/ds/ds.dart';
 import '../../../../../core/injection/injectable.dart';
+import '../../../../../core/layout/app_layout.dart';
+import '../../../../../core/shortcuts/app_commands.dart';
 import '../../../../../core/services/session/auth_state_notifier.dart';
 import '../../../../../utils/constants/design_constants.dart';
+import '../../../../../utils/extensions/context_extensions.dart';
 import '../../../../../utils/extensions/theme_extensions.dart';
 import '../../../../../utils/helpers/app_strings.dart';
+import '../../../../root/presentation/ui/widgets/nav_bar/side_nav_controller.dart';
 import '../../states/feed_bloc.dart';
 import 'feed_navigation.dart';
 
@@ -26,9 +30,18 @@ import 'feed_navigation.dart';
 ///
 /// A hairline and a soft shadow appear once the list is under it.
 class FeedHeader extends StatelessWidget {
-  const FeedHeader({super.key, required this.isScrolled, this.intro});
+  const FeedHeader({
+    super.key,
+    required this.isScrolled,
+    this.intro,
+    this.onRefresh,
+  });
 
   final bool isScrolled;
+
+  /// Shown as a button where there is no pull-to-refresh gesture — a desktop
+  /// window, driven by a mouse (Ctrl/⌘+R does the same).
+  final VoidCallback? onRefresh;
 
   /// The opening choreography (`AppIntro`): 0 → 1 once per app run. Null:
   /// shown as it is.
@@ -41,14 +54,44 @@ class FeedHeader extends StatelessWidget {
   @visibleForTesting
   static DateTime Function() clock = DateTime.now;
 
+  /// One search for the whole app in an expanded window: in the title bar
+  /// on desktop, at the top of the open sidebar on a tablet. The feed's own
+  /// field would be a second box for the same thing.
+  static bool _globalSearchElsewhere(BuildContext context) {
+    final layout = context.layout;
+    if (!layout.isExpandedUp) return false;
+    if (layout.isDesktop) return true;
+    final sideNav = getIt.isRegistered<SideNavController>()
+        ? getIt<SideNavController>()
+        : null;
+    return sideNav != null && !sideNav.collapsed;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final sideNav = getIt.isRegistered<SideNavController>()
+        ? getIt<SideNavController>()
+        : null;
+    if (sideNav == null) return _build(context);
+    // The sidebar collapsing to a rail takes its search with it.
+    return ValueListenableBuilder<bool>(
+      valueListenable: sideNav,
+      builder: (context, _, _) => _build(context),
+    );
+  }
+
+  Widget _build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final intro = this.intro ?? kAlwaysCompleteAnimation;
-    final isSearchVisible = context.select<FeedBloc, bool>(
-      (bloc) => bloc.state.isSearchVisible,
-    );
+    final layout = context.layout;
+    // The side navigation carries Settings from medium windows up; the
+    // header keeps it where the capsule — or a short rail — has none.
+    final showSettings = layout.nav == NavLayout.bar || layout.isShort;
+    final searchHere = !_globalSearchElsewhere(context);
+    final isSearchVisible =
+        searchHere &&
+        context.select<FeedBloc, bool>((bloc) => bloc.state.isSearchVisible);
 
     // At least [barHeight]; taller when a large system font needs it.
     final bar = ConstrainedBox(
@@ -61,11 +104,18 @@ class FeedHeader extends StatelessWidget {
         child: Row(
           children: <Widget>[
             const Expanded(child: _Greeting()),
-            AppBarAction(
-              icon: AppIcons.settings,
-              label: AppStrings.settingsTitle,
-              onTap: () => FeedNavigation.openSettings(context),
-            ),
+            if (layout.isDesktop && onRefresh != null)
+              AppBarAction(
+                icon: AppIcons.refresh,
+                label: AppStrings.actionRefresh,
+                onTap: onRefresh!,
+              ),
+            if (showSettings)
+              AppBarAction(
+                icon: AppIcons.settings,
+                label: AppStrings.settingsTitle,
+                onTap: () => FeedNavigation.openSettings(context),
+              ),
           ],
         ),
       ),
@@ -279,6 +329,8 @@ class _FeedSearchState extends State<_FeedSearch> {
     super.initState();
     _controller.addListener(_onChanged);
     _focus.addListener(_onChanged);
+    // Ctrl/⌘+K lands here when the window has no title-bar search.
+    AppCommands.addSearchField(_focus);
   }
 
   void _onChanged() {
@@ -287,6 +339,7 @@ class _FeedSearchState extends State<_FeedSearch> {
 
   @override
   void dispose() {
+    AppCommands.removeSearchField(_focus);
     _controller.dispose();
     _focus.dispose();
     super.dispose();

@@ -87,7 +87,7 @@ bool showOverlayBanner(
           autoDisappear: duration > Duration.zero,
           margin: margin ?? AppSpacing.horizontal,
           padding: padding ?? AppSpacing.standardPadding,
-          borderRadius: BorderRadius.circular((borderRadius ?? AppRadii.lg).r),
+          borderRadius: BorderRadius.circular((borderRadius ?? AppRadii.lg)),
           backgroundColor: backgroundColor,
           prefix: prefix,
           content: content,

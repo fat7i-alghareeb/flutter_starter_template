@@ -1,92 +1,69 @@
-# Final Checklist
+# Final checklist
 
-Read this before declaring a task complete. Confirm the sections relevant to the task.
+Walk this before you say a task is done. Tick only what applies; for each item you skip, be ready to say why.
+Every line is checkable — if you cannot check it, the task is not finished.
 
-## Localization
+## Text and language
 
-- User-visible strings use `AppStrings`.
-- New keys were checked for duplicates first.
-- New keys were added to both `ar.json` and `en.json`.
-- `dart run tool/generate_app_strings.dart` was run when localization changed.
-- No raw `.tr()` calls on literal UI keys.
+- [ ] Every visible string is an `AppStrings.x`, present in both `ar.json` and `en.json` (no literal in a widget).
+- [ ] You searched for an existing key before adding one; no sentence sits under two keys.
+- [ ] `dart run tool/generate_app_strings.dart` ran after editing the JSON.
+- [ ] Counted sentences are plural groups; numbers go through `AppFormats`; numeric inputs use `ArabicToEnglishDigitsFormatter`.
+- [ ] Looked at in Arabic (RTL) **and** English; start/end used, never left/right.
 
-## UI and Design System
+## Look and layout
 
-- Text uses `AppTextStyles`.
-- Colors use semantic context tokens or approved `AppColors`.
-- No `Colors.*`, raw hex colors, direct `Theme.of(context)`, or direct `context.colorScheme.*` in UI.
-- `.withValues(alpha: ...)` is used instead of `.withOpacity()`.
-- Spacing uses `AppSpacing`; radius uses `AppRadii`.
-- Responsive UI dimensions use `.sp`, `.h`, `.w`, or `.r` where appropriate.
-- Spacing-only gaps use `x.verticalSpace` or `y.horizontalSpace`, not `SizedBox(height: x)` or `SizedBox(width: y)`.
-- Padding and margin use `REdgeInsets` where responsive insets are needed.
-- Icons use `AppIcon(AppIcons.*)` — no `Icons.*`, no icon fonts.
-- Buttons use `AppButton` and disable through `isActive`.
-- Screens use `AppScaffold` and include `pagePath` and `pageName`.
-- UI is decomposed into screens, sections, and widgets.
-- Animations are used where appropriate and avoided where they add noise.
-- Assets use generated `Assets` references.
+- [ ] Type is a theme role (`Theme.of(context).textTheme.x`); colour changed with `copyWith(color:)` only.
+- [ ] Colour is from `colorScheme` / `context.semantic`; no `Colors.*`, no hex, `.withValues(alpha:)` not `.withOpacity()`.
+- [ ] Spacing, radius and icon size are tokens (`AppSpacing`, `AppRadii`, `AppIconSizes`); no `.sp .h .w .r`; gaps are `x.verticalSpace`.
+- [ ] Icons are `AppIcon(AppIcons.x)`; no `Icons.*`.
+- [ ] Layout follows the window size class (`context.layout`, `AdaptiveLayout`), not a device, orientation or `Platform.isX`.
+- [ ] Platform-only plugins are called behind `AppPlatform` or a DI service.
+- [ ] Checked at **390 · 820 · 1280** wide, portrait and landscape, light and dark, 1.3× text — no overflow, nothing cut off.
+- [ ] Wide windows: content is capped (`AppContentWidth`); forms use `AppFormFieldGrid`.
+- [ ] With a mouse and the keyboard: hover, tooltips on icon buttons, a visible focus ring, shortcuts still work, Tab order is sane.
+- [ ] Text-holding boxes have no fixed height.
+- [ ] A screen is `AppScaffold.*` (or `Scaffold` with a comment why) and has `pagePath` and `pageName`.
 
-## Architecture
+## Components
 
-- Feature files follow the standard feature structure.
-- BLoC and Freezed are used for feature state.
-- Async state uses one `BlocStatus<T>` per meaningful operation.
-- UI consumes async state through `StatusBuilder<T>`.
-- Forms live in `constants/forms/` with static keys.
-- No raw form field strings are scattered through UI/BLoC code.
-- New reusable widgets/helpers were promoted to `common` or `utils` when appropriate.
+- [ ] Buttons are `AppButton`. **No grey on an active button** — "Cancel", "Exit", "Close", "Reset" are `error` (or `primary`).
+      Unavailable buttons use `isActive: false`.
+- [ ] A count is `AppCountBadge`; fields are `AppReactive*Field`; empty and error states are `EmptyStateWidget` / `FailedStateWidget`.
+- [ ] Content loading is a `SkeletonWidget` over one layout, with a line in `skeleton_parity_test.dart`; no spinner for content.
+- [ ] Animations are finite, honour reduced motion, and are absent where they only add noise.
+- [ ] Assets come from the generated `Assets`; nothing reserved by a raw path.
+- [ ] A reusable piece is in `lib/common/` (or `lib/utils/`), not copied into a feature.
 
-## Data Layer
+## Architecture and data
 
-- Entities remain domain-focused.
-- Models/DTOs contain serialization only.
-- Mappers convert Model to Entity.
-- Models do not leak into BLoC or UI.
-- API inputs use a dedicated request model or the established local equivalent.
-- Datasource IO is wrapped with `rethrowAsAppException`.
-- Repository operations are wrapped with `runAsResult`.
+- [ ] Files sit where `.ai/architecture-rules.md` says; entity / model / mapper / params / data source / repository / facade are separate.
+- [ ] Models never reach a bloc or a widget; every API call takes a `…Params` class.
+- [ ] Data sources wrap IO in `rethrowAsAppException`; repositories wrap in `runAsResult`.
+- [ ] One `BlocStatus<T>` per async operation, rendered with `StatusBuilder<T>`.
+- [ ] Forms keep field keys as constants (`constants/forms/` when shared).
+- [ ] A new page is an `AppPage` opened with `AppNavigator.push`; ids travel in the path; `context.go` only replaces the stack.
+- [ ] Guard, session or onboarding changes were checked against `router_guide.md` / `session_service_guide.md`; storage changes
+      against `objectbox_service_guide.md`.
+- [ ] Nothing new runs before `runApp` unless the first frame cannot render without it.
 
-## Navigation
+## Verification
 
-- New routes are registered centrally.
-- New pages are an `AppPage` (with `pagePath`/`pageName`) opened with `AppNavigator.push`; path parameters carry ids, not objects.
-- Router guard/session/onboarding changes were checked against `lib/core/router/router_guide.md`.
+- [ ] `flutter analyze` → **No issues found**, no new `// ignore`.
+- [ ] `flutter test` → green. New behaviour has tests; a visual change has re-recorded goldens that you looked at.
+- [ ] Works with `--dart-define=USE_MOCK=true`; new endpoints have fixtures in `assets/mock/`.
+- [ ] Generated files were regenerated, not edited, and are included in the change.
+- [ ] No `melos`, `flutter pub run`, or `build_runner watch` was used.
 
-## Loading, Empty, and Error States
+## Code and docs
 
-- Content loading states use `SkeletonWidget` (`.loading()` over the same layout), with a height-parity test line.
-- Full-screen blocking loading uses `MainLoadingProgress`.
-- Inline loading uses `LoadingDots`.
-- Empty states use `EmptyStateWidget`.
-- Error states use `FailedStateWidget`.
-- No raw `CircularProgressIndicator` is used directly in feature UI.
-
-## Code Quality
-
-- Imports are clean and project-style.
-- No unused imports, variables, methods, or dead commented code remain.
-- Logs use `printC`, `printM`, or `printY`.
-- Comments explain why, not obvious what.
-- Generated files were not manually edited.
-- UI dates use date extensions.
-- Numeric inputs use `ArabicToEnglishDigitsFormatter`.
-
-## Docs
-
-- Relevant docs were updated for reusable widgets, helpers, commands, dependencies, or architecture changes.
-- `docs/DECISIONS.md` was updated for durable architectural decisions.
-- `docs/COMMANDS.md` was updated for command changes.
+- [ ] No unused imports, variables or commented-out code; logs use the coloured helpers, never `print`.
+- [ ] Comments explain why.
+- [ ] Docs updated for anything reusable: `lib/common/common_folder_guide.md`, `lib/utils/utils_folder_guide.md`,
+      `docs/COMMANDS.md`, `docs/PROJECT_MAP.md`, `docs/DECISIONS.md` (durable decisions), `DESIGN_SYSTEM.md` (visual rules).
 
 ## Security
 
-- WebView auth flows clear both cookies and cache after authentication.
-- Session/JWT changes were checked against `lib/core/services/session/session_service_guide.md`.
-- Storage/ObjectBox changes were checked against `lib/core/services/objectbox/objectbox_service_guide.md`.
-
-## Commands
-
-- AppStrings generation was run when localization changed.
-- Build runner was run when generated code/assets/ObjectBox/Freezed/Injectable changed.
-- Formatting, analysis, and tests were run when relevant, or skipped with a clear reason.
-- No `melos` command was used.
+- [ ] No secret, token or personal data in code, logs or fixtures.
+- [ ] A WebView sign-in clears cookies **and** cache afterwards.
+- [ ] Signing files, `google-services.json`, keystores and `.env` files are not committed.

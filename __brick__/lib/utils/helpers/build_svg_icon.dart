@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart'
     show BoxFit, Color, ColorFilter, BlendMode;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
 VectorGraphic buildSvgIcon({
@@ -12,8 +11,8 @@ VectorGraphic buildSvgIcon({
 }) {
   return VectorGraphic(
     loader: AssetBytesLoader(assetName),
-    width: width?.sp,
-    height: height?.sp,
+    width: width,
+    height: height,
     fit: fit,
     colorFilter: color != null
         ? ColorFilter.mode(color, BlendMode.srcIn)

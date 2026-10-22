@@ -1,6 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'
-    show REdgeInsets, SizeExtension;
 
 import '../constants/design_constants.dart';
 
@@ -80,14 +78,14 @@ extension WidgetX on Widget {
   /// Text('Hello').paddingAll(16);
   /// ```
   Widget paddingAll(double v) =>
-      Padding(padding: REdgeInsets.all(v), child: this);
+      Padding(padding: EdgeInsets.all(v), child: this);
 
   /// Example:
   /// ```dart
   /// Text('Hello').symmetricPadding(h: 16, v: 8);
   /// ```
   Widget symmetricPadding({double? v, double? h}) => Padding(
-    padding: REdgeInsets.symmetric(horizontal: h ?? 0, vertical: v ?? 0),
+    padding: EdgeInsets.symmetric(horizontal: h ?? 0, vertical: v ?? 0),
     child: this,
   );
 
@@ -113,7 +111,7 @@ extension WidgetBoxX on Widget {
   /// Text('Hello').sized(w: 120, h: 48);
   /// ```
   Widget sized({double? w, double? h}) =>
-      SizedBox(width: w?.w, height: h?.h, child: this);
+      SizedBox(width: w, height: h, child: this);
 }
 
 extension ToSliverToBoxAdapter on Widget {

@@ -50,7 +50,8 @@ void main() {
     expect(
       find.text('2'),
       findsOneWidget,
-      reason: 'a banner that re-parents the Navigator throws every open '
+      reason:
+          'a banner that re-parents the Navigator throws every open '
           'screen away',
     );
 
@@ -78,7 +79,8 @@ void main() {
 
     await tester.tap(
       find.byWidgetPredicate(
-        (widget) => widget is AppBarAction && widget.label == AppStrings.actionClose,
+        (widget) =>
+            widget is AppBarAction && widget.label == AppStrings.actionClose,
       ),
     );
     await tester.pump();

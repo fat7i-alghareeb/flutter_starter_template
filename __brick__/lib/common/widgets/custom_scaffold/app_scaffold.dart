@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -12,6 +11,7 @@ import '../../../utils/constants/design_constants.dart';
 import '../../../utils/extensions/context_extensions.dart';
 import '../../../utils/extensions/theme_extensions.dart';
 import '../../../utils/extensions/widget_extensions.dart';
+import '../../../utils/extensions/num_spacing_extensions.dart';
 
 part 'app_scaffold_variants.dart';
 part 'app_scaffold_app_bar.dart';
@@ -36,6 +36,7 @@ final class AppScaffoldConfig {
 
   /// Passed to [Scaffold.resizeToAvoidBottomInset].
   final bool resizeToAvoidBottomInset;
+
   /// Edges kept clear of system UI. Empty by default: screens draw edge to
   /// edge, behind the transparent status and navigation bars. An app bar
   /// pads itself; add an edge here only where content must avoid it.

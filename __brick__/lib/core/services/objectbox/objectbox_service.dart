@@ -5,7 +5,9 @@ import 'package:objectbox/objectbox.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../objectbox.g.dart' hide Store;
+import '../../config/app_config.dart';
 import '../../error/app_exception.dart';
+import '../../platform/app_platform.dart';
 
 /// Owns the single ObjectBox [Store] instance for the whole application.
 ///
@@ -64,7 +66,14 @@ class ObjectBoxService {
           directory ??
           '${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}objectbox';
 
-      final store = await openStore(directory: resolvedDirectory);
+      final store = await openStore(
+        directory: resolvedDirectory,
+        // A sandboxed Mac app names its App Group (ObjectBox's macOS notes).
+        macosApplicationGroup:
+            AppPlatform.isMacOS && AppConfig.macosApplicationGroup.isNotEmpty
+            ? AppConfig.macosApplicationGroup
+            : null,
+      );
       return ObjectBoxService._(store);
     } catch (e, s) {
       throw AppException.unknown(cause: e, stackTrace: s);

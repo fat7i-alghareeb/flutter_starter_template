@@ -96,7 +96,7 @@
   <rect x="30" y="444" width="360" height="118" rx="18" fill="var(--card)" stroke="var(--line)"/>
   <circle cx="76" cy="503.0" r="26" fill="var(--disc)"/>
   <g transform="translate(64 491.0)" fill="none" stroke="var(--ic)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></g>
-  <text x="118" y="497.0" class="t">290+ tests</text>
+  <text x="118" y="497.0" class="t">410+ tests</text>
   <text x="118" y="521.0" class="b">Goldens, parity, contracts, integration</text>
 </g>
 <g class="card" style="animation-delay:0.80s;transform-origin:590.0px 503.0px">

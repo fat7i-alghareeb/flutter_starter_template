@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'ds/app_icons.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../utils/extensions/context_extensions.dart';
 import '../../utils/extensions/theme_extensions.dart';
@@ -106,7 +105,7 @@ class FullScreenImageScreen extends StatelessWidget {
 
     return Center(
       // The app's own line glyph.
-      child: AppIcon(AppIcons.image, size: 40.sp, color: iconColor),
+      child: AppIcon(AppIcons.image, size: 40, color: iconColor),
     );
   }
 
@@ -161,9 +160,9 @@ class FullScreenImageScreen extends StatelessWidget {
             children: [
               Center(child: _buildImage(context)),
               PositionedDirectional(
-                start: 12.w,
-                top: 12.h,
-                child: AppButton.grey(
+                start: 12,
+                top: 12,
+                child: AppButton.primary(
                   noShadow: true,
                   layout: const AppButtonLayout(
                     shape: AppButtonShape.circle,

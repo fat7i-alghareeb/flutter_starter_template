@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:{{project_name}}/common/widgets/ds/app_icons.dart';
 import 'package:{{project_name}}/features/root/presentation/ui/widgets/nav_bar/app_bottom_nav.dart';
 import 'package:{{project_name}}/features/root/presentation/ui/widgets/nav_bar/navigation_controller.dart';
+import 'package:{{project_name}}/utils/constants/design_constants.dart';
 import 'package:{{project_name}}/utils/helpers/app_strings.dart';
 
 import '../../helpers/test_app.dart';
@@ -77,12 +78,11 @@ void main() {
     expect(bar.left, closeTo(landscape.width - bar.right, 0.5));
   });
 
-  testWidgets('a list reserves the height the bar actually has', (
-    tester,
-  ) async {
-    // The padding is computed from the same constant the bar draws with, so a
-    // shorter bar gives its height back to the content instead of leaving a
-    // gap — or, worse, covering the last row.
+  testWidgets('a phone on its side has no capsule to clear: the rail '
+      'took its place', (tester) async {
+    // Compact height moves the navigation to the side (`AppLayout.nav`), so
+    // a landscape list only keeps clear of the home indicator, while a
+    // portrait one still reserves the floating capsule.
     late double landscapePadding;
     late double portraitPadding;
 
@@ -108,9 +108,10 @@ void main() {
       fullScreen: true,
     );
 
+    expect(landscapePadding, AppSpacing.lg);
     expect(
-      portraitPadding - landscapePadding,
-      AppBottomNav.barHeight - AppBottomNav.shortBarHeight,
+      portraitPadding,
+      AppSpacing.lg + AppBottomNav.barHeight + AppBottomNav.bottomMargin,
     );
   });
 

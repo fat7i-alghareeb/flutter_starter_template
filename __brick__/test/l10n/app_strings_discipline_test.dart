@@ -17,6 +17,9 @@ import 'package:flutter_test/flutter_test.dart';
 ///    things for the same idea.
 /// 4. **A counted sentence is a plural group.** Arabic writes a count six
 ///    ways; one fixed template prints «منذ 2 ساعات» and «1 تعليقات».
+/// 5. **No English literal where a person reads it.** The Arabic rule above
+///    cannot see an English sentence, and an English label stays English when
+///    the app is switched to Arabic.
 void main() {
   const pluralForms = <String>['zero', 'one', 'two', 'few', 'many', 'other'];
 
@@ -85,6 +88,44 @@ void main() {
         for (final match in literal.allMatches(line)) {
           offenders.add('$path:${i + 1}  ${match.group(1)}');
         }
+      }
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          'Use AppStrings instead. Add a key to assets/l10n/*.json and run '
+          '`dart run tool/generate_app_strings.dart`.\n${offenders.join('\n')}',
+    );
+  });
+
+  test('no hard-coded English text where a person reads it', () {
+    // `Text('Save')`, `label: 'Save'`, `title:`, `subtitle:`, `hintText:`,
+    // `tooltip:` and `AppButtonChild.label('Save')` with a literal that starts
+    // with a letter. Anything a person reads comes from `AppStrings`.
+    final english = RegExp(
+      r'''(Text\(|label:|title:|subtitle:|hintText:|tooltip:|AppButtonChild\.label\()\s*(const\s+)?'[A-Za-z]''',
+    );
+
+    // Each file is listed with the reason, so the list cannot quietly grow.
+    const allowed = <String, String>{
+      'lib/common/widgets/stage_tools/stage_tools_overlay.dart':
+          'QA tools, compiled out of a release build',
+    };
+
+    final offenders = <String>[];
+    for (final file in dartFiles()) {
+      final path = relative(file);
+      if (allowed.containsKey(path)) continue;
+
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.trimLeft().startsWith('//')) continue;
+        // A sample e-mail address reads the same in every language.
+        if (line.contains('@')) continue;
+        if (english.hasMatch(line)) offenders.add('$path:${i + 1}  ${line.trim()}');
       }
     }
 
@@ -260,17 +301,21 @@ void main() {
     final generated = File(
       'lib/utils/gen/app_strings.g.dart',
     ).readAsStringSync();
-    final names = RegExp(r"static String (\w+)\(num count, String n")
-        .allMatches(generated)
-        .map((m) => m.group(1)!)
-        .toSet();
-    expect(names.length, ar.keys.map((k) => pluralBaseOf(ar, k)).nonNulls.toSet().length);
+    final names = RegExp(
+      r"static String (\w+)\(num count, String n",
+    ).allMatches(generated).map((m) => m.group(1)!).toSet();
+    expect(
+      names.length,
+      ar.keys.map((k) => pluralBaseOf(ar, k)).nonNulls.toSet().length,
+    );
 
     final offenders = <String>[];
     for (final file in dartFiles()) {
       final source = file.readAsStringSync();
       for (final name in names) {
-        for (final match in RegExp('AppStrings\\.$name\\(').allMatches(source)) {
+        for (final match in RegExp(
+          'AppStrings\\.$name\\(',
+        ).allMatches(source)) {
           final args = _topLevelArguments(source, match.end);
           final shown = args.length > 1 ? args[1] : '';
           if (!shown.contains('AppFormats.') && !shown.contains('number(')) {

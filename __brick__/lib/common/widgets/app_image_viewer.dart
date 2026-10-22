@@ -63,8 +63,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'ds/app_icons.dart';
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../../utils/extensions/context_extensions.dart';
 
 import '../../utils/extensions/theme_extensions.dart';
@@ -387,7 +385,7 @@ class AppImageViewer extends StatelessWidget {
 
     if (percentageWidth != null) return context.screenWidth * percentageWidth!;
 
-    return width?.w;
+    return width;
   }
 
   double? _resolveHeight(BuildContext context) {
@@ -397,7 +395,7 @@ class AppImageViewer extends StatelessWidget {
       return context.screenHeight * percentageHeight!;
     }
 
-    return height?.h;
+    return height;
   }
 
   Widget _buildLoading(BuildContext context) {
@@ -431,7 +429,7 @@ class AppImageViewer extends StatelessWidget {
     return Center(
       // The app's own line glyph — a failed picture
       // is common with no network, so this one is seen.
-      child: AppIcon(AppIcons.image, size: 26.sp, color: iconColor),
+      child: AppIcon(AppIcons.image, size: 26, color: iconColor),
     );
   }
 
@@ -608,7 +606,7 @@ class AppImageViewer extends StatelessWidget {
       final bool hasRadius = borderRadius > 0;
 
       final radius = hasRadius
-          ? BorderRadius.circular(borderRadius.r)
+          ? BorderRadius.circular(borderRadius)
           : BorderRadius.zero;
 
       final effectiveShadows =
@@ -617,9 +615,9 @@ class AppImageViewer extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.10),
 
-              blurRadius: 14.r,
+              blurRadius: 14,
 
-              offset: Offset(0, 6.h),
+              offset: const Offset(0, 6),
             ),
           ];
 

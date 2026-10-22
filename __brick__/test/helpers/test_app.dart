@@ -3,18 +3,17 @@
 // own barrel hides it the same way.
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:{{project_name}}/core/layout/app_layout_scope.dart';
 import 'package:{{project_name}}/core/theme/app_theme.dart';
-import 'package:{{project_name}}/utils/constants/design_constants.dart';
 
 /// Shared setup for every widget test.
 ///
 /// A widget test that builds a bare `MaterialApp` proves almost nothing here:
-/// the app's widgets read colours from the theme, sizes through `ScreenUtil`,
-/// text through `easy_localization`, and direction from `Directionality`. Miss
-/// any of those and the test either crashes or passes against a widget that
+/// the app's widgets read colours from the theme, the window size class from
+/// `AppLayoutScope`, text through `easy_localization`, and direction from
+/// `Directionality`. Miss any of those and the test either crashes or passes against a widget that
 /// looks nothing like the real one.
 ///
 /// [pumpApp] wires all four the way the real app does.
@@ -34,6 +33,15 @@ class TestDevices {
 
   /// Tablet-width, where layouts switch to two columns.
   static const Size tablet = Size(800, 1200);
+
+  /// A phone on its side — compact height: the rail replaces the bar.
+  static const Size phoneLandscape = Size(844, 390);
+
+  /// An iPad in landscape — expanded: the sidebar shows its labels.
+  static const Size tabletLandscape = Size(1180, 820);
+
+  /// A desktop window at its default size.
+  static const Size desktop = Size(1280, 800);
 }
 
 /// Loads the translation files so `.tr()` returns Arabic instead of the raw key.
@@ -75,24 +83,23 @@ Future<void> pumpApp(
   _sizeView(tester, surfaceSize);
 
   await tester.pumpWidget(
-    ScreenUtilInit(
-      designSize: AppDesign.designSize,
-      builder: (context, _) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: brightness == Brightness.dark ? AppTheme.dark : AppTheme.light,
-        builder: (context, widget) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(textScale),
-            disableAnimations: disableAnimations,
-          ),
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: brightness == Brightness.dark ? AppTheme.dark : AppTheme.light,
+      builder: (context, widget) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(textScale),
+          disableAnimations: disableAnimations,
+        ),
+        child: AppLayoutHost(
           child: Directionality(textDirection: textDirection, child: widget!),
         ),
-        // A COMPONENT is centred so it takes its natural size. A SCREEN is
-        // handed the whole surface — centring one would leave its Stack
-        // unbounded, so anything `Positioned` against an edge lands outside
-        // the viewport and silently drops out of the semantics tree.
-        home: fullScreen ? child : Scaffold(body: Center(child: child)),
       ),
+      // A COMPONENT is centred so it takes its natural size. A SCREEN is
+      // handed the whole surface — centring one would leave its Stack
+      // unbounded, so anything `Positioned` against an edge lands outside
+      // the viewport and silently drops out of the semantics tree.
+      home: fullScreen ? child : Scaffold(body: Center(child: child)),
     ),
   );
 
@@ -141,24 +148,21 @@ Future<void> pumpLocalizedApp(
       // As `bootstrap` does: Arabic's plural forms need the real rules.
       ignorePluralRules: false,
       child: Builder(
-        builder: (context) => ScreenUtilInit(
-          designSize: AppDesign.designSize,
-          builder: (context, _) => MaterialApp(
-            debugShowCheckedModeBanner: false,
-            locale: locale,
-            supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
-            localizationsDelegates: context.localizationDelegates,
-            theme: brightness == Brightness.dark
-                ? AppTheme.dark
-                : AppTheme.light,
-            builder: (context, widget) => Directionality(
+        builder: (context) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          locale: locale,
+          supportedLocales: const <Locale>[Locale('ar'), Locale('en')],
+          localizationsDelegates: context.localizationDelegates,
+          theme: brightness == Brightness.dark ? AppTheme.dark : AppTheme.light,
+          builder: (context, widget) => AppLayoutHost(
+            child: Directionality(
               textDirection: locale.languageCode == 'ar'
                   ? TextDirection.rtl
                   : TextDirection.ltr,
               child: widget!,
             ),
-            home: Scaffold(body: child),
           ),
+          home: Scaffold(body: child),
         ),
       ),
     ),
@@ -184,11 +188,9 @@ void forEachBrightness(
 
 /// Sizes the test view.
 ///
-/// `binding.setSurfaceSize` is NOT enough: `ScreenUtil` reads the raw view, not
-/// the ambient `MediaQuery`, so with only a surface size it keeps scaling
-/// against the default 800×600 test window. Every `.sp` value then comes out
-/// roughly twice too large and widgets overflow for reasons that have nothing
-/// to do with the widget.
+/// The VIEW, not just `binding.setSurfaceSize`: the window size classes come
+/// from the `MediaQuery` the view produces, so a surface size alone would
+/// leave the app laid out for the default 800×600 test window.
 void _sizeView(WidgetTester tester, Size size) {
   const devicePixelRatio = 1.0;
   tester.view

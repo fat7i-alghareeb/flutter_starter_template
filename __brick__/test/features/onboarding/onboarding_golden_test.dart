@@ -44,11 +44,11 @@ void main() {
             icon: AppIcons.bookmark,
             headline: 'احفظ ما يهمّك وأكمل من حيث توقفت',
             supports: <OnboardingSupport>[
-              OnboardingSupport(icon: AppIcons.bookmark, label: 'إشارات مرجعية'),
               OnboardingSupport(
-                icon: AppIcons.heart,
-                label: 'مفضّلة',
+                icon: AppIcons.bookmark,
+                label: 'إشارات مرجعية',
               ),
+              OnboardingSupport(icon: AppIcons.heart, label: 'مفضّلة'),
             ],
           ),
         ],

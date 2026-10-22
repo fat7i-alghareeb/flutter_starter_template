@@ -1,132 +1,64 @@
-# `core/` Architecture Overview
+# `core/` overview
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+`core/` is the foundation: infrastructure that no single feature owns. Keep it feature-agnostic — if code only makes sense for
+one product area, it belongs in `features/`. Three places wire the features together and may name them: the router
+(`router/router_config.dart`, `app_routes.dart`), the generated `injection/injectable.config.dart`, and
+`config/mock_config.dart` (`MockRoutes`).
 
-This document is a **Hard Requirement** for any AI agent interacting with the core layer. You **MUST** ensure your internal state is synced with the following dependencies:
+Rules: `.ai/architecture-rules.md`. File map: `docs/PROJECT_MAP.md`.
 
-- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
-- **Design Tokens**: [lib/utils/constants/design_constants.dart](lib/utils/constants/design_constants.dart)
-- **Text Styles**: [lib/core/theme/app_text_styles.dart](lib/core/theme/app_text_styles.dart)
+## What is in it
 
-Failure to apply the scaling protocols (`.sp`, `.h`, `.w`) defined here is a protocol violation.
+| Folder | Responsibility | Read |
+| --- | --- | --- |
+| `config/` | `AppConfig` (title, stage tools, desktop ids, Windows toast GUID), `AppLocalizationConfig` (Arabic default), `MockConfig` / `MockRoutes` | — |
+| `layout/` | The window size class for every frame: `AppLayout`, `AppLayoutHost`, `AppLayoutScope`, `AdaptiveLayout`, `LayoutReader`; text scale (`AppTextScale`, `AppTextScaleHost`); scroll behaviour | `docs/RESPONSIVE.md` |
+| `platform/` | `AppPlatform`: what the platform can do | `docs/RESPONSIVE.md` |
+| `window/` | Desktop window: `AppWindow` (limits, saved bounds, hidden until the first frame), `AppDesktopFrame` + the title bar | `docs/DESKTOP_SETUP.md` |
+| `shortcuts/` | `AppShortcuts`, `AppCommands`, the shortcut list, the macOS menu bar | `docs/RESPONSIVE.md` |
+| `router/` | `GoRouter` config and guard, `AppPage` tree, `AppNavigator`, `AppLinks` + `LinkDispatcher`, `DesktopLinks`, transitions | `router/router_guide.md` |
+| `network/` | `DioClient`, `ApiConfig`, `ApiEndpoints`, interceptors, offline response cache | below |
+| `notification/` | Local and push notifications | `notification/notification.md` |
+| `services/` | `storage/`, `session/`, `onboarding/`, `localization/`, `objectbox/`, `memory/`, `haptics/`, `startup/` | `session/…_guide.md`, `objectbox/…_guide.md` |
+| `theme/` | Palette, colour schemes, typography, effects, `ThemeController`, system UI | `DESIGN_SYSTEM.md` |
+| `injection/` | GetIt + Injectable | — |
+| `error/` | `AppException`, `runAsResult`, `rethrowAsAppException` | `.ai/architecture-rules.md` |
+| `utils/` | `Result<T>`, `BlocStatus<T>`, `StatusBuilder<T>` | `features/features_overview.md` |
+| `domain/` | Entities shared by features (`UserEntity`) | — |
 
----
+## Theme and type
 
-## Main idea / responsibility
+- The palette is one file: `theme/app_colors.dart`. Every value feeds `AppColorSchemes` (`app_theme_colors.dart`) or
+  `AppSemanticColors`; widgets read `Theme.of(context).colorScheme` or `context.semantic`, never the palette class.
+  Contrast is asserted in `test/core/theme/app_theme_test.dart` — keep it green when you change a colour.
+- Type is the theme's text roles (`app_typography.dart`, table in `DESIGN_SYSTEM.md` §2). Widgets take a role and change only the
+  colour. `AppTextStyles.sXXwXXX` (`app_text_styles.dart`) are aliases for the older shared widgets; they carry no colour.
+- Sizes are plain logical pixels. Nothing is scaled by screen width.
 
-`core/` is the foundation layer of the app. It holds **cross-cutting concerns** that are not owned by any single feature.
+## Text size
 
-Typical responsibilities include:
+- The reader's own text size is applied by `AppTextScaleHost` in `App`, kept between **85% and 130%** (`AppTextScale`), then
+  multiplied by a window step: ×1.05 expanded, ×1.10 large, ×1.15 extra-large, nothing below 840dp. A box that holds text must
+  not have a fixed height.
+- Headings step up one size from 840dp (`AppTypography.expandedFrom`, applied by `AdaptiveTypography`); content is capped in width
+  instead of growing (`AppLayout.contentMaxWidth`).
+- Touch targets are at least 44dp (48 in navigation) on every device.
 
-- App configuration and environment setup
-- Dependency injection
-- Networking setup
-- Global error handling
-- Routing/navigation infrastructure
-- Notifications infrastructure
-- Theming and design tokens
-- Cross-app services (storage, session, localization, etc.)
+## Network
 
-This folder should remain **feature-agnostic**. If code is specific to one product area, it usually belongs in `features/`.
+`DioClient` builds one Dio with, in order: the **mock** interceptor (`USE_MOCK=true` answers from `assets/mock/` — repositories,
+parsing and paging run unchanged), the **offline cache**, the **memory** interceptor, then JWT refresh, localisation (sends the
+language), logging and **error** mapping. A request fails as an `AppException`; the data source rethrows it with
+`rethrowAsAppException`, the repository turns it into a `Result` with `runAsResult`.
 
-## What `core/` currently contains (subfolder-level)
+## Dependency injection
 
-- **`config/`**
-  - Central configuration objects (e.g., app configuration, localization configuration).
+`injectable` annotations generate `injection/injectable.config.dart` (committed). Blocs are factories, services are
+`@lazySingleton`. A thing created by hand (stage tools) is registered in `bootstrap.dart`. `getIt.isRegistered<T>()` guards optional
+services in tests.
 
-- **`domain/`**
-  - Core domain entities/models that are shared across the application (e.g., common `User` entity).
+## When you add something here
 
-- **`error/`**
-  - Global error types and the app-wide error handling strategy.
-
-- **`injection/`**
-  - Dependency injection setup and registration (e.g., `injectable` configuration, module registration).
-
-- **`network/`**
-  - HTTP client setup and network configuration (e.g., Dio client, endpoints, interceptors).
-
-- **`notification/`**
-  - Push/local notification infrastructure, configuration, payload normalization, and background hooks.
-  - Includes dedicated documentation files already present in this folder.
-
-- **`router/`**
-  - App routing/navigation setup (routes, router config, transitions).
-  - Includes a routing guide markdown already present in this folder.
-
-- **`services/`**
-  - Cross-feature services such as:
-    - localization
-    - session/auth state management
-    - onboarding coordination
-    - persistent storage
-    - memory/cache management
-
-- **`theme/`**
-  - Design system foundation: colors, typography, text styles, theme composition, system UI overlay setup.
-  - Includes a dedicated theme effects layer (gradients/shadows) exposed via theme/context extensions.
-
-### 📚 Typography Encyclopedia (`AppTextStyles`)
-
-The application's typography is strictly controlled via `AppTextStyles`. Manually defining `TextStyle` is a protocol violation.
-
-#### Naming Convention `s[size]w[weight]`
-
-Styles are named after their logical size and font weight for transparency:
-
-- `s40w700`: Display Large (40sp, Bold)
-- `s24w700`: Headline Large (24sp, Bold)
-- `s16w600`: Title Medium (16sp, Semi-Bold)
-- `s14w400`: Body Medium (14sp, Regular)
-
-#### Mandatory Rules for Typography
-
-1. **Color Inheritance**: All `AppTextStyles` are built to **NOT** carry a color by default. You **MUST** apply colors using `.copyWith(color: ...)` or rely on the `DefaultTextStyle` provided by the theme.
-2. **Theme Synchronization**: Use `context.onSurface`, `context.primary`, etc., for text colors. NEVER use raw hex codes.
-3. **Scaling Precision (.sp)**: Every font size in the `AppTypography` and `AppTextStyles` is defined using `.sp`.
-
-### 📏 Scaling Precision (.sp) Protocol
-
-To ensure a premium, accessible experience, the application uses `flutter_screenutil`'s `.sp` (Scalable Pixels) for all text-related dimensions.
-
-#### Where .sp MUST be used
-
-1. **All Font Sizes**: No exceptions.
-2. **Button Heights**: Ensuring the touch target scales with the text size.
-3. **Icon Containers**: If an icon is paired with text, it must scale proportionally.
-4. **Text-Dense Containers**: Any padding or margin that is conceptually tied to text flow.
-
-#### Where .h / .w MUST be used
-
-- **.h**: Vertical spacing between sections, image heights, and screen-relative vertical dimensions.
-- **.w**: Horizontal margins, sidebar widths, and screen-relative horizontal dimensions.
-
-**VIOLATION**: Using raw `double` literals (e.g., `height: 50`) instead of `50.h` or `50.sp` will fail the protocol verification.
-
-- **`utils/`**
-  - Core-level utility types and patterns shared across infrastructure (e.g., result types, status types).
-
-## What could be added to `core/` in the future
-
-- **Analytics & monitoring**
-  - Crash reporting integration, event tracking, performance monitoring.
-
-- **Caching layer**
-  - Offline-first caching strategies, repository caching helpers.
-
-- **Security infrastructure**
-  - Secure storage, encryption helpers, certificate pinning policies.
-
-- **Feature flagging**
-  - Remote config integration and feature flag evaluation.
-
-- **App lifecycle and platform services**
-  - Deep link handling, app update prompts, background tasks.
-
-## How `core/` may evolve
-
-As the codebase grows, `core/` should remain:
-
-- **Stable and boring** (in a good way): foundational APIs used by features.
-- **Clearly layered**: features depend on core; core should not depend on feature implementation details.
-- **Well-documented**: guides can live beside the infrastructure they document.
+- A new service: `services/<name>/`, injected, with a guide if it has rules.
+- A platform-only capability: a getter on `AppPlatform` and a DI service behind it; never a bare plugin call from a widget.
+- Something several features need but that has UI: `lib/common/`, not `core/`.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' show ThemeMode;
 
+import '../../core/platform/app_platform.dart';
 import '../helpers/app_strings.dart';
 
 /// App flow and routing related constants.
@@ -27,7 +28,13 @@ class SplashConfig {
   ///
   /// The first tab's requests do not wait for it: they start as soon as the
   /// session is read, behind this screen (`BlocPreloader`).
-  static const Duration initialDelay = Duration(milliseconds: 1750);
+  ///
+  /// None on desktop: the window stays hidden until its first frame
+  /// (`AppWindow`), so there is no native splash to hand over from, and
+  /// desktop users expect the app the moment it appears.
+  static Duration get initialDelay =>
+      AppPlatform.hasDesktopWindow ? Duration.zero : _mobileInitialDelay;
+  static const Duration _mobileInitialDelay = Duration(milliseconds: 1750);
 
   /// Hard ceiling on the splash.
   ///
@@ -67,6 +74,18 @@ class AppFlowConfig {
 
   /// * Login wall or guest-first browsing. See [AuthMode].
   static const AuthMode authMode = AuthMode.loginRequired;
+
+  /// * «Continue as guest» on the sign-in screen.
+  ///
+  /// Only matters with [AuthMode.loginRequired]: in [AuthMode.guestFirst] the
+  /// button is always there. The router already lets a guest past the wall,
+  /// and a guest who touches an action that needs an account is asked to sign
+  /// in at that moment (`AuthGate`). Set it to `false` for a hard wall.
+  static const bool guestOnLoginWall = true;
+
+  /// Whether the sign-in screen offers «Continue as guest».
+  static bool get offersGuest =>
+      authMode == AuthMode.guestFirst || guestOnLoginWall;
 }
 
 /// Theme defaults.
@@ -75,7 +94,10 @@ class AppThemeConfig {
 
   /// The theme a first launch starts in. A value the user picked later (the
   /// settings screen, stage tools) always wins.
-  static const ThemeMode defaultMode = ThemeMode.system;
+  ///
+  /// Light, whatever the device is set to: the template's light palette is the
+  /// reference one. Use `ThemeMode.system` to follow the device instead.
+  static const ThemeMode defaultMode = ThemeMode.light;
 }
 
 /// Log tags for routing / flow related components.

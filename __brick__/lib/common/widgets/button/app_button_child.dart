@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../utils/constants/design_constants.dart';
 
 import '../app_icon_source.dart';
+import '../../../utils/extensions/num_spacing_extensions.dart';
 
 /// Describes the content shown inside an [AppButton].
 ///
@@ -100,7 +100,7 @@ class _LabelButtonChild extends AppButtonChild {
   @override
   EdgeInsetsGeometry defaultPadding(BuildContext context) {
     return padding ??
-        REdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 12);
+        const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 12);
   }
 }
 
@@ -117,7 +117,7 @@ class _IconOnlyButtonChild extends AppButtonChild {
 
   @override
   EdgeInsetsGeometry defaultPadding(BuildContext context) {
-    return padding ?? REdgeInsets.all(12);
+    return padding ?? const EdgeInsets.all(12);
   }
 }
 
@@ -179,6 +179,6 @@ class _LabelIconButtonChild extends AppButtonChild {
   @override
   EdgeInsetsGeometry defaultPadding(BuildContext context) {
     return padding ??
-        REdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 12);
+        const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 12);
   }
 }

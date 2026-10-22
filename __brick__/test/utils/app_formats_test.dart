@@ -75,13 +75,15 @@ void main() {
   });
 
   group('AppFormats.line — parts of one line, in either direction', () {
-    test('each part is isolated, joined by « · », and an empty part dropped',
-        () {
-      expect(
-        AppFormats.line(<String>['لجنة الإغاثة', '', '5h ago']),
-        '\u2068لجنة الإغاثة\u2069 · \u20685h ago\u2069',
-      );
-    });
+    test(
+      'each part is isolated, joined by « · », and an empty part dropped',
+      () {
+        expect(
+          AppFormats.line(<String>['لجنة الإغاثة', '', '5h ago']),
+          '\u2068لجنة الإغاثة\u2069 · \u20685h ago\u2069',
+        );
+      },
+    );
 
     test('an isolate is a pair of invisible marks around the text, nothing '
         'more', () {

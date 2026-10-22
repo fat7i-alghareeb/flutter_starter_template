@@ -6,6 +6,7 @@ import '../network/interceptors/custom_dio_interceptor.dart';
 import '../network/interceptors/error_interceptor.dart';
 import '../network/interceptors/localization_interceptor.dart';
 import '../network/interceptors/memory_aware_interceptor.dart';
+import '../services/haptics/haptics_service.dart';
 import '../services/session/auth_manager.dart';
 import '../network/interceptors/mock_interceptor.dart';
 import '../network/offline/response_cache.dart';
@@ -16,6 +17,10 @@ import '../services/storage/storage_service.dart';
 abstract class RegisterModule {
   @lazySingleton
   StorageService get storageService => StorageService.createDefault();
+
+  /// Vibration on phones, nothing on desktop.
+  @lazySingleton
+  HapticsService get haptics => HapticsService.forPlatform();
 
   @lazySingleton
   Dio dioClient(

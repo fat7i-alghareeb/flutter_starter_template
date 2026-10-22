@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/layout/app_layout.dart';
+import '../../../core/layout/app_layout_scope.dart';
+
 import '../../../utils/constants/design_constants.dart';
 import '../../../utils/extensions/context_extensions.dart';
 import '../../../utils/helpers/app_strings.dart';
@@ -89,9 +92,96 @@ class _AppHeroDetailLayoutState extends State<AppHeroDetailLayout> {
       ? widget.wideImageHeight
       : widget.imageHeight;
 
+  /// Expanded windows (840dp and wider): the picture beside the text rather
+  /// than above it. Stretched across a desktop window, a header photo would
+  /// be a thin strip and the text lines far too long (`docs/RESPONSIVE.md`).
+  Widget _buildSideBySide(BuildContext context, AppLayout layout) {
+    final gutter = layout.gutter;
+    return Stack(
+      children: <Widget>[
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _PlainBar(menu: widget.menu),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: AppLayout.contentMaxWidth,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                            gutter,
+                            AppSpacing.sm,
+                            AppSpacing.lg,
+                            gutter,
+                          ),
+                          child: Align(
+                            alignment: AlignmentDirectional.topStart,
+                            child: AspectRatio(
+                              aspectRatio: 4 / 3,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadii.lg,
+                                ),
+                                child: widget.image,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 6,
+                        child: CustomScrollView(
+                          controller: _scroll,
+                          slivers: <Widget>[
+                            SliverPadding(
+                              padding: EdgeInsetsDirectional.only(end: gutter),
+                              sliver: SliverToBoxAdapter(
+                                child: Align(
+                                  alignment: AlignmentDirectional.topStart,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: AppLayout.readableMaxWidth,
+                                    ),
+                                    child: widget.body,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (widget.actions != null)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: widget.actions!(_scroll),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasImage = widget.image != null;
+    final layout = AppLayoutScope.maybeOf(context);
+    if (hasImage && layout != null && layout.isExpandedUp) {
+      return _buildSideBySide(context, layout);
+    }
     final imageHeight = _imageHeight(context);
     final colors = Theme.of(context).colorScheme;
 
@@ -264,7 +354,7 @@ class _TopBar extends StatelessWidget {
             ),
             child: Padding(
               padding: EdgeInsetsDirectional.fromSTEB(
-                AppSpacing.sm,
+                AppSpacing.sm + context.leadingWindowControlsInset,
                 top + AppSpacing.xs,
                 AppSpacing.sm,
                 AppSpacing.xs,
@@ -374,8 +464,9 @@ class _PlainBar extends StatelessWidget {
       child: SizedBox(
         height: 56,
         child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.sm,
+          padding: EdgeInsetsDirectional.only(
+            start: AppSpacing.sm + context.leadingWindowControlsInset,
+            end: AppSpacing.sm,
           ),
           child: Row(
             children: <Widget>[

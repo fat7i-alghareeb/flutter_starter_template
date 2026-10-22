@@ -36,7 +36,9 @@ void main() {
             const Result<UserEntity>.success(UserEntity(id: 'usr_001')),
       ),
       build: build,
-      act: (bloc) => bloc.add(const AuthEvent.signInRequested(email: _email, password: _password)),
+      act: (bloc) => bloc.add(
+        const AuthEvent.signInRequested(email: _email, password: _password),
+      ),
       expect: () => <Matcher>[
         isA<AuthState>().having(
           (s) => s.signInStatus.isLoading,
@@ -61,7 +63,9 @@ void main() {
         queue.remember(ProtectedAction.save, () async {});
       },
       build: build,
-      act: (bloc) => bloc.add(const AuthEvent.signInRequested(email: _email, password: _password)),
+      act: (bloc) => bloc.add(
+        const AuthEvent.signInRequested(email: _email, password: _password),
+      ),
       verify: (_) {
         // The whole reason the gate exists: the user lands back on what they
         // were doing, with it done.
@@ -75,7 +79,9 @@ void main() {
         (_) async => const Result<UserEntity>.failure('server unreachable'),
       ),
       build: build,
-      act: (bloc) => bloc.add(const AuthEvent.signInRequested(email: _email, password: _password)),
+      act: (bloc) => bloc.add(
+        const AuthEvent.signInRequested(email: _email, password: _password),
+      ),
       expect: () => <Matcher>[
         isA<AuthState>().having(
           (s) => s.signInStatus.isLoading,
@@ -95,7 +101,9 @@ void main() {
             const Result<UserEntity>.failure(PendingActionMessages.cancelled),
       ),
       build: build,
-      act: (bloc) => bloc.add(const AuthEvent.signInRequested(email: _email, password: _password)),
+      act: (bloc) => bloc.add(
+        const AuthEvent.signInRequested(email: _email, password: _password),
+      ),
       expect: () => <Matcher>[
         isA<AuthState>().having(
           (s) => s.signInStatus.isLoading,
@@ -121,7 +129,9 @@ void main() {
         queue.remember(ProtectedAction.save, () async {});
       },
       build: build,
-      act: (bloc) => bloc.add(const AuthEvent.signInRequested(email: _email, password: _password)),
+      act: (bloc) => bloc.add(
+        const AuthEvent.signInRequested(email: _email, password: _password),
+      ),
       verify: (_) {
         // Left armed, it would fire on some later, unrelated sign-in.
         expect(queue.hasPending, isFalse);
@@ -137,8 +147,12 @@ void main() {
       }),
       build: build,
       act: (bloc) => bloc
-        ..add(const AuthEvent.signInRequested(email: _email, password: _password))
-        ..add(const AuthEvent.signInRequested(email: _email, password: _password)),
+        ..add(
+          const AuthEvent.signInRequested(email: _email, password: _password),
+        )
+        ..add(
+          const AuthEvent.signInRequested(email: _email, password: _password),
+        ),
       wait: const Duration(milliseconds: 60),
       verify: (_) {
         // Two sign-in requests racing each other is a real bug when the

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:{{project_name}}/common/widgets/ds/app_mark.dart';
 import 'package:{{project_name}}/common/widgets/loading_dots.dart';
 import 'package:{{project_name}}/core/theme/app_colors.dart';
 import 'package:{{project_name}}/features/splash/presentation/ui/screens/splash_screen.dart';
@@ -31,14 +32,22 @@ Future<void> _pumpSplash(
 
 void main() {
   group('SplashScreen', () {
-    testWidgets('shows the name and the tagline — and no logo', (
-      tester,
-    ) async {
+    testWidgets('shows the mark, the name and the tagline', (tester) async {
       await _pumpSplash(tester);
 
+      expect(find.byType(AppMark), findsOneWidget);
       expect(find.text(AppStrings.appName), findsOneWidget);
       expect(find.text(AppStrings.appTagline), findsOneWidget);
-      expect(find.byType(Image), findsNothing);
+    });
+
+    testWidgets('sizes the mark to the window class', (tester) async {
+      double markSize() => tester.widget<AppMark>(find.byType(AppMark)).size;
+
+      await _pumpSplash(tester);
+      expect(markSize(), 72);
+
+      await _pumpSplash(tester, surfaceSize: TestDevices.desktop);
+      expect(markSize(), 112);
     });
 
     testWidgets('shows the three pulsing dots', (tester) async {

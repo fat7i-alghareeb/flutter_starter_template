@@ -9,9 +9,12 @@ import '../../../../../common/widgets/ds/ds.dart';
 import '../../../../../common/widgets/empty_state_widget.dart';
 import '../../../../../common/widgets/failed_state_widget.dart';
 import '../../../../../common/widgets/scroll_reveal.dart';
+import '../../../../../core/layout/app_layout.dart';
+import '../../../../../core/shortcuts/app_commands.dart';
 import '../../../../../core/services/storage/last_visit.dart';
 import '../../../../../core/utils/bloc_status.dart';
 import '../../../../../utils/constants/design_constants.dart';
+import '../../../../../utils/extensions/context_extensions.dart';
 import '../../../../../utils/helpers/app_formats.dart';
 import '../../../../../utils/helpers/app_strings.dart';
 import '../../../../root/presentation/ui/widgets/nav_bar/app_bottom_nav.dart';
@@ -48,8 +51,9 @@ class FeedBody extends StatefulWidget {
   /// The next page is asked for this far from the end of the list.
   static const double loadMoreThreshold = 600;
 
-  /// The widest the column gets on a tablet or a landscape phone.
-  static const double maxContentWidth = 640;
+  /// The widest the content gets; beyond it the column is centred
+  /// (`AppLayout.contentMaxWidth`).
+  static const double maxContentWidth = AppLayout.contentMaxWidth;
 
   @override
   State<FeedBody> createState() => _FeedBodyState();
@@ -76,6 +80,7 @@ class _FeedBodyState extends State<FeedBody>
     _scroll.addListener(_onScroll);
     unawaited(_lastVisit.load());
     FeedNavigation.searchIntent.pending.addListener(_onSearchIntent);
+    AppCommands.addRefresher(_refreshCommand);
     // Another tab may have asked for a search before this one was built.
     WidgetsBinding.instance.addPostFrameCallback((_) => _onSearchIntent());
   }
@@ -95,6 +100,7 @@ class _FeedBodyState extends State<FeedBody>
   @override
   void dispose() {
     FeedNavigation.searchIntent.pending.removeListener(_onSearchIntent);
+    AppCommands.removeRefresher(_refreshCommand);
     _navigation?.removeListener(_onNavigationChanged);
     _scroll
       ..removeListener(_onScroll)
@@ -143,6 +149,14 @@ class _FeedBodyState extends State<FeedBody>
     );
   }
 
+  /// Ctrl/⌘+R, F5 and the menu bar's Refresh — only while the feed is the
+  /// tab on screen.
+  void _refreshCommand() {
+    final tab = _navigation?.currentIndex ?? FeedNavigation.tabIndex;
+    if (tab != FeedNavigation.tabIndex) return;
+    unawaited(_refresh());
+  }
+
   Future<void> _refresh() async {
     final bloc = context.read<FeedBloc>()..add(const FeedEvent.refreshed());
     // The indicator stays until the list has answered; the sections follow
@@ -157,18 +171,25 @@ class _FeedBodyState extends State<FeedBody>
     final bottom = AppBottomNav.listBottomPadding(context);
     return Column(
       children: <Widget>[
-        FeedHeader(isScrolled: _isScrolled, intro: _intro),
+        FeedHeader(
+          isScrolled: _isScrolled,
+          intro: _intro,
+          onRefresh: () => unawaited(_refresh()),
+        ),
         Expanded(
           child: Stack(
             children: <Widget>[
               AppRefresh(
                 onRefresh: _refresh,
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: FeedBody.maxContentWidth,
-                    ),
-                    child: CustomScrollView(
+                // Full width, so the scrollbar sits at the window's edge; the
+                // content itself is a centred column of at most
+                // [FeedBody.maxContentWidth].
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final centre =
+                        ((constraints.maxWidth - FeedBody.maxContentWidth) / 2)
+                            .clamp(0.0, double.infinity);
+                    return CustomScrollView(
                       controller: _scroll,
                       // Always draggable, or pull-to-refresh dies the moment
                       // a search leaves fewer rows than fill the screen.
@@ -180,12 +201,19 @@ class _FeedBodyState extends State<FeedBody>
                         const SliverToBoxAdapter(
                           child: SizedBox(height: AppSpacing.sm),
                         ),
-                        _Sections(intro: _intro, lastVisit: _lastVisit),
-                        const _LatestList(),
+                        SliverPadding(
+                          padding: EdgeInsets.symmetric(horizontal: centre),
+                          sliver: SliverMainAxisGroup(
+                            slivers: <Widget>[
+                              _Sections(intro: _intro, lastVisit: _lastVisit),
+                              const _LatestList(),
+                            ],
+                          ),
+                        ),
                         SliverToBoxAdapter(child: SizedBox(height: bottom)),
                       ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
               AppBackToTop(
@@ -223,25 +251,31 @@ class _Sections extends StatelessWidget {
           start: 0.25,
           scale: 0.94,
           curve: AppCurves.reveal,
-          child: BlocSelector<FeedBloc, FeedState, BlocStatus<List<FeedItemEntity>>>(
-            selector: (state) => state.highlightsState,
-            builder: (context, status) => AppLazySection<FeedItemEntity>(
-              status: status,
-              onRequested: () => context.read<FeedBloc>().add(
-                const FeedEvent.sectionRequested(FeedSection.highlights),
+          child:
+              BlocSelector<
+                FeedBloc,
+                FeedState,
+                BlocStatus<List<FeedItemEntity>>
+              >(
+                selector: (state) => state.highlightsState,
+                builder: (context, status) => AppLazySection<FeedItemEntity>(
+                  status: status,
+                  onRequested: () => context.read<FeedBloc>().add(
+                    const FeedEvent.sectionRequested(FeedSection.highlights),
+                  ),
+                  onRetry: () => context.read<FeedBloc>().add(
+                    const FeedEvent.sectionRetried(FeedSection.highlights),
+                  ),
+                  loading: (_) =>
+                      const AppPeekCarousel<FeedItemEntity>.loading(),
+                  builder: (context, data) => AppPeekCarousel<FeedItemEntity>(
+                    items: data,
+                    semanticLabelOf: (item) => item.title,
+                    itemBuilder: (context, item, isActive) =>
+                        FeedHighlightSlide(item: item, isActive: isActive),
+                  ),
+                ),
               ),
-              onRetry: () => context.read<FeedBloc>().add(
-                const FeedEvent.sectionRetried(FeedSection.highlights),
-              ),
-              loading: (_) => const AppPeekCarousel<FeedItemEntity>.loading(),
-              builder: (context, data) => AppPeekCarousel<FeedItemEntity>(
-                items: data,
-                semanticLabelOf: (item) => item.title,
-                itemBuilder: (context, item, isActive) =>
-                    FeedHighlightSlide(item: item, isActive: isActive),
-              ),
-            ),
-          ),
         ),
         BlocSelector<FeedBloc, FeedState, BlocStatus<List<FeedItemEntity>>>(
           selector: (state) => state.picksState,
@@ -345,12 +379,11 @@ class _LatestList extends StatelessWidget {
         }
 
         final isLoading = items == null;
+        final gutter = context.layout.gutter;
         return SliverMainAxisGroup(
           slivers: <Widget>[
             SliverPadding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppSpacing.screenMargin,
-              ),
+              padding: EdgeInsetsDirectional.symmetric(horizontal: gutter),
               sliver: SliverToBoxAdapter(
                 child: ScrollReveal(
                   child: AppSectionHeader(
@@ -363,21 +396,54 @@ class _LatestList extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppSpacing.screenMargin,
-              ),
-              sliver: SliverList.separated(
-                itemCount: isLoading ? 5 : items.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppSpacing.cardGap),
-                itemBuilder: (context, index) {
-                  if (isLoading) return const FeedCard.loading();
-                  final item = items[index];
-                  // The rise plays as each row scrolls in, not when it is
-                  // built off screen in the cache extent.
-                  return FeedCard.success(
-                    item: item,
-                  ).revealOnScroll(id: item.id);
+              padding: EdgeInsetsDirectional.symmetric(horizontal: gutter),
+              // 1 → 2 → 3 columns by the width the list actually gets — the
+              // window, not the device (`docs/RESPONSIVE.md`). Rows of
+              // cards rather than a grid, so a card with a longer title is
+              // simply taller instead of being cut to a fixed ratio.
+              sliver: SliverLayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = AppLayout.columnsFor(
+                    constraints.crossAxisExtent,
+                  );
+                  final count = isLoading ? 5 : items.length;
+                  Widget cardAt(int index) {
+                    if (isLoading) return const FeedCard.loading();
+                    final item = items[index];
+                    // The rise plays as each row scrolls in, not when it is
+                    // built off screen in the cache extent.
+                    return FeedCard.success(
+                      item: item,
+                    ).revealOnScroll(id: item.id);
+                  }
+
+                  if (columns == 1) {
+                    return SliverList.separated(
+                      itemCount: count,
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.cardGap),
+                      itemBuilder: (context, index) => cardAt(index),
+                    );
+                  }
+                  final rows = (count / columns).ceil();
+                  return SliverList.separated(
+                    itemCount: rows,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSpacing.md),
+                    itemBuilder: (context, row) => Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        for (var c = 0; c < columns; c++) ...<Widget>[
+                          if (c > 0) const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: row * columns + c < count
+                                ? cardAt(row * columns + c)
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
                 },
               ),
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/platform/app_platform.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../utils/extensions/theme_extensions.dart';
@@ -14,8 +14,12 @@ abstract class AppFormFieldDefaults {
   }
 
   static EdgeInsetsGeometry contentPadding() {
-    return REdgeInsets.symmetric(horizontal: 12, vertical: 12);
+    return const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
   }
+
+  /// A single-line field's height: 44 under a finger, 40 under a mouse. A tall
+  /// field is mostly empty padding, and a form of them reads as a long strip.
+  static double get height => AppPlatform.hasDesktopWindow ? 40 : 44;
 
   static TextStyle titleTextStyle(BuildContext context) {
     return AppTextStyles.s14w600.copyWith(
@@ -28,11 +32,22 @@ abstract class AppFormFieldDefaults {
   }
 
   static Color iconColor(BuildContext context) {
-    return context.onSurface.withValues(alpha: 0.45);
+    return context.colorScheme.onSurfaceVariant;
   }
 
-  static Color fillColor(BuildContext context) {
-    return context.primary.withValues(alpha: 0.05);
+  /// Placeholder text. `onSurfaceVariant` — 4.5:1 or better on a card in both
+  /// themes; the old tint of the border grey was close to invisible.
+  static Color hintColor(BuildContext context) {
+    return context.colorScheme.onSurfaceVariant;
+  }
+
+  /// The plate of a field: the card colour, so a field reads as a field on the
+  /// grey page and keeps its border as the edge. A disabled one steps back to
+  /// the quiet plate.
+  static Color fillColor(BuildContext context, {bool enabled = true}) {
+    return enabled
+        ? context.colorScheme.surface
+        : context.colorScheme.surfaceContainerHighest;
   }
 
   static List<BoxShadow> shadows(BuildContext context) {
@@ -48,7 +63,7 @@ abstract class AppFormFieldDefaults {
   }
 
   static Color borderColorDisabled(BuildContext context) {
-    return context.grey.withValues(alpha: 0.6);
+    return context.colorScheme.outline;
   }
 
   static Color borderColorError(BuildContext context) {

@@ -10,9 +10,12 @@ export 'package:easy_localization/easy_localization.dart' hide TextDirection;
 // Flutter (UI layer)
 export 'package:flutter/material.dart';
 export 'package:flutter/widgets.dart';
-export 'package:flutter_screenutil/flutter_screenutil.dart';
 
-export '../../../../../core/injection/injectable.dart';
+export '../../core/injection/injectable.dart';
+export '../../core/layout/adaptive_layout.dart';
+export '../../core/layout/app_layout.dart';
+export '../../core/layout/app_layout_scope.dart';
+export '../../core/platform/app_platform.dart';
 export "../../core/theme/app_colors.dart";
 export "../../core/theme/app_text_styles.dart";
 export "../../core/utils/status_builder.dart";
@@ -22,6 +25,7 @@ export '../../utils/extensions/context_extensions.dart';
 export '../../utils/extensions/date_time_extensions.dart';
 export '../../utils/extensions/enum_extensions.dart';
 export '../../utils/extensions/iterable_extensions.dart';
+export '../../utils/extensions/num_spacing_extensions.dart';
 export "../../utils/extensions/reactive_forms_extensions.dart";
 export '../../utils/extensions/string_extensions.dart';
 export '../../utils/extensions/text_direction_extensions.dart';

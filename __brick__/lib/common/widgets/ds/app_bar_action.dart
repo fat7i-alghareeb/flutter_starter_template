@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../utils/constants/design_constants.dart';
-import '../../../utils/helpers/app_formats.dart';
+import 'app_count_badge.dart';
+import 'app_focus_ring.dart';
 import 'app_icons.dart';
 
 /// A 44×44 target around a 20dp glyph — the size `DESIGN_SYSTEM.md` sets for
@@ -30,43 +31,43 @@ class AppBarAction extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadii.sm),
-          child: SizedBox(
-            width: AppIconSizes.minTouchTarget,
-            height: AppIconSizes.minTouchTarget,
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                AppIcon(icon, color: colors.onSurfaceVariant),
-                if (badgeCount > 0)
-                  PositionedDirectional(
-                    top: AppSpacing.sm,
-                    end: AppSpacing.sm,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      constraints: const BoxConstraints(minWidth: 14),
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        borderRadius: BorderRadius.circular(AppRadii.full),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        AppFormats.number(context, badgeCount),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colors.onPrimary,
+    // The label shows on hover with a pointer and on a long press on touch —
+    // Flutter's own Tooltip behaviour. Screen readers already hear [label].
+    return AppFocusRing(
+      borderRadius: BorderRadius.circular(AppRadii.sm),
+      child: Tooltip(
+        message: label,
+        excludeFromSemantics: true,
+        child: Semantics(
+          button: true,
+          label: label,
+          excludeSemantics: true,
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(AppRadii.sm),
+              child: SizedBox(
+                width: AppIconSizes.minTouchTarget,
+                height: AppIconSizes.minTouchTarget,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    AppIcon(icon, color: colors.onSurfaceVariant),
+                    if (badgeCount > 0)
+                      PositionedDirectional(
+                        top: AppSpacing.sm,
+                        end: AppSpacing.sm,
+                        child: AppCountBadge(
+                          count: badgeCount,
+                          color: colors.primary,
+                          onColor: colors.onPrimary,
+                          size: 18,
                         ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),

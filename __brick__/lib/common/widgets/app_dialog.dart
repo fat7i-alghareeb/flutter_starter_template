@@ -125,9 +125,13 @@ class AppDialog extends StatelessWidget {
   List<AppDialogAction> _resolveActions() {
     final resolved = <AppDialogAction>[];
 
-    // Convention: secondary (cancel/back) comes before primary.
+    // Convention: secondary (cancel/back) comes before primary — except on
+    // Windows, where the confirming button comes first (Flutter's platform
+    // idioms guide, «Horizontal button order»).
+    final confirmFirst = AppPlatform.isWindows;
+    if (confirmFirst && primaryAction != null) resolved.add(primaryAction!);
     if (secondaryAction != null) resolved.add(secondaryAction!);
-    if (primaryAction != null) resolved.add(primaryAction!);
+    if (!confirmFirst && primaryAction != null) resolved.add(primaryAction!);
 
     // Additional actions are appended after the primary/secondary pair.
     if (actions != null && actions!.isNotEmpty) {
@@ -139,7 +143,7 @@ class AppDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(borderRadius.r);
+    final radius = BorderRadius.circular(borderRadius);
     final colors = context.colorScheme;
     final viewInsets = MediaQuery.viewInsetsOf(context);
 
@@ -160,7 +164,7 @@ class AppDialog extends StatelessWidget {
             // keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: ConstrainedBox(
               // Constraining width keeps the dialog readable on tablets/desktop.
-              constraints: BoxConstraints(maxWidth: (maxWidth ?? 520).w),
+              constraints: BoxConstraints(maxWidth: maxWidth ?? 520),
               child: Container(
                 decoration: BoxDecoration(
                   color: backgroundColor ?? colors.surface,
@@ -210,7 +214,7 @@ class AppDialog extends StatelessWidget {
                       AppSpacing.xl.verticalSpace,
                       ...resolvedActions.map(
                         (a) => Padding(
-                          padding: EdgeInsets.only(top: AppSpacing.sm.h),
+                          padding: const EdgeInsets.only(top: AppSpacing.sm),
                           child: a.build(context),
                         ),
                       ),
@@ -257,6 +261,9 @@ class AppDialogAction {
     );
   }
 
+  /// The way out: "Cancel", "Exit", "Back". Red (the error variant): it is a
+  /// real action, and grey is reserved for buttons that are inactive
+  /// (`AppButtonVariant.grey`).
   factory AppDialogAction.secondary({
     required String label,
     VoidCallback? onPressed,
@@ -265,7 +272,7 @@ class AppDialogAction {
   }) {
     return AppDialogAction._(
       label: label,
-      variant: AppButtonVariant.grey,
+      variant: AppButtonVariant.error,
       fill: AppButtonFill.solid,
       icon: icon,
       labelStyle: labelStyle,

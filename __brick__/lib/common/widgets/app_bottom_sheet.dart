@@ -73,6 +73,75 @@ class AppBottomSheet extends StatelessWidget {
   ///
   /// [useRootNavigator] pushes the sheet above nested navigators (e.g.
   /// go_router ShellRoute / nested Navigator) so it behaves consistently.
+  /// The widest a sheet gets when it is shown as a dialog.
+  static const double dialogMaxWidth = 720;
+
+  /// Sheets become centred dialogs in expanded windows (840dp and wider):
+  /// a sheet rising from the bottom of a desktop window, 1200dp wide, is
+  /// the wrong shape for a choice (`docs/RESPONSIVE.md`).
+  static bool presentsAsDialog(BuildContext context) =>
+      AppLayoutScope.maybeOf(context)?.isExpandedUp ?? false;
+
+  /// Shows [builder]'s content as a bottom sheet in compact and medium
+  /// windows, and as a centred dialog of at most [maxDialogWidth] in
+  /// expanded ones. The same widget either way: it reads
+  /// [AppSheetPresentation.presentsAsDialog] to drop its handle and round all four
+  /// corners.
+  static Future<T?> showAdaptive<T>(
+    BuildContext context, {
+    required WidgetBuilder builder,
+    bool useRootNavigator = true,
+    bool isScrollControlled = true,
+    bool enableDrag = true,
+    bool isDismissible = true,
+    bool useSafeArea = false,
+    Color? barrierColor,
+    double maxDialogWidth = dialogMaxWidth,
+    bool childPaintsSurface = false,
+  }) {
+    if (presentsAsDialog(context)) {
+      return showDialog<T>(
+        context: context,
+        useRootNavigator: useRootNavigator,
+        barrierDismissible: isDismissible,
+        barrierColor: barrierColor,
+        builder: (context) => AppSheetPresentation(
+          isDialog: true,
+          child: Dialog(
+            // An [AppBottomSheet] paints its own surface; plain content gets
+            // the dialog's.
+            backgroundColor: childPaintsSurface ? Colors.transparent : null,
+            elevation: childPaintsSurface ? 0 : null,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.lg),
+            ),
+            clipBehavior: Clip.antiAlias,
+            insetPadding: const EdgeInsets.all(AppSpacing.xl),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxDialogWidth,
+                maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+              ),
+              child: Builder(builder: builder),
+            ),
+          ),
+        ),
+      );
+    }
+    return showModalBottomSheet<T>(
+      context: context,
+      useRootNavigator: useRootNavigator,
+      isScrollControlled: isScrollControlled,
+      enableDrag: enableDrag,
+      isDismissible: isDismissible,
+      useSafeArea: useSafeArea,
+      barrierColor: barrierColor,
+      backgroundColor: Colors.transparent,
+      showDragHandle: false,
+      builder: builder,
+    );
+  }
+
   static Future<T?> show<T>(
     BuildContext context, {
     required AppBottomSheet sheet,
@@ -82,6 +151,16 @@ class AppBottomSheet extends StatelessWidget {
     bool isDismissible = true,
     Color? barrierColor,
   }) {
+    if (presentsAsDialog(context)) {
+      return showAdaptive<T>(
+        context,
+        builder: (_) => sheet,
+        useRootNavigator: useRootNavigator,
+        isDismissible: isDismissible,
+        barrierColor: barrierColor,
+        childPaintsSurface: true,
+      );
+    }
     return showModalBottomSheet<T>(
       context: context,
       useRootNavigator: useRootNavigator,
@@ -133,11 +212,17 @@ class AppBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final radius = BorderRadius.only(
-      topLeft: Radius.circular(borderRadius.r),
-      topRight: Radius.circular(borderRadius.r),
-    );
+    final asDialog = AppSheetPresentation.presentsAsDialog(context);
+    // A dialog sits above the keyboard on its own.
+    final bottomInset = asDialog
+        ? 0.0
+        : MediaQuery.of(context).viewInsets.bottom;
+    final radius = asDialog
+        ? BorderRadius.circular(AppRadii.lg)
+        : BorderRadius.only(
+            topLeft: Radius.circular(borderRadius),
+            topRight: Radius.circular(borderRadius),
+          );
 
     final body = Material(
       color: backgroundColor ?? context.colorScheme.surface,
@@ -151,7 +236,8 @@ class AppBottomSheet extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (showDragHandle) _dragHandle(context),
+                // A dialog is not dragged away; it has no handle.
+                if (showDragHandle && !asDialog) _dragHandle(context),
                 if (header != null) ...[AppSpacing.md.verticalSpace, header!],
                 if (title?.trim().isNotEmpty == true) ...[
                   AppSpacing.md.verticalSpace,
@@ -222,6 +308,28 @@ class AppBottomSheet extends StatelessWidget {
         ? GestureDetector(onTap: context.unfocus, child: body)
         : body;
 
-    return SafeArea(child: maybeUnfocus);
+    return asDialog ? maybeUnfocus : SafeArea(child: maybeUnfocus);
   }
+}
+
+/// Tells a sheet whether it is being shown as a centred dialog
+/// (`AppBottomSheet.showAdaptive`) rather than from the bottom edge.
+class AppSheetPresentation extends InheritedWidget {
+  const AppSheetPresentation({
+    super.key,
+    required this.isDialog,
+    required super.child,
+  });
+
+  final bool isDialog;
+
+  static bool presentsAsDialog(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<AppSheetPresentation>()
+          ?.isDialog ??
+      false;
+
+  @override
+  bool updateShouldNotify(AppSheetPresentation oldWidget) =>
+      isDialog != oldWidget.isDialog;
 }

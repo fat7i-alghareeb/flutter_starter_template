@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../../../../common/widgets/ds/ds.dart';
+import '../../../../../core/router/app_links.dart';
+import '../../../../../utils/helpers/app_strings.dart';
 
 import '../../../../../core/router/app_navigator.dart';
 import '../../../../root/presentation/ui/widgets/nav_bar/tab_intent.dart';
@@ -29,16 +34,40 @@ class FeedNavigation {
 
     // Outside the app's router — a test, a preview — a plain push still
     // opens the page, so the tap is never a silent no-op.
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => FeedItemScreen(itemId: id)),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => FeedItemScreen(itemId: id)));
+  }
+
+  /// A card's context menu (right click, long press): open it, or copy its
+  /// link — the same link the item page's Share copies.
+  static List<AppMenuAction> cardActions(BuildContext context, String id) {
+    return <AppMenuAction>[
+      AppMenuAction(
+        icon: AppIcons.externalLink,
+        label: AppStrings.actionOpen,
+        onSelected: () => openItem(context, id),
+      ),
+      AppMenuAction(
+        icon: AppIcons.link,
+        label: AppStrings.actionCopyLink,
+        onSelected: () {
+          Clipboard.setData(ClipboardData(text: AppLinks.shareUrlOf(id)));
+          ScaffoldMessenger.maybeOf(context)
+            ?..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(content: AppSnackContent(AppStrings.feedLinkCopied)),
+            );
+        },
+      ),
+    ];
   }
 
   static void openSettings(BuildContext context) {
     final pushed = AppNavigator.push<void>(context, AppPage.settings);
     if (pushed != null) return;
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen()));
   }
 }

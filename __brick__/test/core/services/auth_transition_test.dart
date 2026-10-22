@@ -35,9 +35,7 @@ void main() {
     final tokenStorage = _MockTokenStorage();
     final state = AuthStateNotifier()..setGuest(true);
 
-    when(
-      () => storage.writeString(any(), any()),
-    ).thenAnswer((_) async {});
+    when(() => storage.writeString(any(), any())).thenAnswer((_) async {});
     when(() => storage.writeBool(any(), any())).thenAnswer((_) async {});
     when(() => tokenStorage.write(any())).thenAnswer((_) async {});
 
@@ -65,7 +63,8 @@ void main() {
     expect(
       seen.contains(false),
       isFalse,
-      reason: 'one frame of «no guest, no account» is a redirect to /login '
+      reason:
+          'one frame of «no guest, no account» is a redirect to /login '
           'and a lost navigation stack',
     );
     expect(state.isAuthenticated, isTrue);
@@ -87,9 +86,7 @@ void main() {
       storage = _MockStorage();
       tokenStorage = _MockTokenStorage();
       state = AuthStateNotifier()
-        ..setUser(
-          const UserEntity(id: 'usr_001', name: 'أحمد', email: 'a@b.c'),
-        )
+        ..setUser(const UserEntity(id: 'usr_001', name: 'أحمد', email: 'a@b.c'))
         ..setAuthStatus(AuthStatus.authenticated());
 
       when(() => storage.remove(any())).thenAnswer((_) async {});
@@ -128,16 +125,19 @@ void main() {
       verify(() => tokenStorage.delete(any())).called(1);
     });
 
-    test('a guest has no session to lose — expiring twice is harmless', () async {
-      await manager.expireSession();
-      state.setSessionExpired(false);
+    test(
+      'a guest has no session to lose — expiring twice is harmless',
+      () async {
+        await manager.expireSession();
+        state.setSessionExpired(false);
 
-      // The interceptor's revoke runs after its refresh already failed.
-      await manager.expireSession();
+        // The interceptor's revoke runs after its refresh already failed.
+        await manager.expireSession();
 
-      expect(state.sessionExpired, isFalse);
-      verify(() => tokenStorage.delete(any())).called(1);
-    });
+        expect(state.sessionExpired, isFalse);
+        verify(() => tokenStorage.delete(any())).called(1);
+      },
+    );
 
     test('signing in again puts the banner away', () async {
       await manager.expireSession();

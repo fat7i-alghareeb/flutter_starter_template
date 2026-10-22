@@ -1,355 +1,104 @@
-# 🔑 Session & Auth Service Guide (`lib/core/services/session/`)
+# Session and auth guide (`lib/core/services/session/`)
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+Read this before you change sign-in, tokens, token refresh, logout, guest mode, session expiry, or anything that reads
+"is the user signed in". Constants: `lib/utils/constants/auth_constants.dart`. Routing consequences: `lib/core/router/router_guide.md`.
 
-This document is a **Hard Requirement** for any AI agent interacting with user sessions or authentication state. You **MUST** ensure your internal state is synced with the following auth anchors:
+## The one rule
 
-- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
-- **Auth Constants**: [lib/utils/constants/auth_constants.dart](lib/utils/constants/auth_constants.dart)
+- **Change the session through `AuthManager`** (from a repository or facade, after a successful domain action).
+- **Observe it through `AuthStateNotifier`** (from widgets and the router).
 
-Failure to use the centralized `AuthManager` / `AuthStateNotifier` for state checks is a protocol violation.
+Storage, JWT refresh and status transitions stay in one place, and no widget mutates the session.
 
----
+## The files
 
-The most important design rule is:
+### `auth_manager.dart` — `AuthManager` (imperative API; a domain service)
 
-- **Domain/data layer changes the session through `AuthManager`.**
-- **UI and Router observe session changes through `AuthStateNotifier`.**
+| Method | What it does |
+| --- | --- |
+| `initialize()` | After the first frame: loads the stored user and guest flag, moves `authStatus` out of `Status.initial`, restores the token in `JwtTokenStorage`, subscribes to `authenticationStatus`. Never blocks `runApp` |
+| `login(user: …, token: …)` | Persists the user, clears the guest flag, sets `AuthStatus.authenticated()`, stores the token in secure storage, clears `sessionExpired` |
+| `logout()` | The reader asked to leave. Clears the user and tokens (see "after the session ends" below) |
+| `expireSession()` | The session ended without the reader asking (refresh failed, token revoked). Same cleanup, then sets `sessionExpired` so the UI can explain. Does nothing if nobody is signed in, so a second call is harmless |
+| `continueAsGuest()` | Clears the user, sets the guest flag and `AuthStatus.unauthenticated(message: AuthReasons.guest)`, deletes any token |
+| `isGuest`, `isAuthenticated` | Read-through to the notifier |
 
-This keeps storage, JWT refresh, and auth status transitions centralized and consistent.
+**After the session ends** (`logout` and `expireSession`) the result depends on `AppFlowConfig.authMode`:
 
-## Files in this folder (what each file does)
+- `loginRequired`: status becomes unauthenticated and the guest flag is cleared — "neither signed in nor a guest" is exactly the state the
+  router sends to the sign-in wall.
+- `guestFirst`: the reader becomes a **guest** (flag set *before* the status changes, so no frame ever reads "neither" and
+  redirects) and keeps browsing.
 
-### `auth_manager.dart`
+### `auth_state_notifier.dart` — `AuthStateNotifier` (`ChangeNotifier`; the source of truth for UI and routing)
 
-`AuthManager` is the _imperative API_ for changing session.
-
-It coordinates:
-
-- Persisting user/guest flag via `StorageService`
-- Updating the reactive state in `AuthStateNotifier`
-- Writing/deleting JWT tokens through `JwtTokenStorage`
-- Listening to JWT token status updates and forwarding them into `AuthStateNotifier`
-
-Key points:
-
-- The session layer is JWT-based (token storage + refresh flow is active).
-
-- During `initialize()`:
-  - Loads persisted user + guest flag.
-  - Ensures `AuthStateNotifier.authStatus` is not stuck on `Status.initial`.
-  - Initializes token storage and subscribes to `authenticationStatus`.
-  - May log token expiry/remaining time for debugging purposes.
-
-- During `login(...)`:
-  - Persists user.
-  - Clears guest.
-  - Updates router-facing status: `AuthStatus.authenticated()`.
-  - Persists the required JWT token into secure storage.
-
-- During `logout()`:
-  - Clears persisted user + guest.
-  - Sets status to `AuthStatus.unauthenticated(message: ...)`.
-  - Deletes the JWT token and emits unauthenticated through dio_refresh_bot.
-
-#### How it should be used in your architecture
-
-- Preferred: call it from **repository/facade** after a successful domain action.
-  - Example (current project style):
-    - `AuthBloc` triggers a login use case.
-    - Repository maps response to `UserEntity` + `AuthTokenModel`.
-    - Repository calls `AuthManager.login(...)`.
-
-- Avoid: calling it directly from UI widgets, except for very small apps or prototype screens.
-
-### `auth_state_notifier.dart`
-
-`AuthStateNotifier` is the app-wide reactive _source of truth_ for UI and routing.
-
-It holds:
-
-- `UserEntity? user`
-- `bool isGuest`
-- `AuthStatus authStatus` (from `dio_refresh_bot`)
-
-It also exposes derived helpers:
-
-- `isAuthenticated` (authenticated and not guest)
-- `isUnauthenticated` (unauthenticated and not guest)
-
-#### What uses it right now
-
-- Router (`GoRouter.refreshListenable`) uses it to re-run redirects.
-- Any widget can read it to decide:
-  - show/hide authenticated UI
-  - show guest-specific UI
-  - show login-required prompts
-
-#### Important rule
-
-- You typically do **not** set it directly from UI.
-- `AuthManager` is the owner that mutates it.
+Holds `user`, `isGuest`, `authStatus` (from `dio_refresh_bot`), `sessionExpired`. Derived: `isAuthenticated` (authenticated **and
+not** guest), `isUnauthenticated` (unauthenticated and not guest). Only `AuthManager` mutates it. The router listens to it.
 
 ### `auth_token_model.dart`
 
-Your concrete token type.
+`AuthTokenModel extends AuthToken` (from `dio_refresh_bot`): `accessToken`, `refreshToken`, `expiresIn`. A small bridge between the API,
+storage and the refresh library.
 
-- It extends `AuthToken` from `dio_refresh_bot`.
-- That allows `RefreshTokenInterceptor<AuthTokenModel>` to read:
-  - `accessToken`
-  - `refreshToken`
-  - `expiresIn`
+### `jwt_token_storage.dart` — `JwtTokenStorage`
 
-This file is intentionally small: it’s a compatibility bridge between API/storage and the refresh library.
+Bridges secure storage (`StorageService`), the in-memory token the refresh interceptor reads synchronously, and the auth status
+stream. A stored token that is already expired is **kept in memory on purpose**: the first protected call returns 401 and the
+interceptor tries to refresh, instead of logging the reader out at launch. `write` persists the token and its expiry; `delete(reason)`
+clears storage and publishes the status.
 
-### `jwt_token_storage.dart`
+### `pending_action.dart` — `PendingActionQueue`, `ProtectedAction`
 
-`JwtTokenStorage` is the bridge between:
+For `AuthMode.guestFirst`: a guest touches something that needs an account (`AuthGate.run(context, ProtectedAction.save, onGranted)`),
+the sign-in sheet opens, and `PendingActionQueue` remembers what they wanted. After a successful sign-in it runs, and the reader
+stays where they were. One action is remembered (the newest); backing out of the sheet clears it.
 
-- **Secure persistence** (via `StorageService`)
-- **In-memory token cache** (via `BotMemoryTokenStorage`)
-- **Auth status stream** (via `RefreshBotMixin`)
+## Start-up
 
-What it does:
+1. DI registers `StorageService`, `AuthManager` and the JWT Dio client — no storage is read.
+2. The first frame is drawn.
+3. The post-frame warm-up calls `AuthManager.initialize()`.
+4. The router starts on the splash and decides the next route from `authStatus.status`, `isGuest` and onboarding. While the status is
+   `Status.initial` the guard keeps the reader on the splash, so session restore never blocks the first frame. If bootstrap has not
+   resolved after `SplashConfig.maxWait` (8 s) the app moves on.
 
-- `initialize()` loads token JSON from secure storage and seeds the in-memory token.
-- If a stored token is expired, it is intentionally kept in memory so the refresh interceptor can attempt a refresh on the first protected call (401) instead of forcing an immediate logout on app start.
-- `write(token)` persists token + a derived expiry timestamp.
-- `delete(reason)` clears secure storage and updates the dio_refresh_bot status stream.
+## Sign-in
 
-Why it exists:
+Bloc event → facade → repository (maps to `UserEntity` + `AuthTokenModel`) → `AuthManager.login(...)`. The notifier updates, the
+router's refresh listenable fires, and the guard moves the reader to the shell. A guest who signs in via the sheet or the pushed
+page stays on the page they were on; the screen closes itself on success. With no backend (`USE_MOCK=true`, or no base URL in
+`ApiConfig`) the demo identity is filled in and any password of six characters works.
 
-- `dio_refresh_bot` needs a token storage that it can query synchronously and also observe status changes from.
-- The app needs persistence across restarts.
+## Token refresh (`lib/core/network/dio_client.dart`)
 
-## How the session is used today (current flow)
+`createDioClient` installs `RefreshTokenInterceptor<AuthTokenModel>`: it adds `Authorization: Bearer <accessToken>`, refreshes when
+the token is about to expire (`isTokenAboutToExpire`) or the response is 401 — never when nobody is signed in or there is no token —
+using a dedicated `tokenDio` (so the refresh call is not itself intercepted), posts to `ApiEndpoints.refreshToken`, and writes the new
+`AuthTokenModel`. If the refresh fails or the token is revoked it calls **`AuthManager.expireSession()`**, which updates the notifier and
+the router reacts (the wall, with "your session has ended", or in guest-first mode a banner over the app).
 
-### App startup
+## Using it from a widget
 
-1. DI is configured.
-2. `StorageService`, `AuthManager`, and the global JWT Dio client are registered by Injectable without storage reads.
-3. The app renders its first frame.
-4. Post-frame warmup calls `AuthManager.initialize()`:
-   - Loads user/guest from `StorageService`.
-   - Ensures status is not `Status.initial`.
-   - Restores token in `JwtTokenStorage` and begins streaming `AuthStatus`.
-
-5. Router starts on splash and then decides the next route based on:
-   - `AuthStateNotifier.authStatus.status`
-   - `AuthStateNotifier.isGuest`
-   - onboarding state
-
-While auth status is still `Status.initial`, the route guard keeps the user on splash. This preserves correct navigation without making auth storage restore block the first Flutter frame.
-
-### Login
-
-The intended responsibility split is:
-
-- UI triggers the domain action (Bloc/event).
-- Repository performs mapping.
-- Repository calls `AuthManager.login(...)`.
-
-Result:
-
-- `AuthStateNotifier` updates.
-- Router refresh listenable notifies.
-- Guard redirects to root.
-
-## How `dio_client.dart` fits in (JWT refresh + logout)
-
-File: `lib/core/network/dio_client.dart`
-
-This file builds the app’s global `Dio` instance.
-
-### What it uses
-
-- Session files:
-  - `AuthManager`
-  - `AuthTokenModel`
-  - `JwtTokenStorage`
-
-- Network config:
-  - `ApiConfig.baseUrl`
-  - `ApiEndpoints.refreshToken`
-  - Interceptors: `LocalizationInterceptor`, `CustomDioInterceptor`, `ErrorInterceptor`, `MemoryAwareInterceptor`
-
-- JWT utilities:
-  - `isTokenAboutToExpire(...)` from `jwt_token_utils.dart`
-
-### What happens in the JWT flow
-
-When `createDioClient(...)` is used:
-
-1. `_configureJwtFlow(...)` installs `RefreshTokenInterceptor<AuthTokenModel>`.
-2. For every request, the interceptor attaches:
-   - `Authorization: Bearer <accessToken>` via `tokenHeaderBuilder`.
-
-3. Before/after responses, `TokenProtocol.shouldRefresh` decides whether to refresh:
-   - Refresh if token is about to expire OR if the response is `401`.
-   - Do not refresh if the user is not authenticated or token is missing.
-
-4. If refresh is needed, `refreshToken(...)` executes:
-   - Uses a dedicated `tokenDio` to avoid recursive interceptors.
-   - Calls `ApiEndpoints.refreshToken`.
-   - Builds a new `AuthTokenModel`.
-   - Writes it into `JwtTokenStorage`.
-
-5. If refresh fails (or refresh token is revoked):
-   - `authManager.logout()` is called.
-   - That updates `AuthStateNotifier`.
-   - Router is notified and redirects the user to Login.
-
-This is the key connection:
-
-- **`DioClient` logs you out by calling `AuthManager.logout()`**, which triggers router redirection via the notifier.
-
-## UI usage guidelines (domain vs UI)
-
-### What should be domain-only
-
-- `AuthManager` should be treated as a _domain service_.
-
-It performs side effects:
-
-- storage writes/deletes
-- token persistence
-- session status transitions
-
-So its ideal call sites are:
-
-- repositories
-- facades
-- use cases
-
-### What is UI-facing
-
-- `AuthStateNotifier` is UI-facing.
-
-UI can:
-
-- read it to decide what to show
-- listen to it to rebuild on session changes
-
-### How a widget listens to `AuthStateNotifier`
-
-You already have a `ChangeNotifier` (`AuthStateNotifier`). The simplest built-in Flutter pattern is `AnimatedBuilder`.
-
-Example:
+Observe the notifier with `ListenableBuilder` (built into Flutter; the project does not use `provider`):
 
 ```dart
-class SessionAwareHeader extends StatelessWidget {
-  const SessionAwareHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authState = getIt<AuthStateNotifier>();
-
-    return AnimatedBuilder(
-      animation: authState,
-      builder: (context, _) {
-        if (authState.isAuthenticated) {
-          return Text('Hello ${authState.user?.name ?? ''}');
-        }
-        if (authState.isGuest) {
-          return const Text('Hello Guest');
-        }
-        return const Text('Not signed in');
-      },
-    );
-  }
-}
+ListenableBuilder(
+  listenable: getIt<AuthStateNotifier>(),
+  builder: (context, _) {
+    final session = getIt<AuthStateNotifier>();
+    if (session.isAuthenticated) return Text(session.user?.name ?? '');
+    if (session.isGuest) return Text(AppStrings.navGuest);
+    return const SizedBox.shrink();
+  },
+)
 ```
 
-Notes:
+A widget never calls `AuthManager`. A protected action in a widget is `AuthGate.run(...)`; signing out is a bloc event or the
+settings row (`_confirmSignOut` calls `getIt<AuthManager>().logout()` after a confirmation dialog).
 
-- This avoids manual `addListener/removeListener`.
-- It rebuilds only this widget subtree when session changes.
+## Extending
 
-#### Option 2: `ListenableBuilder` (built-in Flutter)
-
-If you prefer a widget named specifically for listenables, Flutter also provides `ListenableBuilder`.
-
-Example:
-
-```dart
-class SessionAwareHeader extends StatelessWidget {
-  const SessionAwareHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authState = getIt<AuthStateNotifier>();
-
-    return ListenableBuilder(
-      listenable: authState,
-      builder: (context, _) {
-        if (authState.isAuthenticated) {
-          return Text('Hello ${authState.user?.name ?? ''}');
-        }
-        if (authState.isGuest) {
-          return const Text('Hello Guest');
-        }
-        return const Text('Not signed in');
-      },
-    );
-  }
-}
-```
-
-#### Option 3: `Consumer` / `context.watch()` (Provider package)
-
-If your project uses `provider`, you can expose the same singleton `AuthStateNotifier` to the widget tree and rebuild widgets using `Consumer` or `context.watch()`.
-
-Important:
-
-- This requires adding `provider` to `pubspec.yaml`.
-- You should still treat `AuthManager` as domain-only; UI should only observe `AuthStateNotifier`.
-
-Example (provide it above a subtree):
-
-```dart
-return ChangeNotifierProvider<AuthStateNotifier>.value(
-  value: getIt<AuthStateNotifier>(),
-  child: const MySubTree(),
-);
-```
-
-Example (`Consumer`):
-
-```dart
-class SessionAwareHeader extends StatelessWidget {
-  const SessionAwareHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthStateNotifier>(
-      builder: (context, authState, _) {
-        if (authState.isAuthenticated) {
-          return Text('Hello ${authState.user?.name ?? ''}');
-        }
-        if (authState.isGuest) {
-          return const Text('Hello Guest');
-        }
-        return const Text('Not signed in');
-      },
-    );
-  }
-}
-```
-
-Example (`context.watch()`):
-
-```dart
-final authState = context.watch<AuthStateNotifier>();
-```
-
-## Extending these files for “other things”
-
-Common extensions that keep the architecture clean:
-
-- Add additional derived getters in `AuthStateNotifier` (pure computations only).
-- Add new session actions in `AuthManager` (side effects + notifier update), e.g.:
-  - `refreshCurrentUserProfile()` (fetch + update user)
-  - `invalidateSession(reason)` (central logout reasons)
-
-- Add more token metadata to `AuthTokenModel` if your backend needs it.
-- Add multi-client support in `dio_client.dart` (public vs authed Dio) while still sharing the same `JwtTokenStorage`.
+- A derived getter on `AuthStateNotifier` (pure computation only).
+- A session action on `AuthManager` (side effect + notifier update), e.g. refreshing the profile.
+- More token fields on `AuthTokenModel` if the backend needs them.
+- A second Dio (public vs authenticated) in `dio_client.dart`, sharing the same `JwtTokenStorage`.

@@ -129,10 +129,7 @@ void main() {
       await pumpApp(
         tester,
         const AppChipRail(
-          padding: EdgeInsetsDirectional.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
+          padding: EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 8),
           children: <Widget>[AppChip(label: 'الكل', selected: true)],
         ),
       );
@@ -149,9 +146,7 @@ void main() {
       expect(find.byType(InkWell), findsNothing);
     });
 
-    testWidgets('the «الكل» pill carries the count', (
-      tester,
-    ) async {
+    testWidgets('the «الكل» pill carries the count', (tester) async {
       await pumpApp(
         tester,
         AppSectionHeader(

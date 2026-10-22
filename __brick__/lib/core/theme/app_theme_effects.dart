@@ -41,24 +41,26 @@ class AppThemeEffects {
   );
 }
 
+/// Where a two-tone gradient runs, and how much darker its far end is.
+///
+/// The far end is the base colour mixed with black, never made transparent:
+/// a see-through end lets the page show through and washes the colour out,
+/// which is what drops white text on a button below readable contrast. A
+/// darker end can only add contrast with light text.
 class AppGradientSpec {
   const AppGradientSpec({
     required this.begin,
     required this.end,
-    required this.lightStartAlpha,
-    required this.lightEndAlpha,
-    required this.darkStartAlpha,
-    required this.darkEndAlpha,
+    this.lightEndShade = 0.14,
+    this.darkEndShade = 0.18,
   });
 
   final Alignment begin;
   final Alignment end;
 
-  final double lightStartAlpha;
-  final double lightEndAlpha;
-
-  final double darkStartAlpha;
-  final double darkEndAlpha;
+  /// How much black is mixed into the far end, in the light and dark theme.
+  final double lightEndShade;
+  final double darkEndShade;
 }
 
 class AppShadowSpec {
@@ -96,56 +98,43 @@ class AppThemeGradients {
   static const AppGradientSpec _primarySpec = AppGradientSpec(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    lightStartAlpha: 0.8,
-    lightEndAlpha: 0.7,
-    darkStartAlpha: 0.8,
-    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _successSpec = AppGradientSpec(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    lightStartAlpha: 0.8,
-    lightEndAlpha: 0.7,
-    darkStartAlpha: 0.8,
-    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _errorSpec = AppGradientSpec(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    lightStartAlpha: 0.8,
-    lightEndAlpha: 0.7,
-    darkStartAlpha: 0.8,
-    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _warningSpec = AppGradientSpec(
     begin: Alignment.topRight,
     end: Alignment.bottomLeft,
-    lightStartAlpha: 0.8,
-    lightEndAlpha: 0.7,
-    darkStartAlpha: 0.8,
-    darkEndAlpha: 0.6,
   );
 
   static const AppGradientSpec _greySpec = AppGradientSpec(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    lightStartAlpha: 0.8,
-    lightEndAlpha: 0.7,
-    darkStartAlpha: 0.8,
-    darkEndAlpha: 0.6,
   );
 
   LinearGradient get primary =>
       _twoTone(colorScheme.primary, spec: _primarySpec);
 
-  LinearGradient get success => _twoTone(AppColors.success, spec: _successSpec);
+  LinearGradient get success => _twoTone(_semantic.success, spec: _successSpec);
 
-  LinearGradient get error => _twoTone(AppColors.error, spec: _errorSpec);
+  LinearGradient get error => _twoTone(colorScheme.error, spec: _errorSpec);
 
-  LinearGradient get warning => _twoTone(AppColors.warning, spec: _warningSpec);
+  LinearGradient get warning => _twoTone(_semantic.warning, spec: _warningSpec);
+
+  /// The theme's own success and warning colours: the light ones are too dark
+  /// to carry dark text on a dark theme, and the dark ones too pale to carry
+  /// white text on a light one.
+  AppSemanticColors get _semantic => brightness == Brightness.dark
+      ? AppSemanticColors.dark
+      : AppSemanticColors.light;
 
   LinearGradient get grey => _twoTone(colorScheme.outline, spec: _greySpec);
 
@@ -156,12 +145,15 @@ class AppThemeGradients {
   );
 
   LinearGradient _twoTone(Color base, {required AppGradientSpec spec}) {
+    final shade = brightness == Brightness.dark
+        ? spec.darkEndShade
+        : spec.lightEndShade;
     return LinearGradient(
       begin: spec.begin,
       end: spec.end,
       colors: <Color>[
-        base.withValues(alpha: spec.lightStartAlpha),
-        base.withValues(alpha: spec.lightEndAlpha),
+        base,
+        Color.lerp(base, const Color(0xFF000000), shade)!,
       ],
     );
   }

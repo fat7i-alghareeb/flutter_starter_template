@@ -6,6 +6,8 @@
 #   android-release       →  APK, real network
 #   android-bundle        →  AAB for Google Play
 #   ios-release           →  IPA uploaded to TestFlight
+#   windows-release       →  zip of the app + an MSIX package (free test cert)
+#   macos-release         →  zipped .app and a .dmg, unsigned (free)
 #
 # Full walkthrough, with screenshots of every Codemagic screen:
 # docs/CODEMAGIC.md. Want over-the-air Dart patches? docs/SHOREBIRD.md turns
@@ -28,6 +30,12 @@
 # `{{project_name}}_app_store_connect`, and an App Store distribution
 # certificate + provisioning profile for {{package_name}} under Code signing
 # identities (Codemagic can fetch both through that key).
+#
+# Desktop needs no signing set-up to build: the Windows MSIX is signed with the
+# msix package's own test certificate, and the macOS app is not signed or
+# notarised (no Apple Developer Program needed). Both install for testing; for
+# customers see docs/DESKTOP_SETUP.md — the Microsoft Store (free for
+# individuals) and notarising on a Mac with Developer ID (paid).
 #
 # All workflows are started manually (no triggering block). Add one when you
 # want builds on every tag or push.
@@ -115,6 +123,14 @@ definitions:
     java: 21
     android_signing:
       - {{project_name}}_release_keystore
+
+  windows_environment: &windows_environment
+    flutter: 3.44.1
+
+  macos_environment: &macos_environment
+    flutter: 3.44.1
+    xcode: latest
+    cocoapods: default
 
   ios_environment: &ios_environment
     flutter: 3.44.1
@@ -208,3 +224,62 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
+  windows-release:
+    name: Windows (zip + MSIX)
+    instance_type: windows_x2
+    max_build_duration: 60
+    environment: *windows_environment
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Analyze and test
+        # Goldens are excluded: see analyze_and_test above.
+        script: |
+          flutter analyze
+          flutter test --exclude-tags golden
+      - name: Build Windows
+        script: flutter build windows --release
+      - name: Zip the app
+        # The folder the user unzips and runs: the .exe, its DLLs and data/.
+        script: |
+          $release = Get-ChildItem -Path build\windows -Recurse -Directory -Filter Release | Select-Object -First 1
+          7z a -r build\windows\{{project_name}}-windows.zip "$($release.FullName)\*"
+      - name: Build MSIX
+        # Signed with the msix package's test certificate; the Microsoft Store
+        # build is `dart run msix:create --store` (docs/DESKTOP_SETUP.md).
+        script: dart run msix:create
+    artifacts:
+      - build/windows/*.zip
+      - build/windows/**/*.msix
+    publishing:
+      email: *email
+
+  macos-release:
+    name: macOS (.app zip + .dmg)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment: *macos_environment
+    cache: *cache
+    scripts:
+      - *get_dependencies
+      - *analyze_and_test
+      - name: Build macOS and the .dmg
+        # tool/build_macos_dmg.sh runs `flutter build macos --release` itself.
+        script: |
+          set -e
+          chmod +x tool/build_macos_dmg.sh
+          tool/build_macos_dmg.sh
+      - name: Zip the app
+        script: |
+          set -e
+          APP=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)
+          ditto -c -k --keepParent "$APP" dist/{{project_name}}-macos.zip
+    artifacts:
+      - dist/*.dmg
+      - dist/*.zip
+    publishing:
+      email: *email

@@ -1,208 +1,119 @@
-# Agent Task Prompt Template
+# Agent task prompts
 
-Copy-paste prompts for Codex, Claude Code, Cursor or any other coding agent working on
-this project. Pick the one that fits, fill in the brackets, paste it.
+Copy-paste prompts for Claude Code, Codex, Cursor or any other coding agent working in this project. Pick one, fill the
+brackets, paste it.
+
+The rules are **not** repeated here. `.ai/project-rules.md` is the single source — every prompt sends the agent to it, so a
+rule changed there is changed everywhere. Say **what** you want and **how you will judge it**; leave the how to the agent.
 
 | Prompt | Use it for |
 | --- | --- |
-| [Direct implementation](#direct-implementation) | Most tasks |
-| [Planning only](#planning-only) | A plan and risks, no edits |
-| [New feature](#new-feature) | A feature from scratch, spec first, on mock data |
-| [Screen from a design](#screen-from-a-design) | Building a screen from images or a design file |
+| [Implement](#implement) | Most tasks |
+| [Plan only](#plan-only) | A plan and the risks, no edits |
+| [New feature](#new-feature) | A feature from scratch: spec first, on mock data |
+| [Screen from a design](#screen-from-a-design) | A screen built from images or a design file |
 | [Bug fix](#bug-fix) | Root cause first, then a fix with a test |
-| [Small task](#small-task) | One-line changes |
+| [Review](#review) | A review of a change, no edits |
+| [Small task](#small-task) | A one-line change |
 
-Say **what** you want and how you will judge it; leave the **how** to the agent — the
-rules files already carry it.
+A good request names: the **goal**, the **screens or files** involved, the **acceptance criteria** (what you will check), and
+the **constraints** (what must not change).
 
-## Direct implementation
+## Implement
 
 ```text
-You are working in this Flutter project.
-
-Before editing any file, read and follow:
-- .ai/project-rules.md
-- .ai/task-workflow.md
-- docs/PROJECT_MAP.md
-- docs/COMMANDS.md
-
-Then read what the task touches:
-- .ai/flutter-ui-rules.md and DESIGN_SYSTEM.md — any UI: screens, widgets, theme, icons,
-  loading / empty / error states, motion.
-- .ai/architecture-rules.md — features, BLoC, repositories, data sources, models, routing, services.
-- .ai/localization-rules.md — any visible text.
-- docs/FEATURE_SPEC_TEMPLATE.md — a new feature.
-- docs/DECISIONS.md — before changing how something established works.
-- .ai/code-quality-rules.md before cleanup, .ai/final-checklist.md before calling it done.
-
-Guides, only when relevant:
-- lib/core/router/router_guide.md — navigation, routes, guards, links.
-- lib/core/services/session/session_service_guide.md — auth, JWT, session.
-- lib/core/services/objectbox/objectbox_service_guide.md — local storage.
-- lib/common/common_folder_guide.md — before creating a reusable widget.
-- lib/utils/utils_folder_guide.md — before creating a helper, extension or constant.
-- test/README.md — before writing tests.
-- assets/mock/README.md — before adding mock fixtures.
-
-House rules:
-- Follow the design system; no hard-coded colours, sizes or text styles.
-- Loading states are skeletons (SkeletonWidget), never spinners for content.
-- All visible text comes from AppStrings (assets/l10n/*.json + the generator).
-- Works in Arabic (RTL) and English, light and dark, with reduced motion.
-- New endpoints get mock fixtures, so the work runs with USE_MOCK=true.
-- New behaviour gets tests.
-- Do not commit unless asked.
-
-In your first response, list the files you read.
-Inspect similar existing code before writing new code.
-Make a short plan, then implement. Do not change unrelated files.
-Run the required commands from docs/COMMANDS.md.
-Finish with: changed files, commands run, checklist status, and anything you could not do.
+Work in this Flutter project. Read .ai/project-rules.md first and follow it, then read only what it points to for this task.
+List the files you read. Look at similar existing code, make a short plan, then implement. Do not change unrelated files.
+Run the checks (analyze, tests) and walk .ai/final-checklist.md. Do not commit.
 
 Task:
-[Describe the task clearly]
+[What to build or change, and why]
 
 Acceptance criteria:
-- [Expected result 1]
-- [Expected result 2]
-- [Screens, APIs, files or constraints that matter]
+- [What I will check 1]
+- [What I will check 2]
+
+Constraints:
+- [What must not change / what to reuse]
 ```
 
-## Planning only
+## Plan only
 
 ```text
-You are working in this Flutter project.
-
-Before editing any file, read and follow:
-- .ai/project-rules.md
-- .ai/task-workflow.md
-- docs/PROJECT_MAP.md
-- docs/COMMANDS.md
-
-Load only the conditional rules this task needs.
-In your first response, list the files you read.
-Inspect related code and similar implementations.
-Do not edit files yet.
-Give me a short plan: affected files, required commands, risks, open questions.
+Work in this Flutter project. Read .ai/project-rules.md first, then what it points to for this task. List the files you read.
+Do NOT edit anything. Give me a short plan: the files you would change, the commands, the risks, and any question you
+need answered first.
 
 Task:
-[Describe the task clearly]
+[What I am thinking of doing]
 ```
 
 ## New feature
 
 ```text
-You are working in this Flutter project.
+Work in this Flutter project. Read .ai/project-rules.md first and follow it, plus docs/FEATURE_SPEC_TEMPLATE.md.
 
-Before editing any file, read and follow:
-- .ai/project-rules.md
-- .ai/task-workflow.md
-- docs/PROJECT_MAP.md
-- docs/COMMANDS.md
-Also read .ai/flutter-ui-rules.md, .ai/architecture-rules.md, .ai/localization-rules.md,
-DESIGN_SYSTEM.md and docs/FEATURE_SPEC_TEMPLATE.md.
+Build a new feature: [name — who uses it, what they see, what they can do]
 
-Build a new feature: [the feature / screen]
+1. Write the spec from docs/FEATURE_SPEC_TEMPLATE.md and show it to me BEFORE you code. Wait for my answer.
+2. Start from the generator: dart run tool/generate_feature.dart <name> --mock (docs/COMMANDS.md).
+3. Mock fixtures for every endpoint; every state handled (loading, empty, error, success), sections loading on their own.
+4. The page is an AppPage opened with AppNavigator.push; it adapts to compact, medium and expanded windows (spec §2.6).
+5. Tests: bloc, widgets at 320dp and 1280dp in both themes and both directions, and a skeleton parity line per .loading().
 
-1. Write a short spec from docs/FEATURE_SPEC_TEMPLATE.md and show it to me before coding.
-2. Start from the feature generator (docs/COMMANDS.md → New Feature) with mock data.
-3. Real-looking mock fixtures for every endpoint; every state handled (loading, empty,
-   error, success) and each section loading on its own.
-4. The page is an AppPage opened with AppNavigator.push.
-5. Tests: bloc, widgets, and a skeleton height-parity line for each new SkeletonWidget.
-
-House rules:
-- Follow the design system; no hard-coded colours, sizes or text styles.
-- Loading states are skeletons (SkeletonWidget), never spinners for content.
-- All visible text comes from AppStrings (assets/l10n/*.json + the generator).
-- Works in Arabic (RTL) and English, light and dark, with reduced motion.
-- New endpoints get mock fixtures, so the work runs with USE_MOCK=true.
-- New behaviour gets tests.
-- Do not commit unless asked.
-
-In your first response, list the files you read.
-Inspect similar existing code before writing new code.
-Make a short plan, then implement. Do not change unrelated files.
-Run the required commands from docs/COMMANDS.md.
-Finish with: changed files, commands run, checklist status, and anything you could not do.
-
-What the feature does:
-[Describe it: who uses it, what they see, what they can do]
+List the files you read, then plan and implement. Walk .ai/final-checklist.md. Do not commit.
 ```
 
 ## Screen from a design
 
 ```text
-You are working in this Flutter project.
+Work in this Flutter project. Read .ai/project-rules.md first and follow it.
 
-Before editing any file, read and follow:
-- .ai/project-rules.md
-- .ai/task-workflow.md
-- docs/PROJECT_MAP.md
-- docs/COMMANDS.md
-Also read .ai/flutter-ui-rules.md, DESIGN_SYSTEM.md and .ai/localization-rules.md.
+Build this screen from the attached design(s): [screen name]
 
-Build this screen from the attached design(s): [the feature / screen]
-
-- Match the design: layout, order, hierarchy, the details that make it recognisable.
-  Where it disagrees with the design system on a small detail, follow the design system
-  and tell me.
-- All data through the mock layer with realistic fixtures, never hard-coded in widgets.
-- Reusable pieces go in the shared widgets; screen-specific pieces stay with the feature.
-
-House rules:
-- Follow the design system; no hard-coded colours, sizes or text styles.
-- Loading states are skeletons (SkeletonWidget), never spinners for content.
-- All visible text comes from AppStrings (assets/l10n/*.json + the generator).
-- Works in Arabic (RTL) and English, light and dark, with reduced motion.
-- New endpoints get mock fixtures, so the work runs with USE_MOCK=true.
-- New behaviour gets tests.
-- Do not commit unless asked.
-
-In your first response, list the files you read.
-Inspect similar existing code before writing new code.
-Make a short plan, then implement. Do not change unrelated files.
-Run the required commands from docs/COMMANDS.md.
-Finish with: changed files, commands run, checklist status, and anything you could not do.
+- Match the layout, order and hierarchy. Where a detail disagrees with the design system (DESIGN_SYSTEM.md), follow the design
+  system and tell me what you changed and why.
+- Show what it does on a phone and in a wide window — the design shows [compact only / both]; if only compact, propose the wide
+  layout and tell me.
+- Data through the mock layer with realistic fixtures, never hard-coded in widgets.
+- Reusable pieces go in lib/common/widgets; screen-specific pieces stay in the feature.
 
 Attached images:
 1. [What image 1 shows]
 2. [What image 2 shows]
+
+List the files you read, plan, implement, walk .ai/final-checklist.md. Do not commit.
 ```
 
 ## Bug fix
 
 ```text
-You are working in this Flutter project.
+Work in this Flutter project. Read .ai/project-rules.md first, then only the rule files the fix touches.
 
-Before editing any file, read and follow:
-- .ai/project-rules.md
-- .ai/task-workflow.md
-- docs/PROJECT_MAP.md
-- docs/COMMANDS.md
-Load only the conditional rules the fix touches.
-
-Fix this bug. First reproduce it and find the root cause; tell me the cause before
-changing code if the fix is not obvious. Add a test that fails without the fix.
-Do not refactor around it.
-
-In your first response, list the files you read.
-Inspect similar existing code before writing new code.
-Make a short plan, then implement. Do not change unrelated files.
-Run the required commands from docs/COMMANDS.md.
-Finish with: changed files, commands run, checklist status, and anything you could not do.
+Fix this bug. First reproduce it and find the root cause; tell me the cause before you change code if the fix is not obvious.
+Add a test that FAILS without the fix. Do not refactor around it.
 
 Bug:
-[What happens, what should happen, steps, screen/app, logs if any]
+[What happens, what should happen, the steps, which screen / platform / window size, logs or a screenshot]
+
+List the files you read. Finish with: the cause, the changed files, the test, and the commands you ran. Do not commit.
+```
+
+## Review
+
+```text
+Work in this Flutter project. Read .ai/project-rules.md and .ai/final-checklist.md.
+
+Review [this diff / these files / branch]. Do NOT edit anything. For each problem: file and line, what is wrong, why it
+matters, and the fix. Order by severity. Check against the rules (text, look, layout, architecture, tests), not just
+whether it works. Say plainly if you find nothing.
 ```
 
 ## Small task
 
 ```text
-Read .ai/project-rules.md, .ai/task-workflow.md, docs/PROJECT_MAP.md and docs/COMMANDS.md first,
-then only the rules the task needs.
-List the files you read, check similar code, make a short plan, implement, run the checks,
-and summarise. Do not commit.
+Read .ai/project-rules.md, then only what this task needs. List the files you read, look at similar code, make the change,
+run analyze and the relevant tests, and summarise. Do not commit.
 
 Task:
 [Your task]

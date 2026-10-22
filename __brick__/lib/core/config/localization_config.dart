@@ -4,16 +4,18 @@ class AppLocalizationConfig {
 
   /// Fallback language code used by EasyLocalization for missing keys and by
   /// the AppStrings generator as the key source.
-  static const String fallbackLanguageCode = 'en';
+  static const String fallbackLanguageCode = 'ar';
 
   /// Language the app starts in when nothing has been saved yet and the
   /// device's language is not one of [supportedLanguageCodes] (or
   /// [followDeviceLanguageOnFirstLaunch] is off).
-  static const String defaultLanguageCode = 'en';
+  static const String defaultLanguageCode = 'ar';
 
   /// On the very first launch, start in the device's language when the app
-  /// ships it. Set to false to always start in [defaultLanguageCode].
-  static const bool followDeviceLanguageOnFirstLaunch = true;
+  /// ships it. Off: every first launch starts in [defaultLanguageCode]
+  /// (Arabic), whatever the device is set to. A language the user picked
+  /// later (Settings) always wins.
+  static const bool followDeviceLanguageOnFirstLaunch = false;
 
   /// All supported language codes. Add new languages here only
   /// (e.g. 'tr', 'fr'), and both EasyLocalization and the

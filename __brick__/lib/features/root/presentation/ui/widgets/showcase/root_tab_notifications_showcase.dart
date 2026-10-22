@@ -2,9 +2,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show DateTimeComponents;
 
 import '../../../../../../common/imports/imports.dart';
-import '../nav_bar/app_bottom_nav.dart';
 import '../../../../../../core/notification/notification_coordinator.dart';
 import '../../../../constants/root_constants.dart';
+import 'showcase_layout.dart';
 
 class RootTabNotificationsShowcase extends StatefulWidget {
   const RootTabNotificationsShowcase({super.key});
@@ -24,61 +24,58 @@ class _RootTabNotificationsShowcaseState
   void _toast(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: AppSnackContent(msg), duration: const Duration(milliseconds: 900)),
-    );
-  }
-
-  Widget _section(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyles.s16w600),
-        AppSpacing.sm.verticalSpace,
-        ...children,
-        AppSpacing.lg.verticalSpace,
-        const Divider(height: 1),
-        AppSpacing.lg.verticalSpace,
-      ],
+      SnackBar(
+        content: AppSnackContent(msg),
+        duration: const Duration(milliseconds: 900),
+      ),
     );
   }
 
   Future<void> _checkPermission() async {
     final granted = await _coordinator.isNotificationPermissionGranted();
-    _toast(granted ? 'Permission: granted' : 'Permission: not granted');
+    _toast(
+      granted
+          ? AppStrings.showcaseNotificationsPermissionGranted
+          : AppStrings.showcaseNotificationsPermissionNotGranted,
+    );
   }
 
   Future<void> _requestPermission() async {
     final granted = await _coordinator.requestNotificationPermission(
       openSettingsIfPermanentlyDenied: true,
     );
-    _toast(granted ? 'Permission granted' : 'Permission denied');
+    _toast(
+      granted
+          ? AppStrings.showcaseNotificationsPermissionGranted
+          : AppStrings.showcaseNotificationsPermissionDenied,
+    );
   }
 
   Future<void> _showInstant() async {
     await _coordinator.showLocal(
-      title: 'Instant notification',
-      body: 'This is shown immediately.',
+      title: AppStrings.showcaseNotificationsInstantTitle,
+      body: AppStrings.showcaseNotificationsInstantBody,
       data: <String, dynamic>{
         'route': RootConstants.routePath,
         'type': 'instant',
       },
     );
-    _toast('Instant notification requested');
+    _toast(AppStrings.showcaseNotificationsInstantRequested);
   }
 
   Future<void> _scheduleOnceIn5Seconds() async {
     final date = DateTime.now().add(const Duration(seconds: 5));
     await _coordinator.scheduleLocal(
       id: _scheduledOnceId,
-      title: 'Scheduled notification',
-      body: 'Scheduled for ~5 seconds from now.',
+      title: AppStrings.showcaseNotificationsOnceTitle,
+      body: AppStrings.showcaseNotificationsOnceBody,
       date: date,
       data: <String, dynamic>{
         'route': RootConstants.routePath,
         'type': 'scheduled_once',
       },
     );
-    _toast('Scheduled (id=$_scheduledOnceId)');
+    _toast(AppStrings.showcaseNotificationsScheduled(_scheduledOnceId));
   }
 
   Future<void> _scheduleDailyAtNextMinute() async {
@@ -93,8 +90,8 @@ class _RootTabNotificationsShowcaseState
 
     await _coordinator.scheduleLocal(
       id: _dailyId,
-      title: 'Daily repeating notification',
-      body: 'This repeats daily at the same time.',
+      title: AppStrings.showcaseNotificationsDailyTitle,
+      body: AppStrings.showcaseNotificationsDailyBody,
       date: nextMinute,
       matchDateTimeComponents: DateTimeComponents.time,
       data: <String, dynamic>{
@@ -103,106 +100,104 @@ class _RootTabNotificationsShowcaseState
       },
     );
 
-    _toast('Daily schedule set (id=$_dailyId)');
+    _toast(AppStrings.showcaseNotificationsDailySet(_dailyId));
   }
 
   Future<void> _cancelScheduledOnce() async {
     await _coordinator.cancelLocal(_scheduledOnceId);
-    _toast('Canceled (id=$_scheduledOnceId)');
+    _toast(AppStrings.showcaseNotificationsCanceled(_scheduledOnceId));
   }
 
   Future<void> _cancelDaily() async {
     await _coordinator.cancelLocal(_dailyId);
-    _toast('Canceled (id=$_dailyId)');
+    _toast(AppStrings.showcaseNotificationsCanceled(_dailyId));
   }
 
   Future<void> _cancelAll() async {
     await _coordinator.cancelAllLocal();
-    _toast('Canceled all notifications');
+    _toast(AppStrings.showcaseNotificationsCanceledAll);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: AppSpacing.standardPadding.copyWith(
-        bottom: AppBottomNav.listBottomPadding(context),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Local Notifications Showcase', style: AppTextStyles.s22w700),
-          AppSpacing.sm.verticalSpace,
-          Text(
-            'Demonstrates permission, instant notifications, scheduled notifications, and repeating schedules.',
-            style: AppTextStyles.s14w400.copyWith(
-              color: context.onSurface.withValues(alpha: 0.75),
-            ),
-          ),
-          AppSpacing.lg.verticalSpace,
-
-          _section('Permission', [
+    return ShowcasePage(
+      title: AppStrings.showcaseNotificationsTitle,
+      subtitle: AppStrings.showcaseNotificationsSubtitle,
+      children: <Widget>[
+        ShowcaseSection(
+          title: AppStrings.showcaseNotificationsSectionPermission,
+          children: <Widget>[
             AppButton.primary(
               onTap: _checkPermission,
               child: AppButtonChild.labelIcon(
-                label: 'Check permission',
+                label: AppStrings.showcaseNotificationsCheckPermission,
                 icon: IconSource.svg(AppIcons.success),
               ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primaryGradient(
               onTap: _requestPermission,
               child: AppButtonChild.labelIcon(
-                label: 'Request permission',
+                label: AppStrings.showcaseNotificationsRequestPermission,
                 icon: IconSource.svg(AppIcons.bell),
               ),
             ),
-          ]),
+          ],
+        ),
 
-          _section('Instant', [
+        ShowcaseSection(
+          title: AppStrings.showcaseNotificationsSectionInstant,
+          children: <Widget>[
             AppButton.success(
               onTap: _showInstant,
-              child: AppButtonChild.label('Show instant notification'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseNotificationsShowInstant,
+              ),
             ),
-          ]),
+          ],
+        ),
 
-          _section('Scheduled / repeating', [
+        ShowcaseSection(
+          title: AppStrings.showcaseNotificationsSectionScheduled,
+          children: <Widget>[
             AppButton.warning(
               onTap: _scheduleOnceIn5Seconds,
               child: AppButtonChild.label(
-                'Schedule in 5 seconds (id=$_scheduledOnceId)',
+                AppStrings.showcaseNotificationsScheduleOnce(_scheduledOnceId),
               ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.warningGradient(
               onTap: _scheduleDailyAtNextMinute,
               child: AppButtonChild.label(
-                'Schedule repeating daily (id=$_dailyId)',
+                AppStrings.showcaseNotificationsScheduleDaily(_dailyId),
               ),
             ),
-          ]),
+          ],
+        ),
 
-          _section('Cancel', [
-            AppButton.grey(
+        ShowcaseSection(
+          title: AppStrings.cancel,
+          children: <Widget>[
+            AppButton.error(
               onTap: _cancelScheduledOnce,
               child: AppButtonChild.label(
-                'Cancel scheduled once (id=$_scheduledOnceId)',
+                AppStrings.showcaseNotificationsCancelOnce(_scheduledOnceId),
               ),
             ),
-            AppSpacing.md.verticalSpace,
-            AppButton.grey(
+            AppButton.error(
               onTap: _cancelDaily,
-              child: AppButtonChild.label('Cancel daily (id=$_dailyId)'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseNotificationsCancelDaily(_dailyId),
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.error(
               onTap: _cancelAll,
-              child: AppButtonChild.label('Cancel all'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseNotificationsCancelAll,
+              ),
             ),
-          ]),
-
-          AppSpacing.xl.verticalSpace,
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

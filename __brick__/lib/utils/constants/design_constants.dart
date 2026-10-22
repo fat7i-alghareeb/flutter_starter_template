@@ -1,6 +1,5 @@
 import 'package:flutter/animation.dart';
-import 'package:flutter/material.dart' show EdgeInsets, Size;
-import 'package:flutter_screenutil/flutter_screenutil.dart' show REdgeInsets;
+import 'package:flutter/material.dart' show EdgeInsets;
 
 /// Spacing scale — `DESIGN_SYSTEM.md`.
 ///
@@ -57,17 +56,17 @@ class AppSpacing {
   /// Gap before a new section starts.
   static const double sectionGap = xl;
 
-  static EdgeInsets horizontal = REdgeInsets.symmetric(
+  static const EdgeInsets horizontal = EdgeInsets.symmetric(
     horizontal: screenMargin,
   );
-  static EdgeInsets vertical = REdgeInsets.symmetric(vertical: lg);
-  static EdgeInsets standardPadding = REdgeInsets.symmetric(
+  static const EdgeInsets vertical = EdgeInsets.symmetric(vertical: lg);
+  static const EdgeInsets standardPadding = EdgeInsets.symmetric(
     horizontal: screenMargin,
     vertical: lg,
   );
 
   /// Inner padding of a card.
-  static EdgeInsets cardPadding = REdgeInsets.all(md);
+  static const EdgeInsets cardPadding = EdgeInsets.all(md);
 }
 
 /// Corner radii — `DESIGN_SYSTEM.md`.
@@ -273,16 +272,10 @@ class AppStates {
   /// not to skip it.
   static const double dimmedRow = 0.6;
 
-  /// Hover on desktop/web only — there is no hover on mobile.
+  /// Hover — wherever there is a pointer: desktop, and a tablet with a
+  /// mouse or trackpad. Touch has no hover.
   static const double hoverOverlay = 0.03;
 
   /// Ink splash tint on a card.
   static const double cardInk = 0.06;
-}
-
-/// Design size used by ScreenUtil.
-class AppDesign {
-  AppDesign._();
-
-  static const Size designSize = Size(390, 844); // iPhone 13 / common base
 }

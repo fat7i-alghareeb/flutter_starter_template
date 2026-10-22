@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import '../../../../common/widgets/app_affixes.dart';
 
@@ -9,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../utils/constants/design_constants.dart';
 import '../../../../utils/extensions/context_extensions.dart';
+import '../../../../utils/extensions/num_spacing_extensions.dart';
 import '../../../../utils/extensions/string_extensions.dart';
 import '../../../../utils/extensions/theme_extensions.dart';
 import '../../../../utils/helpers/app_strings.dart';
@@ -107,7 +107,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     required this.options,
     this.title,
     this.isRequired = false,
-    this.titleSpacing = AppSpacing.sm,
+    this.titleSpacing = AppSpacing.xs2,
     this.layout = const AppFieldLayout(),
     this.enabled = true,
     this.isLoading = false,
@@ -146,7 +146,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     required List<AppDropdownOption<T>> options,
     String? title,
     bool isRequired = false,
-    double titleSpacing = AppSpacing.sm,
+    double titleSpacing = AppSpacing.xs2,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
     bool isLoading = false,
@@ -211,7 +211,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     List<AppDropdownOption<T>> options = const [],
     String? title,
     bool isRequired = false,
-    double titleSpacing = AppSpacing.sm,
+    double titleSpacing = AppSpacing.xs2,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
     bool isLoading = false,
@@ -265,7 +265,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     required List<AppDropdownOption<T>> options,
     String? title,
     bool isRequired = false,
-    double titleSpacing = AppSpacing.sm,
+    double titleSpacing = AppSpacing.xs2,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
     bool isLoading = false,
@@ -324,7 +324,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     required List<AppDropdownOption<T>> options,
     String? title,
     bool isRequired = false,
-    double titleSpacing = AppSpacing.sm,
+    double titleSpacing = AppSpacing.xs2,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
     bool isLoading = false,
@@ -384,7 +384,7 @@ class AppReactiveDropdownField<T> extends StatefulWidget {
     required List<AppDropdownOption<T>> options,
     String? title,
     bool isRequired = false,
-    double titleSpacing = AppSpacing.sm,
+    double titleSpacing = AppSpacing.xs2,
     AppFieldLayout layout = const AppFieldLayout(),
     bool enabled = true,
     bool isLoading = false,

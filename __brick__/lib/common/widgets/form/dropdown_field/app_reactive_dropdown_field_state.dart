@@ -96,15 +96,15 @@ class _AppReactiveDropdownFieldState<T>
     // Resolve target width/height from layout configuration.
     final width = widget.layout.percentageWidth != null
         ? context.screenWidth * widget.layout.percentageWidth!
-        : widget.layout.width?.w;
+        : widget.layout.width;
 
     final heightFromLayout = widget.layout.percentageHeight != null
         ? context.screenHeight * widget.layout.percentageHeight!
-        : widget.layout.height?.h;
+        : widget.layout.height;
 
     final borderRadiusValue =
         widget.layout.borderRadius ?? AppFormFieldDefaults.borderRadiusValue();
-    final borderRadius = BorderRadius.circular(borderRadiusValue.r);
+    final borderRadius = BorderRadius.circular(borderRadiusValue);
 
     final contentPadding =
         widget.layout.contentPadding ?? AppFormFieldDefaults.contentPadding();
@@ -113,7 +113,7 @@ class _AppReactiveDropdownFieldState<T>
 
     final hintStyle = widget.hintText.isNullOrBlank
         ? null
-        : baseTextStyle.copyWith(color: context.grey.withValues(alpha: 0.8));
+        : baseTextStyle.copyWith(color: AppFormFieldDefaults.hintColor(context));
 
     // Merge default validation messages with the field overrides.
     final validationMessages = AppReactiveValidationMessages.merge(
@@ -131,7 +131,7 @@ class _AppReactiveDropdownFieldState<T>
     final minOuterHeight =
         (fontSize * lineHeightMultiplier) + resolvedPadding.vertical;
 
-    final defaultHeight = 48.h;
+    final defaultHeight = AppFormFieldDefaults.height;
     final heightCandidate = heightFromLayout ?? defaultHeight;
     final effectiveHeight = heightCandidate < minOuterHeight
         ? minOuterHeight
@@ -186,7 +186,7 @@ class _AppReactiveDropdownFieldState<T>
           // Colors change when the field is invalid to match the global form
           // widgets styling (red border/text).
           final enabledTextColor = context.onSurface;
-          final disabledTextColor = context.grey.withValues(alpha: 0.8);
+          final disabledTextColor = context.onSurface.withValues(alpha: 0.5);
 
           final inputTextColor = shouldShowError
               ? AppColors.error
@@ -197,7 +197,7 @@ class _AppReactiveDropdownFieldState<T>
 
           final resolvedFillColor =
               widget.decoration.fillColor ??
-              AppFormFieldDefaults.fillColor(context);
+              AppFormFieldDefaults.fillColor(context, enabled: widget.enabled);
 
           final decoration = BoxDecoration(
             color: resolvedFillColor,
@@ -603,13 +603,13 @@ class _AppReactiveDropdownFieldState<T>
                   child: Container(
                     decoration: BoxDecoration(
                       color: context.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(AppRadii.sm.r),
+                      borderRadius: BorderRadius.circular(AppRadii.sm),
                       border: Border.all(
                         color: context.grey.withValues(alpha: 0.35),
                       ),
                       boxShadow: context.shadows.grey,
                     ),
-                    padding: EdgeInsets.all(AppSpacing.sm.r),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
                     child: _DropdownPicker<T>(
                       options: _options,
                       selected: _selected,

@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../../common/widgets/custom_scaffold/app_scaffold.dart'
-    show AppScaffold, AppScaffoldConfig, AppScaffoldSafeArea;
+    show AppScaffold, AppScaffoldConfig;
+import '../../../../../common/widgets/ds/app_mark.dart';
 import '../../../../../common/widgets/loading_dots.dart';
+import '../../../../../core/layout/app_layout.dart';
+import '../../../../../core/layout/app_layout_scope.dart';
 import '../../../../../utils/constants/app_flow_constants.dart';
 import '../../../../../utils/constants/design_constants.dart';
 import '../../../../../utils/extensions/theme_extensions.dart';
@@ -16,11 +19,11 @@ import '../../../../../utils/helpers/app_strings.dart';
 /// the session, the onboarding flag and — behind it — the first tab's data
 /// (`BlocPreloader`).
 ///
-/// - **No logo, on purpose.** The native splash (`flutter_native_splash.yaml`)
-///   is the bare background colour, and this screen draws on the SAME
-///   colour, so the hand-over is invisible. Add your mark here — and keep it
-///   out of the native splash if it animates in, or it would appear, vanish
-///   and build itself again.
+/// - **The mark rises in here, not in the native splash.** The native splash
+///   (`flutter_native_splash.yaml`) is the bare background colour, and this
+///   screen draws on the SAME colour, so the hand-over is invisible; a mark
+///   in the native splash would appear, vanish and build itself again.
+///   `AppMark` is sized to the window class (72 · 96 · 112).
 /// - The name and the tagline rise in, then three pulsing dots.
 /// - The entrance clock starts once the first frame is out — started in
 ///   `initState` it would run under the OS splash (which only fades once the
@@ -95,7 +98,6 @@ class _SplashScreenState extends State<SplashScreen>
       // handover.
       scaffoldConfig: AppScaffoldConfig(
         backgroundColor: context.semantic.background,
-        safeArea: const <AppScaffoldSafeArea>[],
       ),
       child: Stack(
         children: <Widget>[
@@ -107,6 +109,24 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
+                  // The mark rises with the name, sized to the window: 72
+                  // on a phone, 96 at medium width, 112 from 840dp.
+                  _Rise(
+                    animation: _name,
+                    reducedMotion: reducedMotion,
+                    distance: 16,
+                    startScale: 0.94,
+                    child: AppMark(
+                      size: switch (AppLayoutScope.maybeOf(
+                        context,
+                      )?.windowSize) {
+                        null || WindowSize.compact => 72,
+                        WindowSize.medium => 96,
+                        _ => 112,
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                   _Rise(
                     animation: _name,
                     reducedMotion: reducedMotion,

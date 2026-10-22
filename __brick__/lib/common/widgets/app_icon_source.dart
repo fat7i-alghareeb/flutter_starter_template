@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../utils/helpers/build_svg_icon.dart';
 import 'app_image_viewer.dart';
@@ -38,8 +37,6 @@ abstract class IconSource {
   const IconSource({this.size, this.color});
 
   /// Default icon size in logical pixels.
-  ///
-  /// Many icon implementations scale this using `ScreenUtil` (via `.sp`).
   final double? size;
 
   /// Default icon color.
@@ -265,7 +262,7 @@ class _IconButtonIconSource extends IconSource {
 
   @override
   Widget buildWidget(BuildContext context) {
-    return Icon(icon, size: size?.sp, color: color);
+    return Icon(icon, size: size, color: color);
   }
 
   @override
@@ -295,8 +292,8 @@ class _AssetIconSource extends IconSource {
   Widget buildWidget(BuildContext context) {
     return Image.asset(
       assetPath,
-      width: size?.sp,
-      height: size?.sp,
+      width: size,
+      height: size,
       fit: fit,
       color: applyColor ? color : null,
     );
@@ -354,7 +351,7 @@ class _WidgetIconSource extends IconSource {
 
   @override
   Widget buildWidget(BuildContext context) {
-    final s = size?.sp;
+    final s = size;
     Widget result = SizedBox(
       width: s,
       height: s,
@@ -363,7 +360,7 @@ class _WidgetIconSource extends IconSource {
 
     if (color != null || size != null) {
       result = IconTheme(
-        data: IconThemeData(color: color, size: size?.sp),
+        data: IconThemeData(color: color, size: size),
         child: result,
       );
     }
@@ -392,7 +389,7 @@ class _BuilderIconSource extends IconSource {
 
     if (color != null || size != null) {
       result = IconTheme(
-        data: IconThemeData(color: color, size: size?.sp),
+        data: IconThemeData(color: color, size: size),
         child: result,
       );
     }

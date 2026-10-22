@@ -206,7 +206,7 @@ mixin _AppReactiveDateTimeFieldPickersMixin on State<AppReactiveDateTimeField> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(
-                                  AppRadii.xs.r,
+                                  AppRadii.xs,
                                 ),
                                 color: isSelected
                                     ? context.primary.withValues(alpha: 0.12)
@@ -292,7 +292,7 @@ mixin _AppReactiveDateTimeFieldPickersMixin on State<AppReactiveDateTimeField> {
                       child: Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(AppRadii.xs.r),
+                          borderRadius: BorderRadius.circular(AppRadii.xs),
                           color: isSelected
                               ? context.primary.withValues(alpha: 0.12)
                               : Colors.transparent,

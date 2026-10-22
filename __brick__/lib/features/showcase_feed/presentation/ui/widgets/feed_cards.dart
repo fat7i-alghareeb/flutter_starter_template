@@ -49,6 +49,9 @@ class FeedCard extends SkeletonWidget {
 
     return AppCard(
       onTap: data == null ? null : () => FeedNavigation.openItem(context, data.id),
+      menuActions: data == null
+          ? const <AppMenuAction>[]
+          : FeedNavigation.cardActions(context, data.id),
       semanticLabel: data == null
           ? null
           : <String>[
@@ -150,6 +153,9 @@ class FeedPickCard extends SkeletonWidget {
         onTap: data == null
             ? null
             : () => FeedNavigation.openItem(context, data.id),
+        menuActions: data == null
+            ? const <AppMenuAction>[]
+            : FeedNavigation.cardActions(context, data.id),
         semanticLabel: data?.title,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

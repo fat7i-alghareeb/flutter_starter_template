@@ -74,7 +74,6 @@ class EmptyStateWidget extends StatelessWidget {
         ? text!
         : AppStrings.emptyStateNoData;
 
-
     // For pull-to-refresh to work even when the content doesn't fill the
     // viewport, the scroll view must always be scrollable.
     final physics = onRefresh != null
@@ -91,7 +90,7 @@ class EmptyStateWidget extends StatelessWidget {
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: (maxWidth ?? 520).w),
+                constraints: BoxConstraints(maxWidth: maxWidth ?? 520),
                 child: Padding(
                   padding: padding ?? AppSpacing.standardPadding,
                   child: Column(

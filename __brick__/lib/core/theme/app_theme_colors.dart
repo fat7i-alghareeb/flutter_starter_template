@@ -44,12 +44,12 @@ class AppColorSchemes {
     onSurfaceVariant: AppColors.onSurfaceVariantLight,
 
     // Material's surface ladder, mapped onto the greys we own.
-    surfaceDim: Color(0xFFE6E8ED),
+    surfaceDim: Color(0xFFDCE1E9),
     surfaceBright: Color(0xFFFFFFFF),
     surfaceContainerLowest: Color(0xFFFFFFFF),
-    surfaceContainerLow: Color(0xFFFAFAFC),
+    surfaceContainerLow: Color(0xFFF6F8FB),
     surfaceContainer: AppColors.backGroundLight,
-    surfaceContainerHigh: Color(0xFFF1F2F6),
+    surfaceContainerHigh: Color(0xFFE8ECF2),
     surfaceContainerHighest: AppColors.surfaceVariantLight,
 
     outline: AppColors.outlineLight,

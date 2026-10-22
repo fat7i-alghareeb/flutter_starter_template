@@ -71,10 +71,7 @@ void main() {
     await expectWalk(tester, <(void Function(BuildContext), String)>[
       ((c) => FeedNavigation.openItem(c, 'a'), '/root/items/a'),
       ((c) => FeedNavigation.openItem(c, 'b'), '/root/items/a/items/b'),
-      (
-        (c) => FeedNavigation.openItem(c, 'c'),
-        '/root/items/a/items/b/items/c',
-      ),
+      ((c) => FeedNavigation.openItem(c, 'c'), '/root/items/a/items/b/items/c'),
     ]);
   });
 

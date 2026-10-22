@@ -26,11 +26,7 @@ void main() {
       ),
     ).thenAnswer(
       (_) async => Result<FeedPage>.success(
-        FeedPage(
-          items: FeedSamples.items(count),
-          hasMore: hasMore,
-          total: 30,
-        ),
+        FeedPage(items: FeedSamples.items(count), hasMore: hasMore, total: 30),
       ),
     );
   }
@@ -38,11 +34,11 @@ void main() {
   setUp(() {
     repository = MockFeedRepository();
     when(repository.recentSearches).thenAnswer((_) async => <String>[]);
-    when(
-      () => repository.saveSearch(any()),
-    ).thenAnswer((invocation) async => <String>[
-          invocation.positionalArguments.first as String,
-        ]);
+    when(() => repository.saveSearch(any())).thenAnswer(
+      (invocation) async => <String>[
+        invocation.positionalArguments.first as String,
+      ],
+    );
     when(repository.getHighlights).thenAnswer(
       (_) async => Result<List<FeedItemEntity>>.success(FeedSamples.items(3)),
     );

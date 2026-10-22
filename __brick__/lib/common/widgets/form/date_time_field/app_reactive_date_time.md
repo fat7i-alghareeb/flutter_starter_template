@@ -1,15 +1,10 @@
-# 📅 Reactive DateTime Widget Guide (`lib/common/widgets/form/date_time_field/`)
+# Date and time field (`lib/common/widgets/form/date_time_field/`)
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+Read this before you use or change `AppReactiveDateTimeField`. Every date it shows is normalised to Latin digits
+(`toLatinDigits()`), like every date in the app (`lib/utils/extensions/date_time_extensions.dart`, `AppFormats`).
 
-This document is a **Hard Requirement** for any AI agent interacting with date/time pickers. You **MUST** ensure your internal state is synced with the following formatting anchors:
-
-- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
-- **DateTime Extensions**: [lib/utils/extensions/date_time_extensions.dart](lib/utils/extensions/date_time_extensions.dart)
-
-Failure to use the `.toLatinDigits()` normalization for displayed dates is a protocol violation.
-
----
+The field is drawn like the other form fields (`AppFormFieldDefaults`: the card colour, a 3:1 border, 44dp tall, 40 on desktop) and sits in
+`AppFormFieldGrid` two to a row in wide windows — use `fullWidth: {index}` for a range.
 
 `AppReactiveDateTimeField` infers the **control value type** from the `formControlName` at runtime.
 
@@ -151,6 +146,9 @@ AppReactiveDateTimeField.dateRange(
 Default display:
 
 `from 2025-09-22 to 2025-09-30`
+
+With `acceptSameDay: false`, a range that starts and ends on one day is refused with a snack bar that says
+`AppStrings.validationDateRangeMin` ("Select a range of at least 2 days.").
 
 ## Selection callback payload
 

@@ -1,29 +1,24 @@
 import '../../../../../../common/imports/imports.dart';
-import '../../../../../../common/widgets/scroll_reveal.dart';
-import '../nav_bar/app_bottom_nav.dart';
+import 'showcase_layout.dart';
 
 class RootTabButtonsShowcase extends StatelessWidget {
   const RootTabButtonsShowcase({super.key});
 
-  void _toast(BuildContext context, String msg) {
+  void _pressed(BuildContext context, String name) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: AppSnackContent(msg), duration: const Duration(milliseconds: 700)),
+      SnackBar(
+        content: AppSnackContent(AppStrings.showcasePressed(name)),
+        duration: const Duration(milliseconds: 700),
+      ),
     );
   }
 
-  Widget _section(BuildContext context, String title, List<Widget> children) {
-    return ScrollReveal(
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyles.s16w600),
-        AppSpacing.sm.verticalSpace,
-        ...children,
-        AppSpacing.lg.verticalSpace,
-        const Divider(height: 1),
-        AppSpacing.lg.verticalSpace,
-      ],
-    ),
+  void _inactive(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: AppSnackContent(AppStrings.showcaseButtonsInactiveTapped),
+        duration: const Duration(milliseconds: 700),
+      ),
     );
   }
 
@@ -31,175 +26,205 @@ class RootTabButtonsShowcase extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = IconSource.svg(AppIcons.arrowRight);
 
-    return SingleChildScrollView(
-      padding: AppSpacing.standardPadding.copyWith(
-        bottom: AppBottomNav.listBottomPadding(context),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('AppButton Showcase', style: AppTextStyles.s22w700),
-          AppSpacing.sm.verticalSpace,
-          Text(
-            'This page demonstrates most AppButton configurations (variants, fills, shapes, sizes, loading/disabled, and edge cases).',
-            style: AppTextStyles.s14w400.copyWith(
-              color: context.onSurface.withValues(alpha: 0.75),
-            ),
-          ),
-          AppSpacing.lg.verticalSpace,
-
-          _section(context, 'Default / basic content types', [
+    return ShowcasePage(
+      title: AppStrings.showcaseButtonsTitle,
+      subtitle: AppStrings.showcaseButtonsSubtitle,
+      children: <Widget>[
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionBasic,
+          children: <Widget>[
             AppButton.primary(
-              onTap: () => _toast(context, 'Default pressed'),
-              child: AppButtonChild.label('Default button'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsDefault),
+              child: AppButtonChild.label(AppStrings.showcaseButtonsDefault),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primary(
-              onTap: () => _toast(context, 'Label only pressed'),
-              child: AppButtonChild.label('Label only'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsLabelOnly),
+              child: AppButtonChild.label(AppStrings.showcaseButtonsLabelOnly),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primary(
-              onTap: () => _toast(context, 'Icon only pressed'),
-              child: AppButtonChild.icon(
-                IconSource.svg(AppIcons.heart),
-              ),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsIconOnly),
+              child: AppButtonChild.icon(IconSource.svg(AppIcons.heart)),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primary(
-              onTap: () => _toast(context, 'Label + icon pressed'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsLabelIcon),
               child: AppButtonChild.labelIcon(
-                label: 'Label + icon',
+                label: AppStrings.showcaseButtonsLabelIcon,
                 icon: icon,
               ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primary(
-              onTap: () => _toast(context, 'Trailing icon pressed'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsTrailingIcon),
               child: AppButtonChild.labelIcon(
-                label: 'Trailing icon',
+                label: AppStrings.showcaseButtonsTrailingIcon,
                 icon: icon,
                 position: AppButtonIconPosition.trailing,
               ),
             ),
-          ]),
+          ],
+        ),
 
-          _section(context, 'Loading / disabled states', [
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionStates,
+          children: <Widget>[
             AppButton.primary(
               onTap: () {},
               isLoading: true,
-              child: AppButtonChild.label('Loading (primary)'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsLoadingPrimary,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primaryGradient(
               onTap: () {},
               isLoading: true,
               child: AppButtonChild.labelIcon(
-                label: 'Loading (gradient)',
+                label: AppStrings.showcaseButtonsLoadingGradient,
                 icon: IconSource.svg(AppIcons.clock),
               ),
             ),
-            AppSpacing.md.verticalSpace,
+            // Grey is how a button shows it is INACTIVE, and only that: any
+            // button given `isActive: false` is drawn grey by itself.
             AppButton.primary(
-              onTap: null,
-              child: AppButtonChild.label('Disabled (onTap: null)'),
-            ),
-            AppSpacing.md.verticalSpace,
-            AppButton.primary(
-              onTap: () => _toast(context, 'Should not tap'),
+              onTap: () {},
               isActive: false,
-              child: AppButtonChild.label('Disabled (isActive: false)'),
+              onTapWhenInactive: () => _inactive(context),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsDisabledInactive,
+              ),
             ),
-          ]),
-
-          _section(context, 'Solid variants', [
-            AppButton.primary(
-              onTap: () => _toast(context, 'Primary solid'),
-              child: AppButtonChild.label('Primary (solid)'),
-            ),
-            AppSpacing.md.verticalSpace,
+            // `AppButton.grey` is a button that is always inactive.
             AppButton.grey(
-              onTap: () => _toast(context, 'Grey solid'),
-              child: AppButtonChild.label('Grey (solid)'),
+              onTapWhenInactive: () => _inactive(context),
+              child: AppButtonChild.label(AppStrings.showcaseButtonsInactiveGrey),
             ),
-            AppSpacing.md.verticalSpace,
+          ],
+        ),
+
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionSolid,
+          children: <Widget>[
+            AppButton.primary(
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantPrimary),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantPrimary,
+              ),
+            ),
             AppButton.success(
-              onTap: () => _toast(context, 'Success solid'),
-              child: AppButtonChild.label('Success (solid)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantSuccess),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantSuccess,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.warning(
-              onTap: () => _toast(context, 'Warning solid'),
-              child: AppButtonChild.label('Warning (solid)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantWarning),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantWarning,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.error(
-              onTap: () => _toast(context, 'Error solid'),
-              child: AppButtonChild.label('Error (solid)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantError),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantError,
+              ),
             ),
-          ]),
+          ],
+        ),
 
-          _section(context, 'Gradient variants', [
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionGradient,
+          children: <Widget>[
             AppButton.primaryGradient(
-              onTap: () => _toast(context, 'Primary gradient'),
-              child: AppButtonChild.label('Primary (gradient)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantPrimary),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantPrimary,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
-            AppButton.greyGradient(
-              onTap: () => _toast(context, 'Grey gradient'),
-              child: AppButtonChild.label('Grey (gradient)'),
-            ),
-            AppSpacing.md.verticalSpace,
             AppButton.successGradient(
-              onTap: () => _toast(context, 'Success gradient'),
-              child: AppButtonChild.label('Success (gradient)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantSuccess),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantSuccess,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.warningGradient(
-              onTap: () => _toast(context, 'Warning gradient'),
-              child: AppButtonChild.label('Warning (gradient)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantWarning),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantWarning,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.errorGradient(
-              onTap: () => _toast(context, 'Error gradient'),
-              child: AppButtonChild.label('Error (gradient)'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsVariantError),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsVariantError,
+              ),
             ),
-          ]),
+          ],
+        ),
 
-          _section(context, 'Sizes / layout configuration', [
-            AppButton.primary(
-              onTap: () => _toast(context, 'Wrap content'),
-              child: AppButtonChild.label('Wrap content (default layout)'),
-            ),
-            AppSpacing.md.verticalSpace,
-            AppButton.primary(
-              onTap: () => _toast(context, 'Fixed width'),
-              layout: const AppButtonLayout(width: 220),
-              child: AppButtonChild.label('Fixed width (220.w)'),
-            ),
-            AppSpacing.md.verticalSpace,
-            AppButton.primary(
-              onTap: () => _toast(context, 'Percent width'),
-              layout: const AppButtonLayout(percentageWidth: 1),
-              child: AppButtonChild.label('Full width (percentageWidth: 1)'),
-            ),
-            AppSpacing.md.verticalSpace,
-            AppButton.primary(
-              onTap: () => _toast(context, 'Fixed height'),
-              layout: const AppButtonLayout(height: 44),
-              child: AppButtonChild.label('Fixed height (44.h)'),
-            ),
-            AppSpacing.md.verticalSpace,
-            AppButton.primary(
-              onTap: () => _toast(context, 'Percent height'),
-              layout: const AppButtonLayout(percentageHeight: 0.06),
-              child: AppButtonChild.label('percentageHeight: 0.06'),
-            ),
-            AppSpacing.md.verticalSpace,
-            Row(
-              children: [
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionSizes,
+          flow: false,
+          children: <Widget>[
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: <Widget>[
                 AppButton.primary(
-                  onTap: () => _toast(context, 'Circle'),
+                  onTap: () =>
+                      _pressed(context, AppStrings.showcaseButtonsWrap),
+                  child: AppButtonChild.label(AppStrings.showcaseButtonsWrap),
+                ),
+                AppButton.primary(
+                  onTap: () =>
+                      _pressed(context, AppStrings.showcaseButtonsFixedWidth),
+                  layout: const AppButtonLayout(width: 220),
+                  child: AppButtonChild.label(
+                    AppStrings.showcaseButtonsFixedWidth,
+                  ),
+                ),
+                AppButton.primary(
+                  onTap: () =>
+                      _pressed(context, AppStrings.showcaseButtonsFixedHeight),
+                  layout: const AppButtonLayout(height: 44),
+                  child: AppButtonChild.label(
+                    AppStrings.showcaseButtonsFixedHeight,
+                  ),
+                ),
+                AppButton.primary(
+                  onTap: () => _pressed(
+                    context,
+                    AppStrings.showcaseButtonsRelativeHeight,
+                  ),
+                  layout: const AppButtonLayout(percentageHeight: 0.06),
+                  child: AppButtonChild.label(
+                    AppStrings.showcaseButtonsRelativeHeight,
+                  ),
+                ),
+              ],
+            ),
+            AppButton.primary(
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsFullWidth),
+              layout: const AppButtonLayout(percentageWidth: 1),
+              child: AppButtonChild.label(AppStrings.showcaseButtonsFullWidth),
+            ),
+            Row(
+              children: <Widget>[
+                AppButton.primary(
+                  onTap: () =>
+                      _pressed(context, AppStrings.showcaseButtonsCircle),
                   layout: const AppButtonLayout(
                     shape: AppButtonShape.circle,
                     height: 52,
@@ -212,90 +237,97 @@ class RootTabButtonsShowcase extends StatelessWidget {
                 AppSpacing.md.horizontalSpace,
                 Expanded(
                   child: AppButton.primary(
-                    onTap: () => _toast(context, 'Pill'),
+                    onTap: () =>
+                        _pressed(context, AppStrings.showcaseButtonsPill),
                     layout: const AppButtonLayout(
                       shape: AppButtonShape.pill,
                       percentageWidth: 1,
                     ),
                     child: AppButtonChild.labelIcon(
-                      label: 'Pill shape',
+                      label: AppStrings.showcaseButtonsPill,
                       icon: IconSource.svg(AppIcons.grid),
                     ),
                   ),
                 ),
               ],
             ),
-          ]),
+          ],
+        ),
 
-          _section(context, 'Shadow / custom shadows', [
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionShadows,
+          children: <Widget>[
             AppButton.primary(
-              onTap: () => _toast(context, 'Default shadow'),
-              child: AppButtonChild.label('Default shadow'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsShadowDefault),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsShadowDefault,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.primary(
-              onTap: () => _toast(context, 'No shadow'),
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsShadowNone),
               noShadow: true,
-              child: AppButtonChild.label('noShadow: true'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsShadowNone,
+              ),
             ),
-            AppSpacing.md.verticalSpace,
             AppButton.variant(
               variant: AppButtonVariant.primary,
               fill: AppButtonFill.solid,
-              onTap: () => _toast(context, 'Custom shadows'),
-              customShadows: [
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsShadowCustom),
+              customShadows: <BoxShadow>[
                 BoxShadow(
                   color: context.primary.withValues(alpha: 0.25),
                   blurRadius: 18,
                   offset: const Offset(0, 10),
                 ),
               ],
-              child: AppButtonChild.label('customShadows override'),
+              child: AppButtonChild.label(
+                AppStrings.showcaseButtonsShadowCustom,
+              ),
             ),
-          ]),
+          ],
+        ),
 
-          _section(
-            context,
-            'Maximum config (variant + fill + layout + states)',
-            [
-              AppButton.variant(
-                variant: const CustomButtonVariant(
-                  color: Color(0xFF1E293B),
-                  gradientColor: LinearGradient(
-                    colors: [Color(0xFF1E293B), Color(0xFF0EA5E9)],
-                  ),
-                ),
-                fill: AppButtonFill.gradient,
-                onTap: () => _toast(context, 'Custom variant pressed'),
-                layout: const AppButtonLayout(
-                  percentageWidth: 1,
-                  height: 52,
-                  borderRadius: 18,
-                ),
-                shadowVariant: AppButtonShadowVariant.primary,
-                child: AppButtonChild.labelIcon(
-                  label: 'CustomButtonVariant + gradient',
-                  icon: IconSource.svg(AppIcons.star),
+        ShowcaseSection(
+          title: AppStrings.showcaseButtonsSectionEverything,
+          flow: false,
+          children: <Widget>[
+            AppButton.variant(
+              variant: const CustomButtonVariant(
+                color: Color(0xFF1E293B),
+                gradientColor: LinearGradient(
+                  colors: <Color>[Color(0xFF1E293B), Color(0xFF0EA5E9)],
                 ),
               ),
-              AppSpacing.md.verticalSpace,
-              AppButton.variant(
-                variant: AppButtonVariant.primary,
-                fill: AppButtonFill.solid,
-                onTap: null,
-                isActive: false,
-                noShadow: true,
-                layout: const AppButtonLayout(percentageWidth: 1),
-                child: AppButtonChild.label(
-                  'Edge case: disabled + noShadow + full width',
-                ),
+              fill: AppButtonFill.gradient,
+              onTap: () =>
+                  _pressed(context, AppStrings.showcaseButtonsCustom),
+              layout: const AppButtonLayout(
+                percentageWidth: 1,
+                height: 52,
+                borderRadius: 18,
               ),
-            ],
-          ),
-
-          AppSpacing.xl.verticalSpace,
-        ],
-      ),
+              shadowVariant: AppButtonShadowVariant.primary,
+              child: AppButtonChild.labelIcon(
+                label: AppStrings.showcaseButtonsCustom,
+                icon: IconSource.svg(AppIcons.star),
+              ),
+            ),
+            AppButton.variant(
+              variant: AppButtonVariant.primary,
+              fill: AppButtonFill.solid,
+              onTap: null,
+              isActive: false,
+              noShadow: true,
+              layout: const AppButtonLayout(percentageWidth: 1),
+              child: AppButtonChild.label(AppStrings.showcaseButtonsEdge),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

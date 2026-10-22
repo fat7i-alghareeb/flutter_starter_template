@@ -54,6 +54,18 @@ abstract class AppButtonVariant {
   static const AppButtonVariant success = _SuccessButtonVariant();
   static const AppButtonVariant error = _ErrorButtonVariant();
   static const AppButtonVariant warning = _WarningButtonVariant();
+
+  /// **The look of an INACTIVE button, and nothing else.**
+  ///
+  /// Grey says "you cannot press this right now": a form that is not valid
+  /// yet, an action that is waiting for something. It is never a colour for a
+  /// button that works. "Cancel", "Exit", "Reset" and "Close" are real,
+  /// pressable actions, so they are `error` (red) or `primary`, not grey.
+  ///
+  /// Because of that a button cannot be BOTH grey and active:
+  /// `AppButton.variant(variant: grey, isActive: true)` fails an assertion in
+  /// debug builds, `AppButton.grey` is always inactive, and any button given
+  /// `isActive: false` is drawn grey by itself, with no variant needed.
   static const AppButtonVariant grey = _GreyButtonVariant();
 }
 
@@ -85,6 +97,8 @@ class AppButtonStyleResolver {
     AppButtonShadowVariant? shadowVariant,
     List<BoxShadow>? customShadows,
   }) {
+    // An inactive button IS the grey variant — that is the only thing grey
+    // means (see [AppButtonVariant.grey]).
     final effectiveVariant = isActive ? variant : AppButtonVariant.grey;
 
     final color = fill == AppButtonFill.solid
@@ -95,9 +109,7 @@ class AppButtonStyleResolver {
         ? effectiveVariant.gradient(context)
         : null;
 
-    final foreground = isActive
-        ? effectiveVariant.foreground(context)
-        : context.background;
+    final foreground = effectiveVariant.foreground(context);
 
     final shadows = noShadow
         ? const <BoxShadow>[]
@@ -143,56 +155,72 @@ class _PrimaryButtonVariant extends AppButtonVariant {
   Color foreground(BuildContext context) => context.colorScheme.onPrimary;
 }
 
+/// Text on a saturated plate: white on the light theme's deep colours, the
+/// page's dark on the dark theme's pale ones. (The page colour itself is a
+/// light grey now, which is not white enough for the deep greens and reds.)
+Color _onSolid(BuildContext context) =>
+    context.colorScheme.brightness == Brightness.dark
+    ? context.background
+    : AppColors.onPrimaryLight;
+
 class _SuccessButtonVariant extends AppButtonVariant {
   const _SuccessButtonVariant();
 
   @override
-  Color solidColor(BuildContext context) => AppColors.success;
+  Color solidColor(BuildContext context) => context.semantic.success;
 
   @override
   LinearGradient gradient(BuildContext context) => context.gradients.success;
 
   @override
-  Color foreground(BuildContext context) => context.background;
+  Color foreground(BuildContext context) => _onSolid(context);
 }
 
 class _ErrorButtonVariant extends AppButtonVariant {
   const _ErrorButtonVariant();
 
   @override
-  Color solidColor(BuildContext context) => AppColors.error;
+  Color solidColor(BuildContext context) => context.colorScheme.error;
 
   @override
   LinearGradient gradient(BuildContext context) => context.gradients.error;
 
   @override
-  Color foreground(BuildContext context) => context.background;
+  Color foreground(BuildContext context) => _onSolid(context);
 }
 
 class _WarningButtonVariant extends AppButtonVariant {
   const _WarningButtonVariant();
 
   @override
-  Color solidColor(BuildContext context) => AppColors.warning;
+  Color solidColor(BuildContext context) => context.semantic.warning;
 
   @override
   LinearGradient gradient(BuildContext context) => context.gradients.warning;
 
   @override
-  Color foreground(BuildContext context) => context.background;
+  Color foreground(BuildContext context) => _onSolid(context);
 }
 
+/// The inactive look: a flat, quiet plate with muted text (Material's 12%
+/// content colour behind 38% content colour). Flat on purpose: a gradient
+/// would make a button that does nothing look inviting.
 class _GreyButtonVariant extends AppButtonVariant {
   const _GreyButtonVariant();
 
   @override
-  Color solidColor(BuildContext context) => context.grey;
+  Color solidColor(BuildContext context) =>
+      context.colorScheme.surfaceContainerHighest;
 
   @override
-  LinearGradient gradient(BuildContext context) => context.gradients.grey;
+  LinearGradient gradient(BuildContext context) {
+    final plate = solidColor(context);
+    return LinearGradient(colors: <Color>[plate, plate]);
+  }
 
   @override
-  Color foreground(BuildContext context) => context.background;
+  Color foreground(BuildContext context) =>
+      context.colorScheme.onSurface.withValues(alpha: 0.45);
 }
 
 class CustomButtonVariant extends AppButtonVariant {
@@ -201,12 +229,16 @@ class CustomButtonVariant extends AppButtonVariant {
   const CustomButtonVariant({this.color, this.gradientColor});
 
   @override
-  Color solidColor(BuildContext context) => color ?? context.grey;
+  Color solidColor(BuildContext context) =>
+      color ?? AppButtonVariant.grey.solidColor(context);
 
   @override
   LinearGradient gradient(BuildContext context) =>
-      gradientColor ?? context.gradients.grey;
+      gradientColor ?? AppButtonVariant.grey.gradient(context);
 
   @override
-  Color foreground(BuildContext context) => context.background;
+  Color foreground(BuildContext context) =>
+      color == null && gradientColor == null
+      ? AppButtonVariant.grey.foreground(context)
+      : _onSolid(context);
 }

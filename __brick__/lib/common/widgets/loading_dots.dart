@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// LoadingDots
 /// -----------
@@ -63,7 +62,7 @@ class _LoadingDotsState extends State<LoadingDots>
 
   @override
   Widget build(BuildContext context) {
-    final dotSize = widget.dotSize.sp;
+    final dotSize = widget.dotSize;
 
     return AnimatedBuilder(
       animation: _controller,
@@ -74,7 +73,7 @@ class _LoadingDotsState extends State<LoadingDots>
             final s = _dotScale(i);
             return Padding(
               padding: EdgeInsetsDirectional.only(
-                end: i == widget.dots - 1 ? 0 : widget.spacing.w,
+                end: i == widget.dots - 1 ? 0 : widget.spacing,
               ),
               child: Transform.scale(
                 scale: s,

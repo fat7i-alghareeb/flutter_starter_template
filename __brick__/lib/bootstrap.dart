@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'package:dio_refresh_bot/dio_refresh_bot.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart' show SystemChrome, SystemUiMode;
+import 'package:windows_single_instance/windows_single_instance.dart';
 import 'core/config/app_config.dart';
 import 'core/config/localization_config.dart';
 import 'core/injection/injectable.dart';
@@ -14,28 +14,19 @@ import 'core/notification/notification_coordinator.dart';
 import 'core/notification/notification_init_options.dart';
 import 'core/notification/notification_payload.dart';
 import 'core/notification/push_token_registrar.dart';
+import 'core/platform/app_platform.dart';
+import 'core/router/desktop_links.dart';
 import 'core/router/app_links.dart';
 import 'core/services/localization/locale_service.dart';
 import 'core/services/onboarding/onboarding_service.dart';
 import 'core/services/session/auth_manager.dart';
 import 'core/services/session/auth_state_notifier.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/window/app_window.dart';
 import 'features/showcase_feed/presentation/states/feed_preloader.dart';
 import 'common/widgets/stage_tools/stage_device_preview_controller.dart';
 import 'utils/constants/app_flow_constants.dart';
-import 'utils/constants/design_constants.dart';
 import 'utils/helpers/colored_print.dart';
-
-const double _tinyPhoneMaxWidth = 320;
-const double _smallPhoneMaxWidth = 360;
-const double _basePhoneMaxWidth = 400;
-const double _largePhoneMaxWidth = 480;
-
-const double _tinyPhoneFontScaleFactor = 0.9;
-const double _smallPhoneFontScaleFactor = 0.95;
-const double _basePhoneFontScaleFactor = 1;
-const double _largePhoneFontScaleFactor = 1.05;
-const double _tabletFontScaleFactor = 1.1;
 
 /// Common bootstrap entry point for the application.
 ///
@@ -51,7 +42,10 @@ const double _tabletFontScaleFactor = 1.1;
 /// - Runs the provided widget tree inside a guarded zone with
 ///   EasyLocalization.
 /// - Starts non-critical service warmup after the first frame.
-Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+Future<void> bootstrap(
+  FutureOr<Widget> Function() builder, {
+  List<String> args = const <String>[],
+}) async {
   // Important: keep `ensureInitialized` and `runApp` inside the same zone.
   await runZonedGuarded<Future<void>>(
     () async {
@@ -62,6 +56,14 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
       //    Configure the dependency injection container.
       configureDependencies();
+
+      //    Desktop only: one running copy on Windows (macOS already
+      //    focuses the running app), then the window's size limits and its
+      //    hidden title bar. The window stays hidden until the first frame
+      //    (`AppWindow.showWhenReady`).
+      await _ensureSingleInstance(args);
+      await _initializeWindow();
+      unawaited(DesktopLinks.initialize());
 
       //    Links from outside the app — a shared URL, a notification — go to
       //    the dispatcher BEFORE the router. The binding asks its observers
@@ -95,13 +97,11 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       // dark. It is one preferences read, made while the native splash
       // still covers the screen; the budget only guards against a read that
       // never returns, and a late one still lands, just animated.
-      await _initializeTheme().timeout(
-        _themeRestoreBudget,
-        onTimeout: () {},
-      );
+      await _initializeTheme().timeout(_themeRestoreBudget, onTimeout: () {});
       final initialLocale = await savedLocale;
 
       await _runGuardedApp(builder, initialLocale);
+      unawaited(AppWindow.showWhenReady());
       _startPostLaunchWarmup();
     },
     (error, stackTrace) {
@@ -110,14 +110,6 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       log('Uncaught application error', error: error, stackTrace: stackTrace);
     },
   );
-}
-
-double _resolveFontScaleFactor(double screenWidth) {
-  if (screenWidth <= _tinyPhoneMaxWidth) return _tinyPhoneFontScaleFactor;
-  if (screenWidth <= _smallPhoneMaxWidth) return _smallPhoneFontScaleFactor;
-  if (screenWidth <= _basePhoneMaxWidth) return _basePhoneFontScaleFactor;
-  if (screenWidth <= _largePhoneMaxWidth) return _largePhoneFontScaleFactor;
-  return _tabletFontScaleFactor;
 }
 
 void _startPostLaunchWarmup() {
@@ -133,6 +125,29 @@ void _startPostLaunchWarmup() {
       Future<void>.delayed(SplashConfig.initialDelay, _initializeNotifications),
     );
   });
+}
+
+Future<void> _initializeWindow() async {
+  try {
+    await AppWindow.initialize();
+  } catch (e) {
+    printY('[Bootstrap] Window initialize failed: $e');
+  }
+}
+
+/// A second launch on Windows brings the running window to the front, then
+/// exits. A launch with a link is forwarded earlier, by the runner
+/// (`SendAppLinkToInstance`), and never gets this far.
+Future<void> _ensureSingleInstance(List<String> args) async {
+  if (!AppPlatform.isWindows) return;
+  try {
+    await WindowsSingleInstance.ensureSingleInstance(
+      args,
+      AppConfig.singleInstanceId,
+    );
+  } catch (e) {
+    printY('[Bootstrap] Single-instance check failed: $e');
+  }
 }
 
 Future<void> _initializeStageTools() async {
@@ -204,6 +219,9 @@ const bool _fcmEnabled = false;
 Future<void> _initializeNotifications() async {
   try {
     final coordinator = getIt<NotificationCoordinator>();
+    // Push only where firebase_messaging has code AND the template keeps it
+    // (Android, iOS); desktop gets local notifications only.
+    final pushOn = _fcmEnabled && AppPlatform.supportsPush;
 
     await coordinator.initialize(
       config: AppNotificationConfig.defaults(),
@@ -211,12 +229,10 @@ Future<void> _initializeNotifications() async {
         await _handleNotificationNavigation(payload);
       },
       // With FCM on, every new token is sent to the server (`/devices`).
-      onTokenRefresh: _fcmEnabled
-          ? getIt<PushTokenRegistrar>().tokenChanged
-          : null,
-      options: const NotificationInitOptions(
-        initializeFirebase: _fcmEnabled,
-        enableFcm: _fcmEnabled,
+      onTokenRefresh: pushOn ? getIt<PushTokenRegistrar>().tokenChanged : null,
+      options: NotificationInitOptions(
+        initializeFirebase: pushOn,
+        enableFcm: pushOn,
         requestPermissionsAtStartup: false,
       ),
     );
@@ -278,10 +294,10 @@ Future<void> _runGuardedApp(
   // Build the actual root widget tree provided by the caller.
   final app = await builder();
 
-  // Wrap the root app with EasyLocalization and ScreenUtil so that:
-  // - Localized strings are available everywhere.
-  // - The app starts with the resolved [initialLocale].
-  // - Responsive sizing via ScreenUtil is available globally.
+  // Wrap the root app with EasyLocalization so that localized strings are
+  // available everywhere and the app starts with the resolved
+  // [initialLocale]. Sizes are plain logical pixels; what adapts to the
+  // window is decided by `AppLayout` (`docs/RESPONSIVE.md`).
   final localizedApp = EasyLocalization(
     supportedLocales: AppLocalizationConfig.supportedLanguageCodes
         .map((code) => Locale(code))
@@ -295,15 +311,7 @@ Future<void> _runGuardedApp(
     // only 0 · 1 · 2 · «other» — Arabic's «few» (3-10) and «many» (11-99)
     // would both print the «other» form (`AppStrings`' `_plural`).
     ignorePluralRules: false,
-    child: ScreenUtilInit(
-      designSize: AppDesign.designSize,
-      minTextAdapt: true,
-      splitScreenMode: true,
-      fontSizeResolver: (fontSize, instance) {
-        return fontSize * _resolveFontScaleFactor(instance.screenWidth);
-      },
-      builder: (context, _) => app,
-    ),
+    child: app,
   );
 
   // Finally render the localized app tree.

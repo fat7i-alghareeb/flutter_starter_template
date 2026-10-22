@@ -9,7 +9,10 @@ BoxDecoration _decorationOf(WidgetTester tester, String label) =>
     tester
             .widget<Container>(
               find
-                  .ancestor(of: find.text(label), matching: find.byType(Container))
+                  .ancestor(
+                    of: find.text(label),
+                    matching: find.byType(Container),
+                  )
                   .first,
             )
             .decoration!

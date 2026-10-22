@@ -1,81 +1,57 @@
-# 🌍 Global Library Overview (`lib/`)
+# `lib/` overview
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+The map of the app's code: how it starts, what the root widget wires together, and which guide to read for each folder.
+Rules are in `.ai/project-rules.md`; the file-by-file map is `docs/PROJECT_MAP.md`.
 
-This document is the **Mandatory First Entry Point** for any AI agent interacting with the {{project_title}} codebase. It serves as the "Map of the Galaxy" that connects all specialized technical encyclopedias.
+## Folders
 
-- **Global Protocol**: [.ai/project-rules.md](.ai/project-rules.md)
-- **Hierarchy Protocol**: [lib/features/features_overview.md](lib/features/features_overview.md)
+| Folder | Holds | Guide |
+| --- | --- | --- |
+| `bootstrap.dart`, `app.dart`, `main.dart` | Start-up and the root widget | this file |
+| `core/` | Infrastructure: config, DI, network, router, theme, layout, platform, window, shortcuts, notifications, services | `core/core_architecture_overview.md` |
+| `common/` | Shared widgets and the `imports.dart` barrel | `common/common_folder_guide.md`, `ui_overview.md` |
+| `utils/` | Constants, extensions, helpers, generated code | `utils/utils_folder_guide.md` |
+| `features/` | Product features | `features/features_overview.md` |
 
-Failure to synchronize your internal state with this map before proceeding to specialized layers is a protocol violation.
+## Start-up (`bootstrap.dart`)
 
----
+`bootstrap()` runs everything inside one guarded zone (`runZonedGuarded`), in this order:
 
-## 🚀 1. The Bootstrap Sequence (`lib/bootstrap.dart`)
+1. `WidgetsFlutterBinding.ensureInitialized()`, edge-to-edge system UI.
+2. `configureDependencies()` — GetIt / Injectable registration only; no stored state is read.
+3. **Desktop only**: `_ensureSingleInstance(args)` (a second Windows launch focuses the first and exits), `AppWindow.initialize()`
+   (size limits, hidden title bar, saved bounds — the window stays **hidden**), `DesktopLinks.initialize()`.
+4. `LinkDispatcher` is added as a binding observer **before** the router exists, so links from outside reach it first.
+5. Stage tools are registered when `AppConfig.stageToolsEnabled` (`--dart-define=STAGE_TOOLS=true`).
+6. `EasyLocalization.ensureInitialized()`, then the **saved language** and the **saved theme** are read, each within a 250 ms
+   budget. They are part of the first frame being correct: restored after it, a dark-mode reader would see a light splash fade
+   to dark, and a language switch could race `easy_localization`'s own load.
+7. `runApp(App)` inside `EasyLocalization`; then `AppWindow.showWhenReady()` shows the desktop window once its first frame is
+   on screen.
+8. After the first frame (`_startPostLaunchWarmup`): stage tools, the onboarding flag, session restore (`AuthStateNotifier`
+   leaves `Status.initial`), the first-tab preload (`BlocPreloader`), and — after `SplashConfig.initialDelay` — notifications.
+   `SplashConfig.initialDelay` is zero on desktop (the window already waited for its first frame).
 
-The startup path is optimized for a fast first Flutter frame. AI agents modifying startup logic **MUST** keep blocking work before `runApp` minimal:
+**Do not** add storage reads, Firebase, ObjectBox opens, permission prompts, network calls, asset precaching or heavy parsing
+before `runApp`, unless the first visible route cannot render without it. A permission prompt never goes behind the splash:
+`RootScreen` asks once the reader is in the app.
 
-1. **Engine Binding**: `WidgetsFlutterBinding.ensureInitialized()` and `SystemUiMode.edgeToEdge`.
-2. **Dependency Injection**: `configureDependencies()` (GetIt/Injectable), including JWT auth services and Dio without reading stored state.
-3. **Stage Tool Registration**: Register stage-only tooling when `AppConfig.stageToolsEnabled` is set (`--dart-define=STAGE_TOOLS=true`).
-4. **Localization Core**: `EasyLocalization.ensureInitialized()`.
-5. **Startup Locale**: `LocaleService.resolveStartupLocale()` using device/fallback only, with no storage read.
-6. **Guarded Run**: Launch `ScreenUtilInit` and the root `App`.
-7. **Post-Frame Warmup**: After the first frame, reconcile saved locale and load stage tooling, theme, onboarding cache, and auth/session state.
-8. **Post-Splash Notifications**: Initialize notifications after `SplashConfig.initialDelay` so permission prompts never appear before the custom splash duration finishes.
+## The root widget (`app.dart`)
 
-Do not add storage reads, Firebase, ObjectBox opens, permission prompts, network calls, asset precaching, or heavy parsing before `runApp` unless the first visible route cannot render correctly without it.
+`App` builds, from the outside in:
 
----
+- `BlocProvider<AuthBloc>` — above `MaterialApp` on purpose, so a sign-in started in the protected-action sheet is seen by the
+  screen under it.
+- `MaterialApp.router` with the light and dark themes, `ThemeController`, the saved locale, `AppScrollBehavior`, and `routerConfig`.
+- In `builder`: `AnnotatedRegion` (system UI colours) → `AppTextScaleHost` (the reader's text size, 85–130%, plus a step in
+  large windows) → `AppLayoutHost` (the window size class for each frame) → `AdaptiveTypography` → `RebuildOnLocaleChange` →
+  `AppMenuBar` / `AppShortcuts` → `AppDesktopFrame` (the custom title bar, desktop only) → the offline banner, the session banner
+  (guest-first), and `StageToolsOverlay` when compiled in.
 
-## 🏛️ 2. The Application Root (`lib/app.dart`)
+## Principles
 
-The `App` widget is the root of the Flutter tree. It manages:
-
-- **Feature code** isolated in `features/`.
-- **Cross-cutting foundations** centralized in `core/`.
-- **Reusable UI building blocks** in `common/`.
-- **Shared helpers and extensions** in `utils/`.
-- **Router Configuration**: Integration with `AppRouterConfig`.
-- **Theme Management**: Reactive switching via `ThemeController`.
-- **Global Overlays**: `AnnotatedRegion` for System UI, plus `StageToolsOverlay` when `AppConfig.stageToolsEnabled` is set.
-- **Localization**: Passing delegates and active locale to `MaterialApp.router`.
-
----
-
-## 🏗️ 3. Layered Encyclopedia Map
-
-Every subdirectory in `lib/` has a dedicated specialized encyclopedia. You **MUST** read the relevant guide before touching any file in these directories:
-
-### 🧩 [Utilities & Tokens](lib/utils/utils_folder_guide.md)
-
-**Path**: `lib/utils/`
-Contains constants, design tokens, extensions, and generated logic.
-
-### 🎨 [UI & Styling](lib/ui_overview.md)
-
-**Path**: `lib/core/theme/` | `lib/common/`
-Contains the design system implementation, typography, and shared widgets.
-
-### 🗺️ [Navigation & State](lib/core/router/router_guide.md)
-
-**Path**: `lib/core/router/` | `lib/features/`
-Contains the routing logic and feature-specific state management (Bloc).
-
-### 📦 [Persistence & Services](lib/core/services/objectbox/objectbox_service_guide.md)
-
-**Path**: `lib/core/services/`
-Contains all infrastructure services (ObjectBox, Session, Auth, Notifications).
-
----
-
-## 📜 4. Core Principles for AI Agents
-
-- **No Inlining**: Logic belongs in services/blocs, small helpers in utils, and complex UI in sections.
-- **Dependency Inversion**: Always use `getIt<T>()` or constructor injection for facades/services.
-- **Data Integrity**: Never expose Models/DTOs to the UI. Always map to Entities.
-- **Scaling Sovereignty**: All dimensions **MUST** use `.h`, `.w`, or `.sp` extensions.
-
----
-
-_For architectural rules and protocol details, see [.ai/project-rules.md](.ai/project-rules.md)._
+- **Logic stays out of widgets.** Services and blocs hold logic, `utils/` holds small helpers, complex UI is split into sections.
+- **Inject, do not construct.** `getIt<T>()` or constructor injection for services, facades and blocs.
+- **Models stay in the data layer.** The UI sees entities.
+- **Layout follows the window size class** (`context.layout`, `AdaptiveLayout`), never a device type or an orientation. Platform
+  capabilities go through `AppPlatform`. See `docs/RESPONSIVE.md`.

@@ -86,6 +86,12 @@ class AppIcons {
   static const String eyeOff = 'assets/svgIcons/eye_off.svg';
   static const String devices = 'assets/svgIcons/devices.svg';
 
+  // ── large screens and desktop
+  static const String panelLeft = 'assets/svgIcons/panel_left.svg';
+  static const String zoomIn = 'assets/svgIcons/zoom_in.svg';
+  static const String zoomOut = 'assets/svgIcons/zoom_out.svg';
+  static const String keyboard = 'assets/svgIcons/keyboard.svg';
+
   /// Resolves a server-sent `iconKey` to an asset path.
   ///
   /// A server that names its own icons (categories, sections, notification

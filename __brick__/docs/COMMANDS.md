@@ -25,6 +25,22 @@ Generated Dart (`*.g.dart`, `*.freezed.dart`, `injectable.config.dart`,
 | Profile | `flutter run --profile` | App (Profile) |
 | Release | `flutter run --release [--dart-define=USE_MOCK=true]` | App (Release[, mock data]) |
 
+### Desktop
+
+| What | Command |
+| --- | --- |
+| Run on Windows / macOS | `flutter run -d windows` · `flutter run -d macos` |
+| Build a desktop app | `flutter build windows --release` · `flutter build macos --release` |
+| Windows installer (`setup.exe`, Inno Setup) | `dart run tool/build_windows_installer.dart` |
+| Windows MSIX (test / Microsoft Store) | `dart run msix:create` · `dart run msix:create --store` |
+| macOS `.dmg` | `tool/build_macos_dmg.sh` |
+| Desktop icons | `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml` |
+
+Setup, the title bar, and what each route needs: `docs/DESKTOP_SETUP.md`.
+Try a size by dragging the window (stage tools are off on desktop by design). The first Windows build downloads the Firebase
+C++ SDK (about 960 MB) and is slow; later builds reuse it. A clean Windows build prints no warnings — if one appears, see
+«Warnings that are hidden» in `docs/DESKTOP_SETUP.md`.
+
 ### Mock-layer switches (`lib/core/config/mock_config.dart`)
 
 | Define | Effect |
@@ -67,8 +83,9 @@ card's parity test line, write its strings.
 
 ```bash
 dart format <the files you changed>      # not the whole tree
-flutter analyze                          # also reads test/ and tool/
-flutter test                             # everything, goldens included
+flutter analyze                          # must end with «No issues found!»; also reads test/ and tool/
+flutter test                             # everything, goldens included (about 420 tests)
+flutter test test/features/root          # one folder — use while you work
 flutter test --exclude-tags golden       # on a CI OS that differs from yours
 flutter test --update-goldens            # after a deliberate visual change
 flutter test integration_test --dart-define=USE_MOCK=true   # needs a device

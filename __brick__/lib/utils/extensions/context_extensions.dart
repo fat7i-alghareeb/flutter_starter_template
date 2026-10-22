@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../common/widgets/ds/app_icons.dart';
+import '../../core/layout/app_layout.dart';
+import '../../core/platform/app_platform.dart';
+import '../../core/layout/app_layout_scope.dart';
 
 /// Layout and focus utilities for [BuildContext].
 ///
@@ -28,7 +32,42 @@ extension AppContextExtensions on BuildContext {
 
   bool get isSmallHeight => screenHeight < 650;
 
-  bool get isTablet => screenSize.shortestSide >= 600;
+  /// Device type and window size classes for this frame
+  /// (`docs/RESPONSIVE.md`). Rebuilds on any change of the window size; to
+  /// rebuild only when the CLASS changes, use
+  /// `AppLayoutScope.windowSizeOf(context)`.
+  AppLayout get layout => AppLayoutScope.of(this);
+
+  /// The device is a tablet — a hardware question, for platform habits.
+  /// Layout reads `layout.windowSize` instead: an iPad window can be
+  /// phone-narrow.
+  bool get isTablet =>
+      (AppLayoutScope.maybeOf(this)?.deviceType ??
+          AppLayout.deviceTypeOf(display: View.maybeOf(this)?.display)) ==
+      DeviceType.tablet;
+
+  /// How far a toolbar's LEADING buttons must move in so iPadOS's window
+  /// controls (the three dots and the resize handle it draws at the leading
+  /// edge of a windowed app, Apple's HIG «Windows») do not cover them.
+  ///
+  /// iPadOS draws them when the app is in a window rather than full screen,
+  /// which shows up as a window smaller than the display. Split View is
+  /// treated the same way: it has no such controls, and the extra gap there
+  /// is harmless. Zero on every other device. *Check on a real iPad running
+  /// iPadOS 26* — the amount is Apple's, not measured here.
+  double get leadingWindowControlsInset {
+    if (!AppPlatform.isIOS) return 0;
+    final display = View.maybeOf(this)?.display;
+    if (display == null || display.devicePixelRatio == 0) return 0;
+    final screen = display.size / display.devicePixelRatio;
+    final window = screenSize;
+    final windowed =
+        window.width < screen.width - 1 || window.height < screen.height - 1;
+    return windowed ? windowControlsWidth : 0;
+  }
+
+  /// The width iPadOS reserves for its window controls.
+  static const double windowControlsWidth = 72;
 
   void unfocus() {
     final scope = FocusScope.of(this);

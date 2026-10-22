@@ -149,7 +149,16 @@ class StorageService {
     FlutterSecureStorage? secureStorage,
   }) {
     final shared = sharedPreferences ?? SharedPreferencesAsync();
-    final secure = secureStorage ?? const FlutterSecureStorage();
+    // macOS: the legacy keychain. The data-protection keychain needs the
+    // keychain-access-groups entitlement, and that needs a provisioning
+    // profile from a paid Apple team — a template people clone must run
+    // without one (flutter_secure_storage's macOS notes,
+    // `docs/DESKTOP_SETUP.md`). Ignored on every other platform.
+    final secure =
+        secureStorage ??
+        const FlutterSecureStorage(
+          mOptions: MacOsOptions(usesDataProtectionKeychain: false),
+        );
     return StorageService.withSecureAsync(
       sharedPreferences: shared,
       secureStorage: secure,

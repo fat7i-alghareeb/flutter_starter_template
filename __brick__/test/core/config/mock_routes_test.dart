@@ -22,7 +22,10 @@ void main() {
       // No file per item: the interceptor answers with the item whose id
       // matches, and a 404 when there is none (the «gone» state).
       expect(
-        MockRoutes.assetFor('/showcase/feed/item_002', const <String, dynamic>{}),
+        MockRoutes.assetFor(
+          '/showcase/feed/item_002',
+          const <String, dynamic>{},
+        ),
         'assets/mock/showcase/feed.json#id=item_002',
       );
     });

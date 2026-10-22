@@ -13,6 +13,7 @@ import '../../../../../core/services/session/auth_state_notifier.dart';
 import '../../../../../core/utils/bloc_status.dart';
 import '../../../../../utils/constants/app_flow_constants.dart';
 import '../../../../../utils/constants/design_constants.dart';
+import '../../../../../utils/extensions/context_extensions.dart';
 import '../../../../../utils/extensions/theme_extensions.dart';
 import '../../../../../utils/helpers/app_strings.dart';
 import '../../../constants/auth_constants.dart';
@@ -123,7 +124,7 @@ class _LoginBodyState extends State<_LoginBody> {
     final isCompact = width < AuthConstants.compactWidth;
     final margin = isCompact ? AppSpacing.md : AppSpacing.screenMargin;
     final canClose = GoRouter.maybeOf(context)?.canPop() ?? false;
-    final guestFirst = AppFlowConfig.authMode == AuthMode.guestFirst;
+    final offersGuest = AppFlowConfig.offersGuest;
     final expired =
         getIt.isRegistered<AuthStateNotifier>() &&
         getIt<AuthStateNotifier>().sessionExpired;
@@ -140,7 +141,7 @@ class _LoginBodyState extends State<_LoginBody> {
           if (state.signInStatus.isSuccess) LoginScreen.close(context);
         },
         builder: (context, state) {
-          return Column(
+          final form = Column(
             children: <Widget>[
               // The close button on the START side — not a back arrow: this
               // page closes.
@@ -256,22 +257,26 @@ class _LoginBodyState extends State<_LoginBody> {
                   ),
                 ),
               ),
-              // «Continue as guest» at the bottom, muted: in guest-first mode
-              // the app is worth opening either way.
-              if (guestFirst)
+              // «Continue as guest» at the bottom, muted: the app is worth
+              // opening either way (`AppFlowConfig.offersGuest`).
+              if (offersGuest)
                 TextButton(
                   style: TextButton.styleFrom(
                     foregroundColor: colors.onSurfaceVariant,
                   ),
-                  onPressed: () {
-                    if (canClose) {
-                      LoginScreen.close(context);
-                    } else {
-                      context.read<AuthBloc>().add(
-                        const AuthEvent.continueAsGuestRequested(),
-                      );
-                    }
-                  },
+                  // Not while a sign-in is on its way: a guest session started
+                  // under it would be signed over a moment later.
+                  onPressed: state.signInStatus.isLoading
+                      ? null
+                      : () {
+                          if (canClose) {
+                            LoginScreen.close(context);
+                          } else {
+                            context.read<AuthBloc>().add(
+                              const AuthEvent.continueAsGuestRequested(),
+                            );
+                          }
+                        },
                   child: Text(AppStrings.authBrowseAsGuest),
                 ),
               SizedBox(
@@ -280,7 +285,67 @@ class _LoginBodyState extends State<_LoginBody> {
               ),
             ],
           );
+          // Expanded windows: the brand beside the form. A lone 400dp form
+          // in the middle of a desktop window reads as an error page.
+          if (!context.layout.isExpandedUp) return form;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const Expanded(flex: 5, child: AuthBrandPanel()),
+              Expanded(flex: 6, child: form),
+            ],
+          );
         },
+      ),
+    );
+  }
+}
+
+/// The brand half of the sign-in screen in an expanded window: the mark,
+/// the app's name and its promise, on the primary colour.
+class AuthBrandPanel extends StatelessWidget {
+  const AuthBrandPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final on = colors.onPrimary;
+    return ColoredBox(
+      color: colors.primary,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xxxl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  const AppMark(size: 44, inverted: true),
+                  const SizedBox(width: AppSpacing.md),
+                  Flexible(
+                    child: Text(
+                      AppStrings.appName,
+                      style: theme.textTheme.titleLarge?.copyWith(color: on),
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                AppStrings.appTagline,
+                style: theme.textTheme.displaySmall?.copyWith(color: on),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                AppStrings.authSubtitle,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: on.withValues(alpha: 0.85),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

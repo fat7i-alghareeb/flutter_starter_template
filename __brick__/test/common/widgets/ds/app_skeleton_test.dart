@@ -186,10 +186,7 @@ void main() {
       // they cannot.
       await pumpApp(
         tester,
-        SizedBox(
-          width: 340,
-          child: FeedCard.success(item: FeedSamples.item()),
-        ),
+        SizedBox(width: 340, child: FeedCard.success(item: FeedSamples.item())),
       );
       final loaded = tester.getSize(find.byType(FeedCard)).height;
 

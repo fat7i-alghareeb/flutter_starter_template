@@ -176,7 +176,10 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
                   selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
                   useBottomSheetSafeArea: true,
                   setSelectorButtonAsPrefixIcon: true,
-                  useEmoji: widget.phoneUseEmojiFlags,
+                  // Emoji only where the system font has them; everywhere
+                  // else the package's own flag pictures (`AppPlatform`).
+                  useEmoji:
+                      widget.phoneUseEmojiFlags && AppPlatform.rendersFlagEmoji,
                   leadingPadding: 0,
                   trailingSpace: false,
                 ),
@@ -312,6 +315,9 @@ extension _AppReactiveTextFieldPhone on _AppReactiveTextFieldState {
                 },
                 inputDecoration: const InputDecoration(
                   isDense: true,
+                  // The container around the field owns the fill (see
+                  // `AppReactiveTextField`): no second box inside it.
+                  filled: false,
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,

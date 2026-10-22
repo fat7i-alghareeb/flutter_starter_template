@@ -2,6 +2,24 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "App (Windows, mock data)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "deviceId": "windows",
+      "program": "lib/main.dart",
+      "args": ["--dart-define", "USE_MOCK=true"]
+    },
+    {
+      "name": "App (macOS, mock data)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "deviceId": "macos",
+      "program": "lib/main.dart",
+      "args": ["--dart-define", "USE_MOCK=true"]
+    },
+    {
       "name": "App (Debug)",
       "request": "launch",
       "type": "dart",

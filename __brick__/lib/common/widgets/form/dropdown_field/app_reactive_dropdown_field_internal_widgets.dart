@@ -161,29 +161,29 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         if (widget.isRefreshing)
-          Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
-            child: const LinearProgressIndicator(minHeight: 2),
+          const Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.sm),
+            child: LinearProgressIndicator(minHeight: 2),
           ),
         if (widget.enableSearch)
           Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.md.h),
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
             child: Container(
               decoration: BoxDecoration(
-                color: context.onSurface.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(AppRadii.sm.r),
-                border: Border.all(color: context.grey.withValues(alpha: 0.35)),
+                color: context.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(AppRadii.sm),
+                border: Border.all(color: context.grey),
               ),
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm.w,
-                vertical: 10.h,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: 10,
               ),
               child: Row(
                 children: <Widget>[
                   AppIcon(
                     AppIcons.search,
                     size: 18,
-                    color: context.grey.withValues(alpha: 0.9),
+                    color: context.colorScheme.onSurfaceVariant,
                   ),
                   AppSpacing.sm.horizontalSpace,
                   Expanded(
@@ -196,6 +196,8 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
                       },
                       decoration: InputDecoration(
                         isDense: true,
+                        // The search box's container owns the fill.
+                        filled: false,
                         hintText: AppStrings.search,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -225,11 +227,11 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
         Flexible(
           child: options.isEmpty
               ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
                   child: Text(
                     AppStrings.noResultsFound,
                     style: AppTextStyles.s14w400.copyWith(
-                      color: context.grey.withValues(alpha: 0.85),
+                      color: context.colorScheme.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -253,7 +255,7 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
                         : context.grey.withValues(alpha: 0.25);
 
                     final color = !enabled
-                        ? context.grey.withValues(alpha: 0.7)
+                        ? context.onSurface.withValues(alpha: 0.45)
                         : (isSelected ? context.primary : context.onSurface);
 
                     final textStyle =
@@ -269,13 +271,13 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
                         widget.onSelectDisabled?.call(option);
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm.w,
-                          vertical: AppSpacing.sm.h,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.sm,
                         ),
                         decoration: BoxDecoration(
                           color: bg,
-                          borderRadius: BorderRadius.circular(AppRadii.sm.r),
+                          borderRadius: BorderRadius.circular(AppRadii.sm),
                           border: Border.all(color: borderColor),
                         ),
                         child: Text(

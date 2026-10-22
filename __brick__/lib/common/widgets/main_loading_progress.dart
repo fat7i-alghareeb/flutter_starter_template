@@ -8,7 +8,6 @@ import 'package:flutter/material.dart'
         Widget,
         CircularProgressIndicator,
         SizedBox;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MainLoadingProgress extends StatelessWidget {
   final double size;
@@ -25,12 +24,9 @@ class MainLoadingProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: size.sp,
-      height: size.sp,
-      child: CircularProgressIndicator(
-        strokeWidth: strokeWidth.r,
-        color: color,
-      ),
+      width: size,
+      height: size,
+      child: CircularProgressIndicator(strokeWidth: strokeWidth, color: color),
     );
   }
 }

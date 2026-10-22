@@ -24,7 +24,8 @@ void main() {
     expect(
       identical(first, second),
       isTrue,
-      reason: 'a routed screen must switch the tab the shell is actually '
+      reason:
+          'a routed screen must switch the tab the shell is actually '
           'listening to, not a controller of its own',
     );
   });

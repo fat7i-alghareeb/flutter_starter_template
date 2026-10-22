@@ -5,15 +5,16 @@
 [![Powered by Mason](https://img.shields.io/endpoint?url=https%3A%2F%2Ftinyurl.com%2Fmason-badge)](https://github.com/felangel/mason)
 ![Flutter](https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.12-0175C2?logo=dart&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-290%2B-2E7D4F)
+![Tests](https://img.shields.io/badge/tests-410%2B-2E7D4F)
 ![Arabic + English](https://img.shields.io/badge/l10n-Arabic%20%2B%20English-3B5BDB)
 ![Codemagic ready](https://img.shields.io/badge/Codemagic-ready-F45E3F)
 ![Shorebird ready](https://img.shields.io/badge/Shorebird-optional-6E86F0)
 
 **A Mason brick that turns `flutter create` into a production-ready app skeleton** —
 BLoC clean architecture, a real design system with skeleton loading and a motion kit,
-a floating navigation bar that tucks into a dock, a mock-data layer, nested routing with
-deep links, auth modes, Arabic/English, 290+ tests, and release docs down to the Gradle line.
+one adaptive layout for phones, tablets, iPads and Windows/macOS windows (floating bar →
+rail → sidebar, custom title bar), a mock-data layer, nested routing with deep links,
+auth modes, Arabic/English, 400+ tests, and release docs down to the Gradle line.
 
 [Quickstart](#-quickstart--zero-to-running-in-9-steps) ·
 [What you get](#-what-you-get) ·
@@ -38,12 +39,14 @@ deep links, auth modes, Arabic/English, 290+ tests, and release docs down to the
 | **Loading** | `SkeletonWidget`: `.success()` and `.loading()` over **one** layout, synced screen-wide sweep, 300ms delay / 500ms minimum, `SkeletonMore` for paging — plus a mandatory height-parity test |
 | **Motion** | Scroll reveal (both directions, fling-aware), once-per-run opening choreography, count-up, accent line, glint, Ken Burns, parallax, pop-in, rail nudge, pull-to-refresh, back-to-top, rotating hint — all finite, all reduced-motion aware |
 | **Shell** | Floating capsule nav bar that morphs into a dock on scroll, cross-fade tab stack that keeps state, reselect-to-top, staged cross-tab navigation, exit confirmation, notification permission asked from the shell |
+| **Adaptive** | Material 3 window size classes read from the window every frame (`AppLayout`): capsule on phones, rail on iPads and sideways phones, collapsible sidebar from 840dp; feed grid, list-and-detail, two-pane settings, sheets that become dialogs; rotation and live window resize with no restart — [`RESPONSIVE.md`](__brick__/docs/RESPONSIVE.md) |
+| **Desktop** | Windows and macOS from the same code: custom title bar in the app's colours (Windows caption buttons per Microsoft's spec, real traffic lights on macOS), window hidden until its first frame and restored where it was, shortcuts, hover, context menus, `myapp://` links, free installers (Inno Setup `setup.exe`, MSIX, `.dmg`) — [`DESKTOP_SETUP.md`](__brick__/docs/DESKTOP_SETUP.md) |
 | **Startup** | Colour-only native splash → logo-less in-app splash on the same colour; saved theme + language read before the first frame; first tab preloaded behind the splash |
 | **Routing** | `AppPage` tree: pages nest under the page that opens them (one stack, paths that read like the walk), Android predictive back, `LinkDispatcher` opens web links and notification taps OVER the shell |
 | **Data** | Dio: mock → offline cache → memory → JWT refresh → localization → log → error. `USE_MOCK=true` answers from `assets/mock/` with paging, search, 404s, delay/empty/error/offline switches |
 | **Auth** | `AuthMode.loginRequired` (wall) or `guestFirst` (sign-in sheet on protected actions, the action resumes after sign-in), session-expired handling that never loses your screen |
 | **l10n** | easy_localization + a generator that refuses missing keys, mismatched placeholders and duplicates, and turns plural groups (Arabic's six forms) into typed methods |
-| **Quality** | 290+ tests: bloc, widget, golden (real fonts), height parity, theme contrast, route guard, links, mock routes, l10n discipline, one integration boot test |
+| **Quality** | 410+ tests: bloc, widget, golden (real fonts), height parity, theme contrast, route guard, links, mock routes, l10n discipline, one integration boot test |
 | **Release** | `tool/build_release_apk.dart`, `codemagic.yaml`, and complete docs for Android (R8, arm64, signing, 120 Hz, links), iOS, Codemagic and optional Shorebird patches |
 | **Showcase** | A reference feature (sectioned feed, detail page, search, settings) and component tabs — delete when you no longer need them |
 
@@ -167,12 +170,16 @@ stateDiagram-v2
 > **You need:** Flutter **3.44+** (Dart 3.12), Android Studio or Xcode, and Mason:
 > `dart pub global activate mason_cli`
 
-**1 · Create the Flutter project** — it provides `android/` and `ios/`; the brick provides everything else.
+**1 · Create the Flutter project** — it provides the platform folders; the brick provides everything else.
 
 ```bash
 flutter create --org com.yourcompany --project-name my_app my_app
 cd my_app
 ```
+
+Want Windows and macOS as well? Add `--platforms=android,ios,windows,macos` — and do it **now**: the brick's
+post-generation hook patches the desktop runners only if those folders already exist when you run `mason make`
+([`DESKTOP_SETUP.md`](__brick__/docs/DESKTOP_SETUP.md)); a phones-only project is unaffected.
 
 ✅ You see the counter app files. They are replaced in step 3.
 
@@ -189,7 +196,7 @@ bricks:
   flutter_app_template:
     git:
       url: https://github.com/fat7i-alghareeb/flutter_starter_template.git
-      ref: v0.2.0
+      ref: main          # or a tag / commit once you pin one
 ```
 
 Or use a local checkout: `mason add flutter_app_template --path ../flutter_starter_template`
@@ -211,7 +218,11 @@ mason make flutter_app_template --on-conflict overwrite
 | `package_name` | `com.yourcompany.my_app` | Android `applicationId` / iOS bundle id (must match `--org` + name) |
 | `project_description` | … | `pubspec.yaml` description |
 
-✅ `lib/`, `test/`, `assets/`, `docs/`, `tool/`, `.vscode/`, `.ai/` now exist.
+✅ `lib/`, `test/`, `assets/`, `docs/`, `tool/`, `.vscode/`, `.ai/`, `CLAUDE.md` and `.claude/` now exist.
+
+> **Using Claude Code?** Open the project and run `/first-run` once: it asks the project questions (with options) and records
+> the answers so later chats stay cheap. Every manual step of a new project is in
+> [`NEW_PROJECT_CHECKLIST.md`](__brick__/docs/NEW_PROJECT_CHECKLIST.md).
 
 **4 · Dependencies and generated code**
 
@@ -379,6 +390,10 @@ static const AuthMode authMode = AuthMode.loginRequired; // or AuthMode.guestFir
 | Sign out | Back to the wall | Keeps browsing as a guest |
 | Session expired | Wall with «your session has ended» | Banner over the app; the user stays where they were |
 
+The wall offers **«Continue as guest»** by default (`AppFlowConfig.guestOnLoginWall`). A guest
+gets the app; an action that needs an account opens the sign-in sheet at that moment. Set
+the flag to `false` for a hard wall. With `guestFirst` the button is always there.
+
 With no base URL in `ApiConfig`, sign-in uses a demo session so the flow works out of
 the box. The tests run the rules of whichever mode you pick.
 
@@ -469,6 +484,9 @@ Every `.md` the brick generates, what it is for, and when to read it.
 | [`DECISIONS.md`](__brick__/docs/DECISIONS.md) | The durable decisions and their reasons — skeletons over spinners, correct first frame, first-tab preload, auth-mode switch, one navigation stack, mock at the Dio level, version only from pubspec, optional Shorebird, docs-only native setup. |
 | [`PROJECT_MAP.md`](__brick__/docs/PROJECT_MAP.md) | Where everything lives — top level, `core/`, `common/`, `utils/`, `features/` — and which guide to read for which folder. |
 | [`FEATURE_SPEC_TEMPLATE.md`](__brick__/docs/FEATURE_SPEC_TEMPLATE.md) | The spec to copy before writing a feature: purpose, main path, interactions, states, edge cases, rules, architecture, API, mock data, strings, a11y, tests. |
+| [`NEW_PROJECT_CHECKLIST.md`](__brick__/docs/NEW_PROJECT_CHECKLIST.md) | Your manual steps for a new project, in order: create, Claude set-up (`/first-run`), brand, release. |
+| [`RESPONSIVE.md`](__brick__/docs/RESPONSIVE.md) | One app for every window: the size classes, `AppLayout`, what each class shows, the shell, input, `AppPlatform` capabilities, testing at each size. |
+| [`DESKTOP_SETUP.md`](__brick__/docs/DESKTOP_SETUP.md) | Windows and macOS: the runner patches, the title bar, notifications, storage, links, and shipping for free (Inno Setup, MSIX, `.dmg`). |
 | [`PERFORMANCE_AUDIT.md`](__brick__/docs/PERFORMANCE_AUDIT.md) | Startup contract, the fixed breakpoints, frame-rate rules from a raster pass (shadows, ShaderMask, TickerMode, HeroMode, lazy sections) and APK size. |
 | [`ANDROID_RELEASE_SETUP.md`](__brick__/docs/ANDROID_RELEASE_SETUP.md) | Every Android file in full, ready to paste: signing, Gradle, R8 rules, manifest, backup rules, notification icon, `MainActivity.kt` (120 Hz + night mode), verification. |
 | [`IOS_SETUP.md`](__brick__/docs/IOS_SETUP.md) | Podfile with permission flags, Info.plist additions, push (APNs + FCM), universal links, build and symbols. |
@@ -490,7 +508,7 @@ Every `.md` the brick generates, what it is for, and when to read it.
 | [`lib/core/notification/notification.md`](__brick__/lib/core/notification/notification.md) | Local notifications, channels, scheduling, taps, turning FCM on, and the native setup it needs. |
 | [`lib/core/services/session/session_service_guide.md`](__brick__/lib/core/services/session/session_service_guide.md) | Tokens, `AuthManager`, `AuthStateNotifier`, guest mode, refresh and session expiry. |
 | [`lib/core/services/objectbox/objectbox_service_guide.md`](__brick__/lib/core/services/objectbox/objectbox_service_guide.md) | The local database: entities, the model file, migrations, the lazy service. |
-| [`lib/common/common_folder_guide.md`](__brick__/lib/common/common_folder_guide.md) | Reusable widgets: the `ds/` design system, motion preference order, responsive sizing, each common widget. |
+| [`lib/common/common_folder_guide.md`](__brick__/lib/common/common_folder_guide.md) | Reusable widgets: the `ds/` design system, motion preference order, sizing and the `AppLayout` helpers, each common widget. |
 | [`lib/common/widgets/form/date_time_field/app_reactive_date_time.md`](__brick__/lib/common/widgets/form/date_time_field/app_reactive_date_time.md) | The reactive date/time field: modes, pickers, validation. |
 | [`lib/features/features_overview.md`](__brick__/lib/features/features_overview.md) | The feature structure, layer contracts, `BlocStatus` + `StatusBuilder`, and how presentation consumes state. |
 | [`lib/utils/utils_folder_guide.md`](__brick__/lib/utils/utils_folder_guide.md) | Constants, extensions, helpers (`AppFormats`, `ArabicText`) and generated accessors. |
@@ -537,6 +555,7 @@ Every `.md` the brick generates, what it is for, and when to read it.
 flutter_starter_template/
 ├── brick.yaml            the brick and its four variables
 ├── __brick__/            everything that is generated into your app
+├── hooks/                pre_gen (project GUID) and post_gen (desktop runner patches) — see hooks/README.md
 ├── docs/readme/          this README's images (never generated into apps)
 └── CHANGELOG.md
 ```

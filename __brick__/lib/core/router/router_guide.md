@@ -1,15 +1,12 @@
-# 🗺️ Navigation & Router Guide (`lib/core/router/`)
+# Router guide (`lib/core/router/`)
 
-## 🛑 AI AGENT MANDATE (READ BEFORE PROCEEDING)
+Read this before you change a route, a guard, a redirect, the splash or onboarding flow, or a deep link.
+Rules in short: `.ai/architecture-rules.md` → Routing.
 
-This document is a **Hard Requirement** for any AI agent interacting with routes, navigation, or deep links. You **MUST** ensure your internal state is synced with the following navigation anchors:
-
-- **Global Rules**: [.ai/project-rules.md](.ai/project-rules.md)
-- **Feature Structure**: [lib/features/features_overview.md](lib/features/features_overview.md)
-
-Pages are `AppPage`s opened with `AppNavigator.push` (see below); ids travel as path parameters. Pass objects through `extra` only when a page cannot re-read them by id.
-
----
+- Pages are `AppPage`s opened with `AppNavigator.push`; ids travel as path parameters. Pass an object through `extra` only
+  when a page cannot re-read it by id.
+- Pushed pages have a **relative** `pagePath` (`'settings'`, `'items/:id'`); top-level routes (`'/splash'`, `'/onboarding'`,
+  `RootConstants.routePath`, `LoginScreen.wallPath`) are absolute.
 
 The router is intentionally written so that **startup is driven by state**:
 
@@ -49,10 +46,8 @@ Key parts:
 - **`AppRouteGuard`**
   - Purpose: keep _all_ redirect rules in a single focused class.
   - Exposes one method: `handleRedirect(...)`.
-  - Internally uses:
-    - `_handleSplash(...)`
-    - inline onboarding gating before auth redirects
-    - `_handleAuth(...)`
+  - Runs, in order: the splash step, the onboarding step, the login wall (`AuthMode.loginRequired` only), a held share link, and
+    `_handleEntry`, which leaves the startup screens for the shell and nothing else.
 
 ### `app_routes.dart` — the page tree
 
@@ -67,6 +62,12 @@ Key parts:
 ### `app_links.dart`
 
 `AppLinks` (hosts, custom scheme, `linkable` pages, `locationOf`, `shareUrlOf`, notification `locationOfTarget`) and `LinkDispatcher`, the binding observer that opens a link from outside OVER the shell — and holds it until `RootScreen` reports the shell ready on a cold start.
+
+### `desktop_links.dart`
+
+`DesktopLinks`: on Windows and macOS a `myapp://` link arrives through `app_links` (a second Windows launch forwards its link to the
+running copy before the app starts — `SendAppLinkToInstance` in the runner). It hands the location to `LinkDispatcher`; nothing
+else in the router changes. Setup: `docs/DESKTOP_SETUP.md`.
 
 ### `app_page_transitions.dart`
 
@@ -113,7 +114,8 @@ Guard logic (simplified):
 
 What this means:
 
-- Even if auth/onboarding resolve instantly, the splash remains visible for at least `SplashConfig.initialDelay`.
+- Even if auth/onboarding resolve instantly, the splash remains visible for at least `SplashConfig.initialDelay` (zero on desktop,
+  where the window already waited for its first frame).
 - If the app is still bootstrapping session state, splash stays until `AuthStateNotifier` moves out of `Status.initial`.
 
 ### Step 2: Onboarding guard (only if enabled)
@@ -149,7 +151,7 @@ After onboarding (or if onboarding is disabled), the guard checks auth:
 Then:
 
 - `AuthMode.loginRequired` and **not authenticated and not guest**:
-  - Redirect to `LoginScreen.wallPath` (`/login`).
+  - Redirect to `LoginScreen.wallPath` (`/login`). The wall offers «Continue as guest» (`AppFlowConfig.guestOnLoginWall`, on by default): it starts a guest session, which is the second half of `canEnterApp`, so the guard then moves the reader to the shell.
 - `AuthMode.guestFirst`: never redirected to sign-in — protected actions open the sign-in sheet instead (`AuthGate.run`).
 
 - If **authenticated or guest**:

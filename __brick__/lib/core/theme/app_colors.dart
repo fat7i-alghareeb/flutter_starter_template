@@ -34,7 +34,7 @@ class AppColors {
 
   static const Color secondaryLight = Color(0xFF5C6B8A);
   static const Color onSecondaryLight = Color(0xFFFFFFFF);
-  static const Color secondaryContainerLight = Color(0xFFE7EAF1);
+  static const Color secondaryContainerLight = Color(0xFFE1E6F0);
   static const Color onSecondaryContainerLight = Color(0xFF2A3347);
 
   /// A soft accent for fills and quiet badges. **Fill only** — it fails
@@ -44,14 +44,15 @@ class AppColors {
   static const Color tertiaryContainerLight = Color(0xFFE6EBF7);
   static const Color onTertiaryContainerLight = Color(0xFF1B2340);
 
-  /// Screen background — NOT the card colour ([surfaceLight]).
-  static const Color backGroundLight = Color(0xFFF5F6F8);
+  /// Screen background — NOT the card colour ([surfaceLight]). A cool grey that
+  /// reads as grey beside the white cards (it was #F5F6F8, which looked white).
+  static const Color backGroundLight = Color(0xFFEDF0F5);
 
   /// Cards, bottom sheets, dialogs.
   static const Color surfaceLight = Color(0xFFFFFFFF);
 
-  /// Search field, thumbnails, inactive chips.
-  static const Color surfaceVariantLight = Color(0xFFEEF0F4);
+  /// Thumbnails, inactive chips, disabled fields.
+  static const Color surfaceVariantLight = Color(0xFFE3E8EF);
 
   /// Primary text.
   static const Color onSurfaceLight = Color(0xFF1B1F27);
@@ -59,11 +60,13 @@ class AppColors {
   /// Secondary text, labels, timestamps.
   static const Color onSurfaceVariantLight = Color(0xFF5B6272);
 
-  /// Dividers, light card borders.
-  static const Color outlineLight = Color(0xFFE3E6EC);
+  /// Dividers, card borders — hairlines that must be seen against both the
+  /// background and a white card.
+  static const Color outlineLight = Color(0xFFD0D6E1);
 
-  /// Ghost-button borders, stronger borders.
-  static const Color outlineVariantLight = Color(0xFFCDD2DC);
+  /// Field borders, ghost-button borders, icons: 3:1 against white, the
+  /// minimum for the edge of a control (WCAG 1.4.11).
+  static const Color outlineVariantLight = Color(0xFF8893A8);
 
   // ───────────────────────────── Dark scheme
   //
@@ -90,15 +93,16 @@ class AppColors {
   static const Color surfaceVariantDark = Color(0xFF20242D);
   static const Color onSurfaceDark = Color(0xFFE8EAF0);
   static const Color onSurfaceVariantDark = Color(0xFFA0A7B6);
-  static const Color outlineDark = Color(0xFF2A2F3A);
-  static const Color outlineVariantDark = Color(0xFF3A404D);
+  static const Color outlineDark = Color(0xFF363C49);
+  /// 3:1 against the dark card colour, like its light twin.
+  static const Color outlineVariantDark = Color(0xFF636C7E);
 
   // ───────────────────────────── Semantic
 
   static const Color successLight = Color(0xFF2E7D4F);
   static const Color successDark = Color(0xFF7FD1A0);
 
-  static const Color warningLight = Color(0xFF8A6A12);
+  static const Color warningLight = Color(0xFFB45309);
   static const Color warningDark = Color(0xFFE7C15A);
 
   static const Color errorLight = Color(0xFFB3261E);
