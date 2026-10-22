@@ -30,7 +30,7 @@ auth modes, Arabic/English, 400+ tests, and release docs down to the Gradle line
 
 ## ✨ What you get
 
-<img src="docs/readme/features.svg" alt="Twelve feature cards: design system, skeleton loading, motion kit, floating nav bar, mock + offline, nested routes + links, auth modes, Arabic + English, notifications, 290+ tests, release ready, feature generator" width="100%"/>
+<img src="docs/readme/features.svg" alt="Twelve feature cards: design system, skeleton loading, motion kit, floating nav bar, mock + offline, nested routes + links, auth modes, Arabic + English, notifications, 410+ tests, release ready, feature generator" width="100%"/>
 
 | Area | In the generated app |
 | --- | --- |
@@ -113,7 +113,7 @@ sequenceDiagram
   participant R as Router guard
   participant P as FeedPreloader
   OS->>B: engine starts
-  B->>B: DI · LinkDispatcher · theme + language (≤250ms each)
+  B->>B: DI · desktop window set-up · LinkDispatcher · theme + language (≤250ms each)
   B->>S: runApp — first frame on the SAME colour
   S->>S: name + tagline rise in (950ms)
   B->>R: onboarding · session restore
@@ -146,7 +146,7 @@ flowchart TD
   onb -->|Skip or Start| mode{AuthMode}
   splash --> mode
   mode -->|loginRequired · signed out| wall[/login wall/]
-  wall -->|signed in| root[/root — the shell/]
+  wall -->|signed in, or Continue as guest| root[/root — the shell/]
   mode -->|signed in, or guestFirst| root
   root -->|AppNavigator.push| page[/root/items/1/items/2/]
   link([web link · notification]) -->|LinkDispatcher: held until the shell is up| page
@@ -257,7 +257,8 @@ flutter run --dart-define=USE_MOCK=true
 ```
 
 Or in VS Code pick **App (Debug, mock data)**. ✅ Splash → onboarding → sign-in (the
-demo identity is filled in: tap **Sign in**) → the feed fills in from `assets/mock/`.
+demo identity is filled in: tap **Sign in**, or **Continue as guest**) → the feed fills in from `assets/mock/`. It opens in
+Arabic and light, whatever the device is set to. On desktop: `flutter run -d windows` / `-d macos`.
 
 **7 · Run the tests**
 
@@ -265,7 +266,7 @@ demo identity is filled in: tap **Sign in**) → the feed fills in from `assets/
 flutter test
 ```
 
-✅ ~300 tests pass, goldens included (they render with the real font).
+✅ About 420 tests pass, goldens included (they render with the real font).
 
 **8 · Make it yours** — the app name, colours, font, icon and splash
 ([Branding](#-branding)), then your first feature:
@@ -438,12 +439,13 @@ Firebase (Android: `google-services.json`; iOS: `docs/IOS_SETUP.md` §3). Full g
 
 | What | Where |
 | --- | --- |
-| Colours | `lib/core/theme/app_colors.dart` — change `primary*`, `backGround*`, `surface*`; contrast is tested |
-| Native splash | `flutter_native_splash.yaml` — keep its colours equal to the background colours, then `dart run flutter_native_splash:create --path flutter_native_splash.yaml` |
+| Colours | `lib/core/theme/app_colors.dart` — change `primary*`, `backGround*`, `surface*`, `outlineVariant*`; contrast is tested |
+| Native splash | `flutter_native_splash.yaml` — keep its colours equal to the background colours (`#EDF0F5` light, `#0F1115` dark), then `dart run flutter_native_splash:create --path flutter_native_splash.yaml` |
 | In-app splash | `lib/features/splash/…/splash_screen.dart` — the name + tagline; add a logo there if you want one |
 | App icon | Put `assets/images/app_icon.png` (1024²) and `app_icon_foreground.png`, then `dart run flutter_launcher_icons -f flutter_launcher_icons.yaml` |
 | Font | Replace `assets/fonts/` + the `fonts:` block in `pubspec.yaml` + `AppTypography` |
 | Name / tagline | `app.name` / `app.tagline` in `assets/l10n/*.json` |
+| Default language / theme | `lib/core/config/localization_config.dart`, `AppThemeConfig` in `lib/utils/constants/app_flow_constants.dart` (Arabic and light) |
 | Link host, scheme | `AppLinks.hosts`, `AppLinks.scheme` |
 
 The full visual rules: `DESIGN_SYSTEM.md`.
@@ -457,7 +459,8 @@ The full visual rules: `DESIGN_SYSTEM.md`.
 | **Measured on a generated app: release APK 74.5 MB → 11.6 MB** by pasting that doc's files as they are. Signing, R8 without blanket keeps, arm64-only APK, compressed native libs, locale filters, 120 Hz, per-app night mode for the Android 12 splash, links, notification icon | `docs/ANDROID_RELEASE_SETUP.md` |
 | Podfile permission flags, Info.plist, push, universal links | `docs/IOS_SETUP.md` |
 | Local release APK (arm64, obfuscated, symbols saved) | `dart run tool/build_release_apk.dart [--mock] [--clean]` |
-| CI: APK, mock APK, AAB, TestFlight | `codemagic.yaml` + `docs/CODEMAGIC.md` |
+| Windows (`setup.exe`, MSIX) and macOS (`.dmg`) | `dart run tool/build_windows_installer.dart`, `dart run msix:create`, `tool/build_macos_dmg.sh` + `docs/DESKTOP_SETUP.md` |
+| CI: APK, mock APK, AAB, TestFlight, Windows, macOS | `codemagic.yaml` + `docs/CODEMAGIC.md` |
 | Over-the-air Dart patches (optional) | `docs/SHOREBIRD.md` — includes the full `tool/shorebird.dart` |
 
 ---
