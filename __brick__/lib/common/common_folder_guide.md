@@ -121,9 +121,16 @@ Padding(
 )
 ```
 
+## Finding what exists
+
+`dart run tool/widget_catalog.dart <word>` lists every shared widget with the first sentence of its doc (`--all` adds the widgets
+inside features). It reads the code, so it is always current; this guide says *when* to use what. A widget that came from a design
+carries its Figma node link in the doc comment of its class and in its row here.
+
 ## Adding to this folder
 
 1. Check the tables above; extend before you add.
 2. Take colours from the theme, strings from `AppStrings`, sizes from tokens; support RTL, both themes, 1.3× text and a mouse.
 3. Add it to `ds/ds.dart` if it is a design-system primitive.
-4. Add a test (`test/common/widgets/…`, goldens in `ds_golden_test.dart` for a visual primitive), then add a row to this file.
+4. Add a test (`test/common/widgets/…`, goldens in `ds_golden_test.dart` for a visual primitive), then add a row to this file
+   (with the Figma node link if it came from a design). A first sentence in the class's doc comment is what the catalogue shows.

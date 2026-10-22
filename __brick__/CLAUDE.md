@@ -23,6 +23,19 @@ Every chat starts empty and everything loaded is paid for on every turn, so: loa
 - **Do not trade correctness for tokens.** Always run the checks (`flutter analyze`, the relevant tests). Use plan mode for changes that
   touch several files or when unsure of the approach; skip it for a one-line fix.
 
+## Building features (every time)
+
+- **Reference feature:** `lib/features/showcase_feed/` (the owner changes this line to promote another). Before coding a feature, find
+  the closest finished one, read it, and copy its shape: folders, names, state, tests. `docs/CODE_STYLE.md` records how the owner writes
+  code; follow it, and add a line when the owner corrects you.
+- **Before building any widget or helper:** `dart run tool/widget_catalog.dart <word>` (`--all` adds feature widgets). A match → use it
+  or add a parameter. Two near-duplicates, or about to write a second copy → **ask the owner** (merge / add a parameter / keep both)
+  with the options; never silently duplicate, never silently refactor shared code.
+- **A new design (Figma or not)** becomes a rule: new component, token or visual rule → `DESIGN_SYSTEM.md`, and the widget with its
+  Figma node link → `lib/common/common_folder_guide.md`.
+- **When a feature or a new UI element is done** (not for a bug fix): run `/finish` yourself — it updates only the docs that changed,
+  `CODE_STYLE.md` and memory, then reports in five lines.
+
 ## Memory
 
 - Save to auto memory only what the repo cannot tell you: a decision and its reason, a preference, an external fact. One fact per file.

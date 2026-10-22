@@ -21,6 +21,7 @@ VS Code: pick a configuration in Run and Debug (`.vscode/launch.json`).
 | --- | --- |
 | `.ai/project-rules.md` | **AI agents start here**: the rules, and which file to read for which task |
 | `docs/NEW_PROJECT_CHECKLIST.md` | **Your steps for a new project**, in order |
+| `docs/CODE_STYLE.md` | How the code is written; the next feature copies the last |
 | `docs/COMMANDS.md` | Every command and `--dart-define` |
 | `docs/PROJECT_MAP.md` | Where things live |
 | `DESIGN_SYSTEM.md` | The visual rules |
@@ -36,7 +37,8 @@ VS Code: pick a configuration in Run and Debug (`.vscode/launch.json`).
 
 `CLAUDE.md` and `.claude/` are set up to keep each chat cheap (see `docs/DECISIONS.md` → Working with Claude Code). In a new project
 run **`/first-run`** once: it checks the platform folders, asks the project questions with options, and records the answers in
-`CLAUDE.md`. Personal settings go in `CLAUDE.local.md` and `.claude/settings.local.json` (git-ignored).
+`CLAUDE.md`. After each feature or new UI element **`/finish`** updates the docs, `docs/CODE_STYLE.md` and memory, and
+`dart run tool/widget_catalog.dart <word>` is the duplicate check before any new widget. Personal settings go in `CLAUDE.local.md` and `.claude/settings.local.json` (git-ignored).
 
 ## Make it yours
 

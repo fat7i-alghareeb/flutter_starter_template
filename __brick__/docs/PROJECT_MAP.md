@@ -16,11 +16,11 @@ Rules for *how* to write code are in `.ai/project-rules.md`; this file is only t
 | `assets/l10n/` | `ar.json`, `en.json` — dotted keys, plural groups |
 | `assets/mock/` | Fixtures for `USE_MOCK=true`, one folder per feature (listed in `pubspec.yaml`) |
 | `assets/svgIcons/`, `assets/fonts/` | Lucide icons; the bundled Tajawal font |
-| `tool/` | `generate_app_strings.dart`, `generate_feature.dart`, `build_release_apk.dart`, `build_windows_installer.dart`, `build_macos_dmg.sh`, `setup_project.dart` + `setup/runner_patches.dart` (desktop runner patches and the Windows GUID, run once), `claude_test_filter.dart` (a Claude Code hook) |
+| `tool/` | `generate_app_strings.dart`, `generate_feature.dart`, `build_release_apk.dart`, `build_windows_installer.dart`, `build_macos_dmg.sh`, `setup_project.dart` + `setup/runner_patches.dart` (desktop runner patches and the Windows GUID, run once), `widget_catalog.dart` (lists shared widgets: the duplicate check), `claude_test_filter.dart` (a Claude Code hook) |
 | `test/`, `integration_test/` | Unit, bloc, widget, golden and contract tests; one boot test on a device |
 | `android/ ios/ windows/ macos/ web/` | Created by `flutter create`; `windows/` and `macos/` runners are patched at generation time (`docs/DESKTOP_SETUP.md`) |
 | `.ai/` | Rules for AI agents, any tool. Start with `project-rules.md` |
-| `CLAUDE.md`, `.claude/` | Claude Code set-up: a small `CLAUDE.md` (token discipline, imports the digest), `settings.json` (permissions, a test-output hook), path-scoped `rules/`, manual `skills/` (`/first-run`, `/new-feature`, `/add-string`, `/release`) |
+| `CLAUDE.md`, `.claude/` | Claude Code set-up: a small `CLAUDE.md` (token discipline, imports the digest), `settings.json` (permissions, a test-output hook), path-scoped `rules/`, manual `skills/` (`/first-run`, `/new-feature`, `/add-string`, `/release`, `/finish`) |
 | `.vscode/launch.json` | Launch configurations (debug / profile / release × mock data × stage tools) |
 | `codemagic.yaml` | CI release workflows (`docs/CODEMAGIC.md`) |
 | `pubspec.yaml` | Dependencies, assets, `msix_config` (Windows Store package), version (the only source of the version) |
@@ -31,6 +31,7 @@ Rules for *how* to write code are in `.ai/project-rules.md`; this file is only t
 | File | Read it for |
 | --- | --- |
 | `NEW_PROJECT_CHECKLIST.md` | The manual steps for a new project: create, Claude set-up, brand, release |
+| `CODE_STYLE.md` | How the code is written (observed from the reference feature, corrected by the owner) and the reuse rule |
 | `COMMANDS.md` | Every command, `--dart-define` and tool |
 | `DECISIONS.md` | Durable decisions and the reasons behind them |
 | `RESPONSIVE.md` | Window size classes, adaptive widgets, input, text size |

@@ -59,6 +59,8 @@ Every line is checkable — if you cannot check it, the task is not finished.
 
 - [ ] No unused imports, variables or commented-out code; logs use the coloured helpers, never `print`.
 - [ ] Comments explain why.
+- [ ] No second copy of a widget or helper: `dart run tool/widget_catalog.dart <word>` was run, and a near-duplicate was raised with the owner.
+- [ ] The feature follows the closest finished one and `docs/CODE_STYLE.md`; a correction from the owner is recorded there.
 - [ ] Docs updated for anything reusable: `lib/common/common_folder_guide.md`, `lib/utils/utils_folder_guide.md`,
       `docs/COMMANDS.md`, `docs/PROJECT_MAP.md`, `docs/DECISIONS.md` (durable decisions), `DESIGN_SYSTEM.md` (visual rules).
 

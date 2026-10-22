@@ -68,6 +68,14 @@ dart run tool/generate_app_strings.dart
 It refuses to generate on: a key missing in one language, placeholder counts
 that differ, the same value under two keys, a plural group without `.other`.
 
+## Find an existing widget
+
+```bash
+dart run tool/widget_catalog.dart             # every shared widget, one line each
+dart run tool/widget_catalog.dart button      # only those whose name, path or summary contains "button"
+dart run tool/widget_catalog.dart --all card  # also the widgets inside features
+```
+
 ## New feature
 
 ```bash

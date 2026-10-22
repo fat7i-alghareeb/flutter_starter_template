@@ -125,6 +125,13 @@ so they are never pulled into context. `test/claude_config_test.dart` keeps all 
 Why not "load everything in the first chat": nothing survives into the next chat except what is auto-loaded, so a big
 always-loaded file taxes every chat, and the docs warn that an over-long `CLAUDE.md` makes Claude ignore parts of it.
 
+### The next feature copies the last one, and nothing is built twice
+`docs/CODE_STYLE.md` records how the code is written (read from the reference feature, corrected by the owner, each line with its
+reason); a new feature finds its closest finished sibling and copies its shape. Before any widget or helper,
+`tool/widget_catalog.dart` lists what exists straight from the code (so it cannot go stale); a near-duplicate is a question to the owner,
+never a silent copy or a silent refactor. Finishing a feature runs `/finish`: the shared-widget guide, `DESIGN_SYSTEM.md` (also for a
+Figma design), `CODE_STYLE.md` and memory are updated for exactly what changed, so the next chat starts from the truth.
+
 ### Savings never replace verification
 Tokens are saved by not re-reading, not loading unused rules and trimming test output (`tool/claude_test_filter.dart` adds
 `--reporter=failures-only`). Analyze and the relevant tests always run; plan mode is used for multi-file changes.

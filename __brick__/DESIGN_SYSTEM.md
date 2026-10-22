@@ -261,7 +261,21 @@ Full rules in `docs/RESPONSIVE.md` and `docs/DESKTOP_SETUP.md`; the values:
   (`AppBorders.focusRing`, offset `focusRingOffset`) only for keyboard use;
   `VisualDensity.compact` on desktop.
 
-## 12. Do / don't
+## 12. From a design (Figma) to the system
+
+A new design is not built as a one-off. For each screen or component you take from Figma:
+
+1. Match it against what exists: `dart run tool/widget_catalog.dart <word>`, then this file. Reuse a component; a variation is a
+   parameter or a named constructor, not a copy.
+2. A **token** the design needs (a colour, a size, a radius) goes into `app_colors.dart` / `design_constants.dart` with its contrast
+   or scale reason — never a hex or a number in a widget. Where Figma and this system disagree on a small detail, the system wins; say so
+   in the report.
+3. A genuinely **new component** becomes a shared widget, is documented in `lib/common/common_folder_guide.md` with its Figma node
+   link, and any new visual rule is added to the matching section of this file (the rule and its value, one line).
+4. Skeleton loading, RTL, both themes, 1.3× text and the wide layout are part of the component, not a later pass.
+5. Run `/finish` so none of this stays only in the chat.
+
+## 13. Do / don't
 
 **Do** take every colour and style from the theme · reserve an image's space
 before it loads · write empty and error text for people · test both

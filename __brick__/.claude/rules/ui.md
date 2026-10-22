@@ -17,4 +17,5 @@ paths:
 - Layout by window size (`context.layout`, `AdaptiveLayout`), never device/orientation/`Platform.isX`; cap width with `AppContentWidth`.
 - Pointer + keyboard: hover, tooltips on icon buttons, `AppFocusRing`. Check 390 / 820 / 1280, RTL + LTR, light + dark, 1.3× text.
 
-Full text: `.ai/flutter-ui-rules.md`, `DESIGN_SYSTEM.md`. Before a new widget, check `lib/common/common_folder_guide.md`.
+Full text: `.ai/flutter-ui-rules.md`, `DESIGN_SYSTEM.md`. Before a new widget run `dart run tool/widget_catalog.dart <word>`;
+a near-duplicate is a question for the owner. A new design from Figma → `DESIGN_SYSTEM.md` §12.

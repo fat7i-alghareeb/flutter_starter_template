@@ -11,9 +11,11 @@ fail reviews. The detail lives in the files it points to — read those only whe
 
 1. Read this file, then [`task-workflow.md`](task-workflow.md).
 2. Find your task in the table below and read **only** those files.
-3. Look for a similar thing that already exists and copy its shape. Do not invent a new pattern.
+3. Look for a similar thing that already exists and copy its shape (`docs/CODE_STYLE.md`). Do not invent a new pattern. For a
+   widget or helper, run `dart run tool/widget_catalog.dart <word>` first; a near-duplicate is a question for the owner.
 4. Say what you will change (files, commands) before you edit. Planning-only requests: stop there.
-5. Make the change, run the commands, then walk [`final-checklist.md`](final-checklist.md).
+5. Make the change, run the commands, then walk [`final-checklist.md`](final-checklist.md). A finished feature or new UI element
+   ends with the docs, `CODE_STYLE.md` and memory brought up to date (Claude Code: `/finish`).
 6. In your first reply, list the files you read.
 
 ## What to read for which task
@@ -29,8 +31,9 @@ fail reviews. The detail lives in the files it points to — read those only whe
 | Local storage, ObjectBox | `lib/core/services/objectbox/objectbox_service_guide.md` |
 | Push or local notifications | `lib/core/notification/notification.md` |
 | Any visible text | [`localization-rules.md`](localization-rules.md) |
-| A reusable widget | `lib/common/common_folder_guide.md` (check it does not exist yet) |
-| A helper, extension, constant | `lib/utils/utils_folder_guide.md` (check it does not exist yet) |
+| A feature, or code that must look like the existing code | `docs/CODE_STYLE.md` · copy the closest finished feature (the reference is named in it) |
+| A reusable widget | `dart run tool/widget_catalog.dart <word>` first, then `lib/common/common_folder_guide.md` |
+| A helper, extension, constant | `lib/utils/utils_folder_guide.md` (grep for it first) |
 | Mock data (`USE_MOCK=true`) | `assets/mock/README.md` |
 | Tests | `test/README.md` |
 | Finding a file | `docs/PROJECT_MAP.md` |

@@ -123,6 +123,27 @@ void main() {
     });
   });
 
+  group('the feature routine', () {
+    test('/finish exists, and CLAUDE.md names it, the style guide and the catalogue', () {
+      expect(File('.claude/skills/finish/SKILL.md').existsSync(), isTrue);
+      final claude = File('CLAUDE.md').readAsStringSync();
+      expect(claude, contains('/finish'));
+      expect(claude, contains('docs/CODE_STYLE.md'));
+      expect(claude, contains('tool/widget_catalog.dart'));
+    });
+
+    test('the style guide names a reference feature that exists', () {
+      final style = File('docs/CODE_STYLE.md').readAsStringSync();
+      final match = RegExp(r'Reference feature:\*\* `([^`]+)`').firstMatch(style);
+      expect(match, isNotNull, reason: 'CODE_STYLE.md must name the reference feature');
+      expect(Directory(match!.group(1)!).existsSync(), isTrue);
+    });
+
+    test('the duplicate check script exists', () {
+      expect(File('tool/widget_catalog.dart').existsSync(), isTrue);
+    });
+  });
+
   test('personal Claude files are git-ignored', () {
     final ignore = File('.gitignore').readAsStringSync();
     expect(ignore, contains('CLAUDE.local.md'));
