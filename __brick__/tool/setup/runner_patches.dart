@@ -1,8 +1,7 @@
 /// Text patches for the files `flutter create` writes into `windows/` and
 /// `macos/`.
 ///
-/// Pure functions of the file's text, so each one is tested against a real
-/// `flutter create` project (`hooks/README.md`) and is safe to run twice:
+/// Pure functions of the file's text, so each one is safe to run twice (`tool/setup_project.dart` runs them):
 /// every patch answers with a [PatchOutcome], and a file this Flutter
 /// version laid out differently is reported, never half-edited.
 library;
@@ -49,7 +48,7 @@ PatchResult patchWindowsCMake(String source) {
       anchor,
       '$anchor\n'
       '# Plugins that still include <experimental/coroutine> fail on MSVC 14.51+\n'
-      '# without this (STL1011); see hooks/src/runner_patches.dart.\n'
+      '# without this (STL1011); see tool/setup/runner_patches.dart.\n'
       'add_definitions(-D$define)',
     ),
   );
@@ -85,7 +84,7 @@ PatchResult patchWindowsLinkerNoise(String source) {
       '$anchor\n'
       '# Prebuilt libraries without PDBs (Firebase C++ SDK) and Microsoft\'s own\n'
       '# msvcprtd.lib: harmless linker warnings, hidden on purpose;\n'
-      '# see hooks/src/runner_patches.dart.\n'
+      '# see tool/setup/runner_patches.dart.\n'
       'add_link_options($flag /ignore:4078)',
     ),
   );
@@ -125,7 +124,7 @@ PatchResult patchWindowsAwaitFlag(String source) {
       '\n'
       '# permission_handler_windows asks for C++20 and still passes /await, which\n'
       '# MSVC 14.51 reports as deprecated (D9047) on every build. C++20 coroutines\n'
-      '# need no switch; see hooks/src/runner_patches.dart.\n'
+      '# need no switch; see tool/setup/runner_patches.dart.\n'
       'if(TARGET permission_handler_windows_plugin)\n'
       '  get_target_property(_ph_opts permission_handler_windows_plugin COMPILE_OPTIONS)\n'
       '  if(_ph_opts)\n'
@@ -166,7 +165,7 @@ PatchResult patchWindowsCMakePolicy(String source) {
     source.replaceFirst(
       anchor,
       '# objectbox_flutter_libs calls FetchContent_Populate directly (CMP0169);\n'
-      '# see hooks/src/runner_patches.dart.\n'
+      '# see tool/setup/runner_patches.dart.\n'
       'set($variable OLD)\n'
       '$anchor',
     ),

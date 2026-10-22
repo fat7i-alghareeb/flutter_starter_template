@@ -88,7 +88,7 @@ An Inno Setup `setup.exe` and a Microsoft Store MSIX; macOS ships an unsigned `.
 ### A clean build has no warnings
 `flutter build windows` from an empty folder prints 0 warnings. Fixed at the cause where possible (a plugin's deprecated
 `/await` switch is removed from that target); three harmless messages from prebuilt libraries and plugins are hidden on purpose
-and listed in `docs/DESKTOP_SETUP.md`. The hook applies all of it at generation time.
+and listed in `docs/DESKTOP_SETUP.md`. `dart run tool/setup_project.dart` applies all of it.
 
 ## State, data and routing
 
@@ -152,8 +152,15 @@ without running the generators.
 ### The version comes only from `pubspec.yaml`
 `version: x.y.z+N` is the one source for local builds, Codemagic and Shorebird. Bump `+N` before a release; a patch never bumps it.
 
+### Setup is a script in the project, not a Mason hook
+The runner patches and the Windows GUID used to be Mason hooks. Mason compiles hooks on the user's machine, from its own cache
+folder, and on Windows that compile crashed or hung when the brick was installed from git — the main way people use it. The same
+work is now `tool/setup_project.dart`: plain Dart, no packages, nothing to compile, idempotent, run once by hand
+(`docs/NEW_PROJECT_CHECKLIST.md`), and it no longer matters whether `flutter create` or `mason make` runs first.
+`test/tool/setup_project_test.dart` pins every patch and its second run.
+
 ### Native setup is documented, not generated
-`flutter create` owns `android/` and `ios/` (and the desktop runners, which the hook patches). `docs/ANDROID_RELEASE_SETUP.md`
+`flutter create` owns `android/` and `ios/` (and the desktop runners, which `tool/setup_project.dart` patches). `docs/ANDROID_RELEASE_SETUP.md`
 and `docs/IOS_SETUP.md` hold every file in full.
 
 ### Shorebird is optional and scripted

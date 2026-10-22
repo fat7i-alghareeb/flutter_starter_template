@@ -17,7 +17,7 @@ import 'app_links.dart';
 ///   `protocol_activation`, or the Inno Setup registry keys — and the
 ///   runner forwards a link to an app that is already open
 ///   (`SendAppLinkToInstance` in `windows/runner/main.cpp`, patched by
-///   `hooks/post_gen.dart`).
+///   `tool/setup_project.dart`).
 /// - **macOS**: the scheme is declared in `Info.plist` (`CFBundleURLTypes`);
 ///   the plugin receives it, nothing else to wire.
 ///

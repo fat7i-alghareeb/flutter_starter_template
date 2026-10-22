@@ -205,8 +205,8 @@ Use this before calling `scheduleLocal` with `AndroidScheduleMode.exact` or `And
 ## Windows and macOS
 
 - **Windows** (`flutter_local_notifications` 22): `NotificationLocalService` initialises `WindowsInitializationSettings` with the app
-  name, `AppConfig.windowsAppUserModelId` and `AppConfig.windowsToastGuid`. The GUID is generated per project by the brick's
-  `pre_gen` hook; Windows files toasts under it and Inno Setup uses it to recognise an earlier install, so keep it for the app's
+  name, `AppConfig.windowsAppUserModelId` and `AppConfig.windowsToastGuid`. The GUID is generated per project by
+  `dart run tool/setup_project.dart`; Windows files toasts under it and Inno Setup uses it to recognise an earlier install, so keep it for the app's
   lifetime. Toasts need no permission. Cancelling or listing shown toasts needs *package identity*, which the MSIX build has and
   `flutter run` does not. **Repeating notifications are not supported on Windows.**
 - **macOS**: the plugin's own permission request (`NotificationPermissionService`); a sandboxed app needs its entitlements

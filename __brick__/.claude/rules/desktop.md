@@ -15,6 +15,6 @@ paths:
 - Platform capability checks only through `AppPlatform` (`supportsPush`, `supportsVibration`, `isDesktop`, `rendersFlagEmoji`).
   A plugin with no code for a platform throws at run time — guard every call.
 - The title bar sits above the Navigator: it needs its own `Overlay`. The window stays hidden until its first frame.
-- `windows/CMakeLists.txt` and the runners carry hook patches; a clean Windows build prints 0 warnings — keep it that way.
+- `windows/CMakeLists.txt` and the runners carry the patches of `tool/setup_project.dart` (`tool/setup/runner_patches.dart`); a clean Windows build prints 0 warnings — keep it that way.
 
 Full text: `docs/RESPONSIVE.md`, `docs/DESKTOP_SETUP.md`.

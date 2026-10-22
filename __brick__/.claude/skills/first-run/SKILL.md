@@ -9,7 +9,8 @@ disable-model-invocation: true
 Do this once, in order. Be economical: read each file at most once.
 
 1. **Check the project.** Does `android/`, `ios/`, `windows/`, `macos/` exist (platform folders)? If not, tell me to run
-   `flutter create . --org <id> --project-name <name>` and the hook patches (`docs/DESKTOP_SETUP.md`), then continue.
+   `flutter create . --org <id> --project-name <name>`, then run `dart run tool/setup_project.dart` (desktop runner patches + the Windows
+   GUID; `docs/DESKTOP_SETUP.md`), then continue.
    Run `flutter pub get`, `flutter analyze`, and `flutter test --reporter=failures-only`; report the baseline in one line.
 2. **Read once** (skim, do not dump): `docs/PROJECT_MAP.md` and `docs/DECISIONS.md`. Everything else loads on demand.
 3. **Ask me the project questions** with the question tool (2–4 options each, your recommendation first, batched):

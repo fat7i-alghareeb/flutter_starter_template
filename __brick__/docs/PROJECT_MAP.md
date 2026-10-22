@@ -16,7 +16,7 @@ Rules for *how* to write code are in `.ai/project-rules.md`; this file is only t
 | `assets/l10n/` | `ar.json`, `en.json` — dotted keys, plural groups |
 | `assets/mock/` | Fixtures for `USE_MOCK=true`, one folder per feature (listed in `pubspec.yaml`) |
 | `assets/svgIcons/`, `assets/fonts/` | Lucide icons; the bundled Tajawal font |
-| `tool/` | `generate_app_strings.dart`, `generate_feature.dart`, `build_release_apk.dart`, `build_windows_installer.dart`, `build_macos_dmg.sh`, `claude_test_filter.dart` (a Claude Code hook) |
+| `tool/` | `generate_app_strings.dart`, `generate_feature.dart`, `build_release_apk.dart`, `build_windows_installer.dart`, `build_macos_dmg.sh`, `setup_project.dart` + `setup/runner_patches.dart` (desktop runner patches and the Windows GUID, run once), `claude_test_filter.dart` (a Claude Code hook) |
 | `test/`, `integration_test/` | Unit, bloc, widget, golden and contract tests; one boot test on a device |
 | `android/ ios/ windows/ macos/ web/` | Created by `flutter create`; `windows/` and `macos/` runners are patched at generation time (`docs/DESKTOP_SETUP.md`) |
 | `.ai/` | Rules for AI agents, any tool. Start with `project-rules.md` |

@@ -34,9 +34,10 @@ class AppConfig {
   /// Windows' App User Model ID for toast notifications: `Company.App`.
   static const String windowsAppUserModelId = '{{package_name}}';
 
-  /// The GUID Windows files this app's toasts under. Generated once for
-  /// this project by `hooks/pre_gen.dart`; keep it for the app's lifetime.
-  static const String windowsToastGuid = '{{windows_toast_guid}}';
+  /// The GUID Windows files this app's toasts under. The all-zero value is the
+  /// brick's placeholder: `dart run tool/setup_project.dart` replaces it once
+  /// with a random one for this project. Keep that one for the app's lifetime.
+  static const String windowsToastGuid = '00000000-0000-4000-8000-000000000000';
 
   static String get apiBaseUrl => ApiConfig.baseUrl;
 }

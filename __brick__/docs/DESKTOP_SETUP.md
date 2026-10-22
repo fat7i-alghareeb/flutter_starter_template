@@ -14,10 +14,14 @@ else.
 flutter create --org com.yourcompany --project-name my_app \
   --platforms=android,ios,windows,macos my_app
 mason make flutter_app_template --on-conflict overwrite
+cd my_app
+dart run tool/setup_project.dart
 ```
 
-A **post-generation hook** then edits the runner files for you (idempotent, and
-it leaves a file alone that it does not recognise):
+`tool/setup_project.dart` edits the runner files for you. Run it after both
+commands, in either order, and again whenever you add a platform. It is
+idempotent, plain Dart with nothing to download, and it leaves a file alone
+that it does not recognise:
 
 | File | Edit | Why |
 | --- | --- | --- |
@@ -31,12 +35,13 @@ it leaves a file alone that it does not recognise):
 | `macos/Runner/*.entitlements` | `com.apple.security.network.client` | a sandboxed Mac app cannot make a request without it — every release-build call fails with «Operation not permitted» |
 | `macos/Runner/Info.plist` | `CFBundleURLTypes` | `myapp://…` opens the app |
 
-If the hook reports a file it could not patch, make the edit by hand from the
-table. Re-run the hook's logic any time: it skips what is already done.
+If the script reports a file it could not patch (`CHECK`), make the edit by
+hand from the table. Run it again any time: it skips what is already done.
 
-The brick also generates a project-wide GUID (`windows_toast_guid`, in
-`AppConfig`): Windows files toast notifications under it and Inno Setup uses it
-to recognise an earlier install. Keep it for the app's lifetime.
+The same script gives the project its own Windows toast GUID, replacing the
+all-zero placeholder in `AppConfig.windowsToastGuid`: Windows files toast
+notifications under it and Inno Setup uses it to recognise an earlier install.
+Keep it for the app's lifetime.
 
 ## Run
 
@@ -178,13 +183,13 @@ that merely exists as an unpacked SDK. Delete `build/windows/x64/extracted` and
 build again; if the `.zip` next to it was cut short as well, delete that too.
 
 **`STL1011` / `<experimental/coroutine>` errors.** Visual Studio 2026's compiler
-rejects a header `permission_handler_windows` still includes. The hook defines
-`_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS`; if you made the project
-without the hook, add the same `add_definitions` line to `windows/CMakeLists.txt`.
+rejects a header `permission_handler_windows` still includes. `tool/setup_project.dart` defines
+`_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS`; if you have not run it,
+add the same `add_definitions` line to `windows/CMakeLists.txt`.
 
 ## Warnings that are hidden
 
-The hook hides these, on purpose, because they come from prebuilt third-party
+The setup script hides these, on purpose, because they come from prebuilt third-party
 code the app cannot change and nothing is wrong with the build:
 
 | Warning | From | Why it is safe to hide |

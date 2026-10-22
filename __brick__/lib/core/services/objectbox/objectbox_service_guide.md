@@ -109,7 +109,7 @@ final count = await objectBox.runReadTxAsync<int, void>((store, _) => store.box<
 
 On macOS a **sandboxed** app must name an App Group so ObjectBox can open its store: set `MACOS_APP_GROUP` (read as
 `AppConfig.macosApplicationGroup`) and the matching entitlement; `ObjectBoxService.createDefault` passes it only on macOS. Windows
-needs nothing. The build notes (including a CMake message from the plugin that the hook hides) are in `docs/DESKTOP_SETUP.md`.
+needs nothing. The build notes (including a CMake message from the plugin that the setup script hides) are in `docs/DESKTOP_SETUP.md`.
 
 ## Versioning cached data
 

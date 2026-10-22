@@ -19,7 +19,7 @@ import '../services/storage/storage_service.dart';
 /// **Hidden until the first frame.** flutter_native_splash draws nothing on
 /// Windows or macOS, so a window shown at once is an empty rectangle until
 /// Flutter paints. The runner is patched to create the window hidden
-/// (`hooks/post_gen.dart`); [showWhenReady] shows it once the first frame
+/// (`tool/setup_project.dart`); [showWhenReady] shows it once the first frame
 /// is on screen — the first thing anyone sees is the app's own splash.
 abstract final class AppWindow {
   /// Opens at this size the first time.

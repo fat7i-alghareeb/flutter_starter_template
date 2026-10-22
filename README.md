@@ -177,9 +177,10 @@ flutter create --org com.yourcompany --project-name my_app my_app
 cd my_app
 ```
 
-Want Windows and macOS as well? Add `--platforms=android,ios,windows,macos` — and do it **now**: the brick's
-post-generation hook patches the desktop runners only if those folders already exist when you run `mason make`
-([`DESKTOP_SETUP.md`](__brick__/docs/DESKTOP_SETUP.md)); a phones-only project is unaffected.
+Want Windows and macOS as well? Add `--platforms=android,ios,windows,macos`. After `mason make`, run
+`dart run tool/setup_project.dart` — it patches the desktop runners and gives the app its own Windows toast GUID
+([`DESKTOP_SETUP.md`](__brick__/docs/DESKTOP_SETUP.md)); a phones-only project is unaffected, and the order of the two
+commands does not matter.
 
 ✅ You see the counter app files. They are replaced in step 3.
 
@@ -558,7 +559,6 @@ Every `.md` the brick generates, what it is for, and when to read it.
 flutter_starter_template/
 ├── brick.yaml            the brick and its four variables
 ├── __brick__/            everything that is generated into your app
-├── hooks/                pre_gen (project GUID) and post_gen (desktop runner patches) — see hooks/README.md
 ├── docs/readme/          this README's images (never generated into apps)
 └── CHANGELOG.md
 ```

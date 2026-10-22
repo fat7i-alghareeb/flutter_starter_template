@@ -4,7 +4,7 @@ The steps that are yours, in order, for every new project made from this brick. 
 
 ## 1. Create the project (terminal, once)
 
-- [ ] **Create the platform folders first** — the brick's hook patches the Windows and macOS runners only if they already exist:
+- [ ] **Create the platform folders** (any time before the setup script in the next steps):
   ```bash
   flutter create --org com.yourcompany --project-name my_app \
     --platforms=android,ios,windows,macos my_app
@@ -14,8 +14,9 @@ The steps that are yours, in order, for every new project made from this brick. 
   ```bash
   mason make flutter_app_template --on-conflict overwrite
   ```
-  The hook reports each runner file it patched. If it says it could not patch one, make that edit by hand from the table in
-  `docs/DESKTOP_SETUP.md`.
+- [ ] **Set up the desktop runners and the Windows GUID:** `dart run tool/setup_project.dart`. It lists each file it patched;
+  a line starting `CHECK` is a file to edit by hand from the table in `docs/DESKTOP_SETUP.md`. Safe to run again, and to run after
+  adding a platform later.
 - [ ] `flutter pub get`
 - [ ] `dart run build_runner build`
 - [ ] **Baseline:** `flutter analyze` must end with *No issues found!*, then `flutter test`. Fix nothing yet — just know the baseline.
